@@ -1,0 +1,55 @@
+{
+  "name": "@bunyan/design-system",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Accessible React Native design system for iOS, Android, and web.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "react-native": "src/index.ts",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "docs"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "storybook": "npm --prefix showcase start",
+    "storybook:ios": "npm --prefix showcase run ios",
+    "storybook:android": "npm --prefix showcase run android",
+    "storybook:web": "npm --prefix showcase run web"
+  },
+  "peerDependencies": {
+    "@react-native-community/datetimepicker": ">=8.0.0",
+    "react": ">=18.2.0",
+    "react-native": ">=0.74.0",
+    "react-native-svg": ">=15.0.0"
+  },
+  "devDependencies": {
+    "@react-native-community/datetimepicker": "^8.4.4",
+    "@react-native/babel-preset": "0.80.3",
+    "@storybook/addon-ondevice-actions": "^10.4.6",
+    "@storybook/addon-ondevice-controls": "^10.4.6",
+    "@storybook/react-native": "^10.4.6",
+    "@testing-library/jest-native": "^5.4.3",
+    "@testing-library/react-native": "^11.0.0",
+    "@types/jest": "^29.5.14",
+    "@types/react": "^19.1.8",
+    "babel-jest": "^25.0.0",
+    "jest": "^25.0.0",
+    "react": "^19.1.1",
+    "react-native": "^0.86.0",
+    "react-native-svg": "^15.12.1",
+    "react-test-renderer": "^19.1.1",
+    "storybook": "^10.4.6",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=20.19.4"
+  }
+}

@@ -1,0 +1,104 @@
+import React, { memo, useState } from 'react';
+import { Platform, View } from 'react-native';
+import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { useTheme } from '../../hooks';
+import type { FeedbackStatus } from '../../utilities/styles';
+import { BottomSheet } from '../BottomSheet';
+import { Button } from '../Button';
+import { Input } from '../Input';
+
+export interface DatePickerProps {
+  value?: Date;
+  onChange: (date: Date | undefined) => void;
+  minimumDate?: Date;
+  maximumDate?: Date;
+  locale?: string;
+  placeholder?: string;
+  disabled?: boolean;
+  status?: FeedbackStatus;
+  accessibilityLabel?: string;
+  clearable?: boolean;
+}
+
+export const DatePicker = memo(function DatePicker({
+  value,
+  onChange,
+  minimumDate,
+  maximumDate,
+  locale,
+  placeholder = 'Select date',
+  disabled = false,
+  status = 'default',
+  accessibilityLabel = 'Date',
+  clearable = true,
+}: DatePickerProps) {
+  const { theme, locale: themeLocale } = useTheme();
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState(value ?? new Date());
+  const resolvedLocale = locale ?? themeLocale;
+  const formatted = value ? new Intl.DateTimeFormat(resolvedLocale, { year: 'numeric', month: 'short', day: 'numeric' }).format(value) : '';
+  const handleNativeChange = (event: DateTimePickerEvent, next?: Date) => {
+    if (Platform.OS === 'android') {
+      setOpen(false);
+      if (event.type === 'set' && next) onChange(next);
+    } else if (next) {
+      setDraft(next);
+    }
+  };
+
+  return (
+    <>
+      <Input
+        value={formatted}
+        placeholder={placeholder}
+        editable={false}
+        status={status}
+        accessibilityLabel={accessibilityLabel}
+        accessibilityRole="button"
+        onPressIn={() => {
+          if (!disabled) {
+            setDraft(value ?? new Date());
+            setOpen(true);
+          }
+        }}
+        trailing={clearable && value ? (
+          <Button size="small" variant="ghost" accessibilityLabel="Clear date" onPress={() => onChange(undefined)}>Clear</Button>
+        ) : undefined}
+        leadingIcon="calendar"
+      />
+      {Platform.OS === 'android' && open ? (
+        <DateTimePicker
+          value={draft}
+          mode="date"
+          {...(minimumDate ? { minimumDate } : {})}
+          {...(maximumDate ? { maximumDate } : {})}
+          locale={resolvedLocale}
+          onChange={handleNativeChange}
+        />
+      ) : (
+        <BottomSheet visible={open} onClose={() => setOpen(false)} title={placeholder}>
+          <View style={{ gap: theme.spacing.lg, alignItems: 'stretch' }}>
+            <DateTimePicker
+              value={draft}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'inline' : 'default'}
+              {...(minimumDate ? { minimumDate } : {})}
+              {...(maximumDate ? { maximumDate } : {})}
+              locale={resolvedLocale}
+              onChange={handleNativeChange}
+            />
+            <Button
+              fullWidth
+              onPress={() => {
+                onChange(draft);
+                setOpen(false);
+              }}
+            >
+              Confirm
+            </Button>
+          </View>
+        </BottomSheet>
+      )}
+    </>
+  );
+});

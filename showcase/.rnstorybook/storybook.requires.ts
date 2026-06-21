@@ -1,0 +1,44 @@
+/* Generated-style story index kept in source control for deterministic startup. */
+import { start, updateView } from '@storybook/react-native';
+
+const normalizedStories = [
+  {
+    titlePrefix: '',
+    directory: '../node_modules/@bunyan/design-system/src',
+    files: '**/*.stories.?(ts|tsx|js|jsx)',
+    importPathMatcher: /^\.\/.*\.stories\.(?:ts|tsx|js|jsx)$/,
+    // Metro supplies require.context when enabled in metro.config.js.
+    // @ts-ignore
+    req: require.context(
+      '../node_modules/@bunyan/design-system/src',
+      true,
+      /\.stories\.(?:ts|tsx|js|jsx)$/,
+    ),
+  },
+];
+
+declare global {
+  var view: ReturnType<typeof start>;
+  var STORIES: typeof normalizedStories;
+}
+
+const annotations = [
+  require('./preview'),
+  require('@storybook/react-native/dist/preview'),
+];
+
+global.STORIES = normalizedStories;
+
+// @ts-ignore
+module?.hot?.accept?.();
+
+if (!global.view) {
+  global.view = start({
+    annotations,
+    storyEntries: normalizedStories,
+  });
+} else {
+  updateView(global.view, annotations, normalizedStories);
+}
+
+export const view = global.view;
