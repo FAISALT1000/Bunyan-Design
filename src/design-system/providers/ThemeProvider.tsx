@@ -35,7 +35,7 @@ export interface ThemeProviderProps {
   blackForSystemDark?: boolean;
 }
 
-const resolveSystemMode = (scheme: ColorSchemeName, blackForSystemDark: boolean): ThemeMode =>
+const resolveSystemMode = (scheme: ColorSchemeName | null, blackForSystemDark: boolean): ThemeMode =>
   scheme === 'dark' ? (blackForSystemDark ? 'black' : 'dark') : 'light';
 
 export function ThemeProvider({
@@ -46,7 +46,9 @@ export function ThemeProvider({
   blackForSystemDark = false,
 }: ThemeProviderProps) {
   const [preference, setPreference] = useState<ThemePreference>(initialPreference);
-  const [systemScheme, setSystemScheme] = useState<ColorSchemeName>(Appearance.getColorScheme());
+  const [systemScheme, setSystemScheme] = useState<ColorSchemeName | null>(
+    Appearance.getColorScheme() ?? null,
+  );
 
   useEffect(() => {
     const subscription = Appearance.addChangeListener(({ colorScheme }) => setSystemScheme(colorScheme));

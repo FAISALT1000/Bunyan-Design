@@ -2,6 +2,26 @@
 
 Each component is exported from `@bunyan/design-system`. Prop interfaces are the source of truth and are exported beside their components.
 
+## NumPad template
+
+- Purpose: Reusable numeric entry surface for OTP, PIN, amount, and authentication flows.
+- Props: `NumPadProps`; controlled `value`, `onChange`, digit/delete callbacks, `maxLength`, disabled state, labels, and an optional leading action.
+- Variants/sizes/states: Standard 3×4 keypad; empty, partially entered, length-limited, and disabled states.
+- Accessibility: Every number and delete action is an individually labelled button. Numeric order stays conventional in both LTR and RTL locales.
+- Example: `<NumPad value={pin} onChange={setPin} maxLength={4} />`.
+- Do/don’t: Keep the entered value visible elsewhere in the flow; do not use the keypad as the only accessible representation of the current value.
+- Edge cases: `onDigitPress` and `onDelete` support reducers or secure state stores; `onChange` offers the convenient controlled-value API.
+
+## OTP template
+
+- Purpose: Complete one-time-code verification flow using the same behavior across bottom-sheet, centered-overlay, and full-screen presentations.
+- Props: `OTPTemplateProps`; `variant`, visibility, controlled value, submit/close/resend handlers, length, copy, destination, error/loading/disabled/secure states, and optional automatic submission.
+- Variants/sizes/states: `bottomSheet`, `overlay`, `fullScreen`; four or custom digit length; incomplete, complete, error, loading, secure, and resend-disabled states.
+- Accessibility: Includes a native one-time-code input for keyboard, paste, and password-manager support; slots announce entered/empty state; NumPad keys and actions are labelled.
+- Example: `<OTPTemplate variant="fullScreen" value={code} onChange={setCode} onSubmit={verify} />`.
+- Do/don’t: Keep verification logic outside the template; do not identify the recipient more than necessary.
+- Edge cases: Input is digit-filtered and length-limited; `autoSubmit` fires once per completed value; set `useNumPad={false}` when the native keyboard is preferred.
+
 ## Text
 
 - Purpose: Semantic body, label, caption, and code text.

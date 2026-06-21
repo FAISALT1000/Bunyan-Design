@@ -137,6 +137,9 @@ npm run storybook:ios
 
 Use `storybook:android` or `storybook:web` for the other platforms.
 
+Do not use Node 21 or 23 with Metro. The repository `.nvmrc` selects the
+supported Node 22.23.0 installation.
+
 ## 9. Usage
 
 ```tsx

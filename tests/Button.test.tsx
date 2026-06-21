@@ -12,7 +12,9 @@ describe('Button', () => {
     fireEvent.press(button);
 
     expect(onPress).toHaveBeenCalledTimes(1);
-    expect(button).toHaveAccessibilityState({ disabled: false, busy: false });
+    expect(button.props.accessibilityState).toEqual(
+      expect.objectContaining({ disabled: false, busy: false }),
+    );
   });
 
   it('prevents interaction while loading', () => {
@@ -23,7 +25,9 @@ describe('Button', () => {
     fireEvent.press(button);
 
     expect(onPress).not.toHaveBeenCalled();
-    expect(button).toHaveAccessibilityState({ disabled: true, busy: true });
+    expect(button.props.accessibilityState).toEqual(
+      expect.objectContaining({ disabled: true, busy: true }),
+    );
   });
 
   it('renders in all theme modes', () => {

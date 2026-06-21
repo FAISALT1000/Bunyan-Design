@@ -11,6 +11,7 @@ This Expo application runs the stories distributed with the local
 ## Run
 
 ```bash
+nvm use
 npm install
 npm run ios
 ```

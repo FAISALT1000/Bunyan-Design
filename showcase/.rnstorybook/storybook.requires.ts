@@ -6,7 +6,7 @@ const normalizedStories = [
     titlePrefix: '',
     directory: '../node_modules/@bunyan/design-system/src',
     files: '**/*.stories.?(ts|tsx|js|jsx)',
-    importPathMatcher: /^\.\/.*\.stories\.(?:ts|tsx|js|jsx)$/,
+    importPathMatcher: /src\/.*\.stories\.(?:ts|tsx|js|jsx)$/,
     // Metro supplies require.context when enabled in metro.config.js.
     // @ts-ignore
     req: require.context(

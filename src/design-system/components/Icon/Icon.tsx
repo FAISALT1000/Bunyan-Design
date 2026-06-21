@@ -3,7 +3,7 @@ import Svg, { Circle, Line, Path, Polyline, Rect } from 'react-native-svg';
 import { useTheme } from '../../hooks';
 
 export type IconName =
-  | 'alert-circle' | 'calendar' | 'check' | 'chevron-down' | 'chevron-left'
+  | 'alert-circle' | 'backspace' | 'calendar' | 'check' | 'chevron-down' | 'chevron-left'
   | 'chevron-right' | 'close' | 'eye' | 'eye-off' | 'info' | 'search'
   | 'success' | 'warning' | 'error' | 'user';
 export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
@@ -21,6 +21,7 @@ export interface IconProps {
 
 const paths: Record<IconName, React.ReactNode> = {
   'alert-circle': <><Circle cx="12" cy="12" r="9" /><Line x1="12" y1="7" x2="12" y2="13" /><Line x1="12" y1="17" x2="12.01" y2="17" /></>,
+  backspace: <><Path d="M21 6H9l-6 6 6 6h12V6z" /><Line x1="12" y1="9" x2="17" y2="15" /><Line x1="17" y1="9" x2="12" y2="15" /></>,
   calendar: <><Rect x="3" y="5" width="18" height="16" rx="2" /><Line x1="8" y1="3" x2="8" y2="7" /><Line x1="16" y1="3" x2="16" y2="7" /><Line x1="3" y1="10" x2="21" y2="10" /></>,
   check: <Polyline points="5 12 10 17 19 7" />,
   'chevron-down': <Polyline points="6 9 12 15 18 9" />,
@@ -71,7 +72,6 @@ export const Icon = memo(function Icon({
       strokeLinecap="round"
       strokeLinejoin="round"
       {...(accessibilityLabel ? { accessibilityRole: 'image' as const, accessibilityLabel } : {})}
-      accessible={Boolean(accessibilityLabel)}
       {...(mirroredInRTL && isRTL ? { style: { transform: [{ scaleX: -1 }] } } : {})}
     >
       {paths[name]}

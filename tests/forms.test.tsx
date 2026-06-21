@@ -39,6 +39,8 @@ describe('form controls', () => {
     const checkbox = screen.getByRole('checkbox', { name: 'Accept terms' });
     fireEvent.press(checkbox);
     expect(onChange).toHaveBeenCalledWith(true);
-    expect(checkbox).toHaveAccessibilityState({ checked: false, disabled: false });
+    expect(checkbox.props.accessibilityState).toEqual(
+      expect.objectContaining({ checked: false, disabled: false }),
+    );
   });
 });
