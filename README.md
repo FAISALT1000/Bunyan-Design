@@ -4,7 +4,7 @@ A strongly typed React Native design system for iOS, Android, and web. Bunyan su
 
 ## 1. Architecture overview
 
-The system has five dependency directions:
+The system has six dependency directions:
 
 1. Primitive tokens contain raw values and never import components.
 2. Themes map primitives to semantic roles such as `color.text.secondary`.
@@ -12,6 +12,8 @@ The system has five dependency directions:
 4. Components consume semantic tokens through `useTheme`.
 5. Templates compose components into reusable screen structures without owning
    product data or business logic.
+6. Hooks expose reusable behavior, while adapters isolate navigation and
+   project-selected native libraries from the design-system package.
 
 Components never depend on product screens. Product code may compose components, but should not reach into component internals. This keeps visual changes centralized and makes theme, RTL, and accessibility behavior consistent.
 
@@ -88,6 +90,9 @@ src/
         BaseScreenTemplate.stories.tsx
         index.ts
     hooks/
+    navigation/
+    application/
+    adapters/
     providers/
     themes/
     tokens/
@@ -138,6 +143,37 @@ components and semantic tokens; applications supply content and callbacks.
 
 Architecture, contracts, examples, accessibility behavior, RTL guidance, and
 do/don't rules are in [docs/TEMPLATES.md](docs/TEMPLATES.md).
+
+## Hooks and application adapters
+
+Bunyan includes portable hooks for application state, keyboard, safe areas,
+debouncing, previous values, toggles, disclosure, asynchronous actions,
+accessibility, and RTL. Network status, clipboard, haptics, and permissions use
+dependency-injected application adapters.
+
+Navigation is framework-neutral at the hook boundary and includes a structural
+adapter for Wix React Native Navigation. Consuming projects own all screen names,
+screen props, IDs, options, registration, and root layouts.
+
+```ts
+const adapter = createReactNativeNavigationAdapter<
+  AppScreenParams,
+  AppLayout,
+  AppOptions,
+  AppComponentId
+>({ navigation: Navigation });
+
+const { NavigationScreenProvider, useNavigation } = createNavigation<
+  AppScreenParams,
+  AppLayout,
+  AppOptions,
+  AppComponentId
+>();
+```
+
+See [docs/HOOKS_AND_ADAPTERS.md](docs/HOOKS_AND_ADAPTERS.md) for complete Wix
+setup, typed command examples, native adapter integration, hook contracts, and
+testing guidance.
 
 ## 7. Tests
 
