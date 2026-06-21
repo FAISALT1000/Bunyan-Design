@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScrollView, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { Preview } from '@storybook/react-native';
 import { ThemeProvider, useTheme } from '../src';
 
@@ -15,9 +16,11 @@ function StorySurface({ children }: { children: React.ReactNode }) {
 const preview: Preview = {
   decorators: [
     Story => (
-      <ThemeProvider>
-        <StorySurface><Story /></StorySurface>
-      </ThemeProvider>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <StorySurface><Story /></StorySurface>
+        </ThemeProvider>
+      </SafeAreaProvider>
     ),
   ],
   parameters: {

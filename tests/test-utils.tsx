@@ -6,4 +6,7 @@ export const renderWithTheme = (
   ui: React.ReactElement,
   providerProps: Omit<ThemeProviderProps, 'children'> = {},
   options?: RenderOptions,
-) => render(<ThemeProvider {...providerProps}>{ui}</ThemeProvider>, options);
+) => render(
+  <ThemeProvider {...providerProps}>{ui}</ThemeProvider>,
+  options,
+);

@@ -4,12 +4,14 @@ A strongly typed React Native design system for iOS, Android, and web. Bunyan su
 
 ## 1. Architecture overview
 
-The system has four dependency directions:
+The system has five dependency directions:
 
 1. Primitive tokens contain raw values and never import components.
 2. Themes map primitives to semantic roles such as `color.text.secondary`.
 3. Utilities resolve direction, size, and state from the active theme.
 4. Components consume semantic tokens through `useTheme`.
+5. Templates compose components into reusable screen structures without owning
+   product data or business logic.
 
 Components never depend on product screens. Product code may compose components, but should not reach into component internals. This keeps visual changes centralized and makes theme, RTL, and accessibility behavior consistent.
 
@@ -77,6 +79,14 @@ src/
         Button.tsx
         Button.stories.tsx
         index.ts
+    templates/
+      BaseScreenTemplate/
+        BaseScreenTemplate.tsx
+        BaseScreenTemplate.types.ts
+        BaseScreenTemplate.styles.ts
+        BaseScreenTemplate.test.tsx
+        BaseScreenTemplate.stories.tsx
+        index.ts
     hooks/
     providers/
     themes/
@@ -109,6 +119,25 @@ docs/
 ## 6. Components
 
 All component contracts and guidance are in [docs/COMPONENTS.md](docs/COMPONENTS.md).
+
+## Template layer
+
+The template layer provides typed, safe-area-aware screen structures for forms,
+lists, details, confirmations, results, authentication, dashboards, stepped
+flows, empty/error states, and bottom actions. Templates use only Bunyan
+components and semantic tokens; applications supply content and callbacks.
+
+```tsx
+<ResultScreenTemplate
+  status={{ type: 'success' }}
+  title="Transfer completed"
+  referenceNumber="TRX-123456"
+  primaryAction={{ label: 'Done', onPress: handleDone }}
+/>
+```
+
+Architecture, contracts, examples, accessibility behavior, RTL guidance, and
+do/don't rules are in [docs/TEMPLATES.md](docs/TEMPLATES.md).
 
 ## 7. Tests
 

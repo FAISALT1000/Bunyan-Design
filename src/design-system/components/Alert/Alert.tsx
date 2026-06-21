@@ -36,6 +36,7 @@ export const Alert = memo(function Alert({
   const current = toneMap[tone];
   return (
     <View
+      accessible
       accessibilityRole={tone === 'error' || tone === 'warning' ? 'alert' : 'summary'}
       style={[
         logicalRow(direction),
