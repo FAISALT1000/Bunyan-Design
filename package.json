@@ -1,7 +1,7 @@
 {
   "name": "@bunyan/design-system",
   "version": "0.0.1",
-  "private": true,
+  "private": false,
   "description": "Accessible React Native design system for iOS, Android, and web.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,9 +10,14 @@
   "files": [
     "dist",
     "scripts",
+    "starter",
     "README.md",
     "docs"
   ],
+  "bin": {
+    "design-system": "./scripts/setup.mjs",
+    "bunyan-design-system": "./scripts/setup.mjs"
+  },
   "scripts": {
     "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
     "build": "tsc -p tsconfig.build.json",

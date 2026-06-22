@@ -71,6 +71,10 @@ export interface DesignSystemLocalizationProviderProps<
   children: React.ReactNode;
 }
 
+export type LocalizationProviderProps<
+  TLocale extends string = SupportedLocale,
+> = DesignSystemLocalizationProviderProps<TLocale>;
+
 export interface LocalizationContextValue<
   TLocale extends string = SupportedLocale,
 > {

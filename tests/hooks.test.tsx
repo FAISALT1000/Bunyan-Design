@@ -16,6 +16,7 @@ import {
   usePermissions,
   usePrevious,
   useRTL,
+  useTheme,
   useToggle,
   type ApplicationAdapters,
   type NetworkState,
@@ -96,6 +97,25 @@ describe('portable hooks', () => {
       end: 'left',
       rowDirection: 'row-reverse',
     }));
+  });
+
+  it('keeps controlled theme preference owned by the application', () => {
+    const onPreferenceChange = jest.fn();
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <ThemeProvider
+        preference="dark"
+        onPreferenceChange={onPreferenceChange}
+      >
+        {children}
+      </ThemeProvider>
+    );
+    const { result } = renderHook(() => useTheme(), { wrapper });
+
+    act(() => result.current.setPreference('light'));
+
+    expect(onPreferenceChange).toHaveBeenCalledWith('light');
+    expect(result.current.preference).toBe('dark');
+    expect(result.current.mode).toBe('dark');
   });
 });
 

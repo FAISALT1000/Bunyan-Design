@@ -2,6 +2,52 @@
 
 A strongly typed React Native design system for iOS, Android, and web. Bunyan supports light, dark, and true-black themes; English and Arabic; LTR and RTL layouts; WCAG 2.2 AA-oriented interaction patterns; and controlled component customization through semantic variants.
 
+## Quick start
+
+```bash
+npm install @bunyan/design-system
+npm install @react-native-community/datetimepicker react-native-safe-area-context react-native-svg
+npx @bunyan/design-system setup
+cd ios && pod install && cd ..
+npm run validate:design-system
+```
+
+```tsx
+export default function App() {
+  return (
+    <DesignSystemSetup locale="en" themePreference="system">
+      <ApplicationRoot />
+    </DesignSystemSetup>
+  );
+}
+```
+
+Use `--navigation=rnn` with the setup generator for Wix React Native
+Navigation. The complete installation, native, provider, adapter, navigation,
+Metro, TypeScript, and testing guide is in [docs/SETUP.md](docs/SETUP.md).
+
+## Installation and peer dependencies
+
+The package supports npm, Yarn, pnpm, local `.tgz` archives, and local paths.
+React and React Native stay owned by the consuming application. The actual
+required peers and optional integrations are listed in
+[docs/SETUP.md](docs/SETUP.md#dependencies).
+
+## Native, provider, theme, localization, RTL, and adapter setup
+
+The generated `DesignSystemSetup` composes safe area, application adapters,
+localization, and theme providers in the required order. It includes typed
+light/dark/black configuration, English/Arabic starter resources, controlled
+locale and theme preference, and optional Wix React Native Navigation files.
+See [docs/SETUP.md](docs/SETUP.md#generated-setup).
+
+## Troubleshooting and upgrading
+
+Use [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) for Metro, duplicate
+React, native module, icon, font, RTL, theme, navigation, and local archive
+issues. Use [docs/UPGRADING.md](docs/UPGRADING.md) for version verification,
+deprecated APIs, cache refresh, and native dependency changes.
+
 ## 1. Architecture overview
 
 The system has six dependency directions:
@@ -195,6 +241,11 @@ architecture, accessibility, theme-validation, and migration audit.
 
 Safe semantic-version package generation and local `.tgz` installation are
 documented in [docs/PACKAGING.md](docs/PACKAGING.md).
+
+Consumer troubleshooting and upgrades:
+
+- [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
+- [docs/UPGRADING.md](docs/UPGRADING.md)
 
 ## 8. Storybook
 

@@ -38,11 +38,49 @@ export interface PermissionsAdapter<TPermission extends string = string> {
   openSettings?(): Promise<void>;
 }
 
+export interface SecureScreenAdapter {
+  enable(): Promise<void> | void;
+  disable(): Promise<void> | void;
+}
+
+export type ShareContent = {
+  title?: string;
+} & (
+  | { message: string; url?: string }
+  | { message?: string; url: string }
+);
+
+export interface ShareAdapter {
+  share(content: ShareContent): Promise<void>;
+}
+
+export interface LoggerAdapter {
+  debug(message: string, context?: Readonly<Record<string, unknown>>): void;
+  info(message: string, context?: Readonly<Record<string, unknown>>): void;
+  warn(message: string, context?: Readonly<Record<string, unknown>>): void;
+  error(
+    message: string,
+    error?: unknown,
+    context?: Readonly<Record<string, unknown>>,
+  ): void;
+}
+
+export interface AnalyticsAdapter {
+  track(
+    event: string,
+    properties?: Readonly<Record<string, unknown>>,
+  ): Promise<void> | void;
+}
+
 export interface ApplicationAdapters<TPermission extends string = string> {
   network?: NetworkStatusAdapter;
   clipboard?: ClipboardAdapter;
   haptics?: HapticsAdapter;
   permissions?: PermissionsAdapter<TPermission>;
+  secureScreen?: SecureScreenAdapter;
+  share?: ShareAdapter;
+  logger?: LoggerAdapter;
+  analytics?: AnalyticsAdapter;
 }
 
 export interface ApplicationAdapterProviderProps<TPermission extends string = string> {
