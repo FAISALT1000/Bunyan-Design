@@ -14,6 +14,8 @@ The system has six dependency directions:
    product data or business logic.
 6. Hooks expose reusable behavior, while adapters isolate navigation and
    project-selected native libraries from the design-system package.
+7. Localization receives project-owned resources through a provider; the
+   package never imports application translation files.
 
 Components never depend on product screens. Product code may compose components, but should not reach into component internals. This keeps visual changes centralized and makes theme, RTL, and accessibility behavior consistent.
 
@@ -110,20 +112,22 @@ docs/
 
 ```tsx
 <Button
+  title="Continue"
   variant="primary"
   size="large"
   loading={false}
   disabled={false}
   fullWidth
-  trailingIcon="chevron-right"
->
-  Continue
-</Button>
+  rightIcon="chevron-right"
+/>
 ```
 
 ## 6. Components
 
 All component contracts and guidance are in [docs/COMPONENTS.md](docs/COMPONENTS.md).
+
+Localization setup, fallbacks, RTL behavior, and project-owned typed keys are
+documented in [docs/LOCALIZATION.md](docs/LOCALIZATION.md).
 
 ## Template layer
 
@@ -186,6 +190,12 @@ npm run test:coverage
 
 The suite covers tokens, themes, accessibility roles and states, interactions, form errors, loading behavior, and Arabic RTL rendering. Snapshots are intentionally reserved for stable visual structures; behavior assertions are preferred.
 
+See [docs/HEALTH_CHECK.md](docs/HEALTH_CHECK.md) for the latest focused
+architecture, accessibility, theme-validation, and migration audit.
+
+Safe semantic-version package generation and local `.tgz` installation are
+documented in [docs/PACKAGING.md](docs/PACKAGING.md).
+
 ## 8. Storybook
 
 React Native Storybook 10 configuration lives in `.rnstorybook`. It includes on-device controls and actions.
@@ -231,7 +241,7 @@ export function AccountForm() {
             />
           )}
         </FormField>
-        <Button fullWidth>Continue</Button>
+        <Button title="Continue" fullWidth />
       </ToastProvider>
     </ThemeProvider>
   );

@@ -64,9 +64,11 @@ export const ErrorStateTemplate = memo(function ErrorStateTemplate({
         ? {
             supportingContent: (
               <View style={styles.reference}>
-                <Text variant="caption" tone="tertiary">
-                  Reference: {referenceCode}
-                </Text>
+                <Text
+                  value={`Reference: ${referenceCode}`}
+                  variant="caption"
+                  tone="tertiary"
+                />
               </View>
             ),
           }

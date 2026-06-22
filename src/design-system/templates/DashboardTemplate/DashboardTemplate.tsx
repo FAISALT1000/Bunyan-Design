@@ -52,8 +52,8 @@ export const DashboardTemplate = memo(function DashboardTemplate({
       <View style={styles.content}>
         <View style={styles.greeting}>
           <View style={styles.greetingText}>
-            <Heading level={3}>{greeting}</Heading>
-            {subtitle ? <Text tone="secondary">{subtitle}</Text> : null}
+            <Heading title={greeting} level={3} />
+            {subtitle ? <Text value={subtitle} tone="secondary" /> : null}
           </View>
           {profileAction}
         </View>
@@ -65,7 +65,7 @@ export const DashboardTemplate = memo(function DashboardTemplate({
         ) : (
           <>
             {balanceSummary ? (
-              <Card variant="elevated" padding="large">{balanceSummary}</Card>
+              <Card variant="elevated" size="large">{balanceSummary}</Card>
             ) : null}
             {quickActions.length > 0 ? (
               <View style={styles.quickActions}>
@@ -74,11 +74,15 @@ export const DashboardTemplate = memo(function DashboardTemplate({
                     <Card
                       accessibilityLabel={action.label}
                       onPress={action.onPress}
-                      padding="medium"
+                      size="medium"
                     >
                       <View style={styles.quickActionContent}>
                         {action.icon ? <Icon name={action.icon} tone="primary" /> : null}
-                        <Text variant="label" weight="semibold">{action.label}</Text>
+                        <Text
+                          value={action.label}
+                          variant="labelMedium"
+                          weight="semibold"
+                        />
                       </View>
                     </Card>
                   </View>
@@ -90,11 +94,16 @@ export const DashboardTemplate = memo(function DashboardTemplate({
               <View key={section.id} style={styles.section}>
                 {section.title || section.action ? (
                   <View style={styles.sectionHeader}>
-                    {section.title ? <Heading level={4}>{section.title}</Heading> : <View />}
+                    {section.title ? (
+                      <Heading title={section.title} level={4} />
+                    ) : <View />}
                     {section.action ? (
-                      <Button variant="ghost" size="small" onPress={section.action.onPress}>
-                        {section.action.label}
-                      </Button>
+                      <Button
+                        title={section.action.label}
+                        variant="ghost"
+                        size="small"
+                        onPress={section.action.onPress}
+                      />
                     ) : null}
                   </View>
                 ) : null}
@@ -103,7 +112,7 @@ export const DashboardTemplate = memo(function DashboardTemplate({
             ))}
             {recentActivity ? (
               <View style={styles.section}>
-                <Heading level={4}>Recent activity</Heading>
+                <Heading title="Recent activity" level={4} />
                 {recentActivity}
               </View>
             ) : null}

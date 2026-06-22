@@ -26,6 +26,7 @@ export const BottomActionTemplate = memo(function BottomActionTemplate({
       {secondaryAction ? (
         <View style={styles.action}>
           <Button
+            title={secondaryAction.label}
             fullWidth
             variant={secondaryAction.variant ?? 'outline'}
             onPress={secondaryAction.onPress}
@@ -38,13 +39,12 @@ export const BottomActionTemplate = memo(function BottomActionTemplate({
             {...(secondaryAction.accessibilityLabel
               ? { accessibilityLabel: secondaryAction.accessibilityLabel }
               : {})}
-          >
-            {secondaryAction.label}
-          </Button>
+          />
         </View>
       ) : null}
       <View style={styles.action}>
         <Button
+          title={primaryAction.label}
           fullWidth
           variant={primaryAction.variant ?? 'primary'}
           onPress={primaryAction.onPress}
@@ -57,9 +57,7 @@ export const BottomActionTemplate = memo(function BottomActionTemplate({
           {...(primaryAction.accessibilityLabel
             ? { accessibilityLabel: primaryAction.accessibilityLabel }
             : {})}
-        >
-          {primaryAction.label}
-        </Button>
+        />
       </View>
     </View>
   );

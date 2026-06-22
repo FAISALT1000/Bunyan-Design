@@ -53,6 +53,10 @@ export const Custom: Story = {
     ...baseArgs,
     status: { type: 'custom', label: 'Scheduled', icon: 'calendar', tone: 'primary' },
     title: 'Transfer scheduled',
-    details: [{ id: 'schedule', label: 'Execution date', value: <Text>24 June 2026</Text> }],
+    details: [{
+      id: 'schedule',
+      label: 'Execution date',
+      value: <Text value="24 June 2026" />,
+    }],
   },
 };

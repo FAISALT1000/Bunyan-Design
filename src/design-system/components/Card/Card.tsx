@@ -1,59 +1,120 @@
-import React, { forwardRef, memo } from 'react';
-import { Pressable, View, type PressableProps, type ViewProps } from 'react-native';
+import React, { memo, useMemo } from 'react';
+import { Box } from '../../base/Box';
+import { BasePressable } from '../../base/Pressable';
+import { Stack } from '../../base/Stack';
 import { useTheme } from '../../hooks';
+import {
+  createAccessibilityLabel,
+  createAccessibilityState,
+} from '../../utilities/accessibility';
+import { Divider } from '../Divider';
+import { Line } from '../Line';
+import { Skeleton } from '../Skeleton';
+import { createCardStyles } from './Card.styles';
+import type { CardProps } from './Card.types';
 
-export type CardVariant = 'elevated' | 'outlined' | 'filled';
-
-interface SharedCardProps {
-  children: React.ReactNode;
-  variant?: CardVariant;
-  padding?: 'none' | 'small' | 'medium' | 'large';
-}
-
-export type CardProps =
-  | (SharedCardProps & { onPress: () => void; accessibilityLabel: string } & Omit<PressableProps, 'children' | 'style' | 'onPress'>)
-  | (SharedCardProps & { onPress?: never; accessibilityLabel?: string } & Omit<ViewProps, 'children' | 'style'>);
-
-export const Card = memo(forwardRef<View, CardProps>(function Card(
-  { children, variant = 'outlined', padding = 'medium', onPress, accessibilityLabel, ...props },
-  ref,
-) {
+export const Card = memo(function Card({
+  variant = 'outline',
+  size = 'medium',
+  title,
+  subtitle,
+  description,
+  leftIcon,
+  rightIcon,
+  leftAction,
+  rightAction,
+  onPress,
+  disabled = false,
+  loading = false,
+  selected = false,
+  showBorder,
+  showDivider = false,
+  accessibilityLabel,
+  accessibilityHint,
+  testID,
+  children,
+}: CardProps) {
   const { theme } = useTheme();
-  const paddingValue = {
-    none: theme.spacing.none,
-    small: theme.spacing.md,
-    medium: theme.spacing.lg,
-    large: theme.spacing.xxl,
-  }[padding];
-  const baseStyle = {
-    padding: paddingValue,
-    borderRadius: theme.radius.lg,
-    borderWidth: variant === 'outlined' ? theme.borderWidth.thin : theme.borderWidth.none,
-    borderColor: theme.color.border.secondary,
-    backgroundColor: variant === 'filled' ? theme.color.surface.secondary : theme.color.surface.primary,
-    ...(variant === 'elevated' ? theme.shadow.md : theme.shadow.none),
-  };
+  const styles = useMemo(
+    () => createCardStyles(theme, variant, size, selected, showBorder),
+    [selected, showBorder, size, theme, variant],
+  );
+  const hasHeader = Boolean(
+    title ||
+    subtitle ||
+    description ||
+    leftIcon ||
+    rightIcon ||
+    leftAction ||
+    rightAction,
+  );
+  const resolvedAccessibilityLabel = accessibilityLabel
+    ?? createAccessibilityLabel([title, subtitle, description]);
+  const content = loading ? (
+    <Skeleton lines={3} accessibilityLabel="Loading card" />
+  ) : (
+    <Stack gap="md">
+      {hasHeader ? (
+        <Line
+          type={description ? '3' : subtitle ? '2' : '1'}
+          padding="none"
+          leftText={{
+            ...(title ? { text1: { value: title, weight: 'semibold' } } : {}),
+            ...(subtitle ? { text2: subtitle } : {}),
+            ...(description ? { text3: description } : {}),
+          }}
+          {...(leftIcon ? { leftIcon } : {})}
+          {...(rightIcon ? { rightIcon } : {})}
+          {...(leftAction ? { leftButton: leftAction } : {})}
+          {...(rightAction ? { rightButton: rightAction } : {})}
+        />
+      ) : null}
+      {hasHeader && showDivider && children ? <Divider /> : null}
+      {children}
+    </Stack>
+  );
 
   if (onPress) {
     return (
-      <Pressable
-        ref={ref}
+      <BasePressable
         accessibilityRole="button"
-        accessibilityLabel={accessibilityLabel}
+        accessibilityLabel={resolvedAccessibilityLabel}
+        accessibilityHint={accessibilityHint}
+        accessibilityState={createAccessibilityState({
+          disabled,
+          busy: loading,
+          selected,
+        })}
+        testID={testID}
+        disabled={disabled || loading}
         onPress={onPress}
-        {...(props as PressableProps)}
-        style={({ pressed }) => [
-          baseStyle,
-          {
-            borderWidth: baseStyle.borderWidth,
-            borderColor: baseStyle.borderColor,
-            opacity: pressed ? theme.opacity.strong : theme.opacity.opaque,
-          },
-        ]}
+        baseStyle={styles.container}
+        pressedStyle={styles.pressed}
+        focusedStyle={styles.focused}
+        hoveredStyle={styles.pressed}
+        disabledStyle={styles.disabled}
       >
-        {children}
-      </Pressable>
+        {content}
+      </BasePressable>
     );
   }
-  return <View ref={ref} {...(props as ViewProps)} style={baseStyle}>{children}</View>;
-}));
+
+  return (
+    <Box
+      accessibilityLabel={resolvedAccessibilityLabel}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={createAccessibilityState({
+        disabled,
+        busy: loading,
+        selected,
+      })}
+      testID={testID}
+      internalStyle={[
+        styles.container,
+        disabled ? styles.disabled : undefined,
+      ]}
+    >
+      {content}
+    </Box>
+  );
+});

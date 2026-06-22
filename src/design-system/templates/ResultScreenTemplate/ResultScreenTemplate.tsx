@@ -89,39 +89,41 @@ export const ResultScreenTemplate = memo(function ResultScreenTemplate({
           <Icon name={resolved.icon} size="xl" tone={resolved.iconTone} />
         </View>
         <View style={styles.heading}>
-          <Badge tone={resolved.tone}>{resolved.label}</Badge>
-          <Heading level={2} align="center">{title}</Heading>
-          {description ? <Text tone="secondary" align="center">{description}</Text> : null}
+          <Badge label={resolved.label} tone={resolved.tone} />
+          <Heading title={title} level={2} align="center" />
+          {description ? (
+            <Text value={description} tone="secondary" align="center" />
+          ) : null}
         </View>
         {referenceNumber || dateTime ? (
-          <Card variant="filled" padding="large">
+          <Card variant="tertiary" size="large">
             <View style={styles.meta}>
               {referenceNumber ? (
                 <View style={styles.metaRow}>
-                  <Text tone="secondary">Reference number</Text>
-                  <Text weight="semibold">{referenceNumber}</Text>
+                  <Text value="Reference number" tone="secondary" />
+                  <Text value={referenceNumber} weight="semibold" />
                 </View>
               ) : null}
               {referenceNumber && dateTime ? <Divider /> : null}
               {dateTime ? (
                 <View style={styles.metaRow}>
-                  <Text tone="secondary">Date and time</Text>
-                  <Text weight="semibold">{dateTime}</Text>
+                  <Text value="Date and time" tone="secondary" />
+                  <Text value={dateTime} weight="semibold" />
                 </View>
               ) : null}
             </View>
           </Card>
         ) : null}
         {details.length > 0 ? (
-          <Card padding="large">
+          <Card size="large">
             <View style={styles.details}>
               {details.map((detail, index) => (
                 <React.Fragment key={detail.id}>
                   {index > 0 ? <Divider /> : null}
                   <View style={styles.metaRow}>
-                    <Text tone="secondary">{detail.label}</Text>
+                    <Text value={detail.label} tone="secondary" />
                     {typeof detail.value === 'string' || typeof detail.value === 'number'
-                      ? <Text weight="semibold">{detail.value}</Text>
+                      ? <Text value={detail.value} weight="semibold" />
                       : detail.value}
                   </View>
                 </React.Fragment>
@@ -132,10 +134,18 @@ export const ResultScreenTemplate = memo(function ResultScreenTemplate({
         {shareAction || downloadAction ? (
           <View style={styles.utilityActions}>
             {shareAction ? (
-              <Button variant="outline" onPress={shareAction.onPress}>{shareAction.label}</Button>
+              <Button
+                title={shareAction.label}
+                variant="outline"
+                onPress={shareAction.onPress}
+              />
             ) : null}
             {downloadAction ? (
-              <Button variant="outline" onPress={downloadAction.onPress}>{downloadAction.label}</Button>
+              <Button
+                title={downloadAction.label}
+                variant="outline"
+                onPress={downloadAction.onPress}
+              />
             ) : null}
           </View>
         ) : null}

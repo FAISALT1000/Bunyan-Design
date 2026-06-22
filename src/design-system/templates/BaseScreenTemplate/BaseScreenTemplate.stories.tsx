@@ -25,8 +25,8 @@ export const Default: Story = {
     showBackButton: true,
     onBack: () => undefined,
     headerRight: <IconButton icon="info" accessibilityLabel="Help" />,
-    children: <Card><Text>Screen content</Text></Card>,
-    footer: <Button fullWidth>Continue</Button>,
+    children: <Card><Text value="Screen content" /></Card>,
+    footer: <Button title="Continue" fullWidth />,
   },
 };
 
@@ -62,7 +62,9 @@ export const LongContent: Story = {
     children: (
       <View>
         {Array.from({ length: 20 }, (_, index) => (
-          <Card key={index}><Text>Long content section {index + 1}</Text></Card>
+          <Card key={index}>
+            <Text value={`Long content section ${index + 1}`} />
+          </Card>
         ))}
       </View>
     ),
@@ -74,8 +76,8 @@ export const MultipleActions: Story = {
     ...Default.args,
     footer: (
       <View>
-        <Button fullWidth>Continue</Button>
-        <Button fullWidth variant="ghost">Save draft</Button>
+        <Button title="Continue" fullWidth />
+        <Button title="Save draft" fullWidth variant="ghost" />
       </View>
     ),
   },
@@ -105,7 +107,7 @@ export const ArabicRTL: Story = {
     subtitle: 'أدخل تفاصيل التحويل',
     showBackButton: true,
     onBack: () => undefined,
-    children: <Card><Text>محتوى الشاشة</Text></Card>,
+    children: <Card><Text value="محتوى الشاشة" /></Card>,
   },
   decorators: [
     (StoryComponent: React.ComponentType) => (

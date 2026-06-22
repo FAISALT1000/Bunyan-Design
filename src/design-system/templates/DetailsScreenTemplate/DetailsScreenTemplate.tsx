@@ -42,14 +42,14 @@ export const DetailsScreenTemplate = memo(function DetailsScreenTemplate({
           {index > 0 ? <Divider /> : null}
           <View style={styles.row}>
             <View style={styles.rowLabel}>
-              <Text variant="bodySmall" tone="secondary">{row.label}</Text>
+              <Text value={row.label} variant="bodySmall" tone="secondary" />
               {row.description ? (
-                <Text variant="caption" tone="tertiary">{row.description}</Text>
+                <Text value={row.description} variant="caption" tone="tertiary" />
               ) : null}
             </View>
             <View style={styles.rowValue}>
               {typeof row.value === 'string' || typeof row.value === 'number' ? (
-                <Text weight="semibold" align="end">{row.value}</Text>
+                <Text value={row.value} weight="semibold" align="end" />
               ) : row.value}
             </View>
           </View>
@@ -81,32 +81,46 @@ export const DetailsScreenTemplate = memo(function DetailsScreenTemplate({
           <View style={styles.header}>
             {headerSection}
             <View style={styles.statusRow}>
-              {status ? <Badge tone={status.tone ?? 'neutral'}>{status.label}</Badge> : <View />}
+              {status ? (
+                <Badge label={status.label} tone={status.tone ?? 'neutral'} />
+              ) : <View />}
               <View style={styles.utilityActions}>
                 {shareAction ? (
-                  <Button variant="ghost" size="small" onPress={shareAction.onPress}>
-                    {shareAction.label}
-                  </Button>
+                  <Button
+                    title={shareAction.label}
+                    variant="ghost"
+                    size="small"
+                    onPress={shareAction.onPress}
+                  />
                 ) : null}
                 {downloadAction ? (
-                  <Button variant="ghost" size="small" onPress={downloadAction.onPress}>
-                    {downloadAction.label}
-                  </Button>
+                  <Button
+                    title={downloadAction.label}
+                    variant="ghost"
+                    size="small"
+                    onPress={downloadAction.onPress}
+                  />
                 ) : null}
               </View>
             </View>
           </View>
         ) : null}
-        {summary ? <Card variant="filled" padding="large">{summary}</Card> : null}
+        {summary ? <Card variant="tertiary" size="large">{summary}</Card> : null}
         <View style={styles.sections}>
           {sections.map(section => {
             const sectionContent = (
               <View style={styles.section}>
                 {!section.expandable && (section.title || section.description) ? (
                   <View style={styles.sectionHeader}>
-                    {section.title ? <Heading level={5}>{section.title}</Heading> : null}
+                    {section.title ? (
+                      <Heading title={section.title} level={5} />
+                    ) : null}
                     {section.description ? (
-                      <Text variant="bodySmall" tone="secondary">{section.description}</Text>
+                      <Text
+                        value={section.description}
+                        variant="bodySmall"
+                        tone="secondary"
+                      />
                     ) : null}
                   </View>
                 ) : null}
@@ -114,13 +128,13 @@ export const DetailsScreenTemplate = memo(function DetailsScreenTemplate({
               </View>
             );
             return section.expandable && section.title ? (
-              <Card key={section.id} padding="large">
+              <Card key={section.id} size="large">
                 <Accordion title={section.title} defaultExpanded={Boolean(section.defaultExpanded)}>
                   {sectionContent}
                 </Accordion>
               </Card>
             ) : (
-              <Card key={section.id} padding="large">{sectionContent}</Card>
+              <Card key={section.id} size="large">{sectionContent}</Card>
             );
           })}
         </View>

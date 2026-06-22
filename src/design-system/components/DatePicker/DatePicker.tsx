@@ -62,9 +62,15 @@ export const DatePicker = memo(function DatePicker({
           }
         }}
         trailing={clearable && value ? (
-          <Button size="small" variant="ghost" accessibilityLabel="Clear date" onPress={() => onChange(undefined)}>Clear</Button>
+          <Button
+            title="Clear"
+            size="small"
+            variant="ghost"
+            accessibilityLabel="Clear date"
+            onPress={() => onChange(undefined)}
+          />
         ) : undefined}
-        leadingIcon="calendar"
+        leftIcon="calendar"
       />
       {Platform.OS === 'android' && open ? (
         <DateTimePicker
@@ -88,14 +94,13 @@ export const DatePicker = memo(function DatePicker({
               onChange={handleNativeChange}
             />
             <Button
+              title="Confirm"
               fullWidth
               onPress={() => {
                 onChange(draft);
                 setOpen(false);
               }}
-            >
-              Confirm
-            </Button>
+            />
           </View>
         </BottomSheet>
       )}

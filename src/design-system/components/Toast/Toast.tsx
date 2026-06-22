@@ -100,10 +100,12 @@ const ToastItemView = memo(function ToastItemView({ item, onDismiss }: { item: T
       ]}
     >
       <Icon name={icons[item.tone ?? 'neutral']} size="md" tone="inverse" />
-      <Text tone="inverse" style={{ flex: 1 }}>{item.message}</Text>
+      <View style={{ flex: 1 }}>
+        <Text value={item.message} tone="inverse" />
+      </View>
       {item.actionLabel && item.onAction ? (
         <Pressable accessibilityRole="button" onPress={item.onAction}>
-          <Text tone="inverse" weight="semibold">{item.actionLabel}</Text>
+          <Text value={item.actionLabel} tone="inverse" weight="semibold" />
         </Pressable>
       ) : null}
       <Pressable accessibilityRole="button" accessibilityLabel="Dismiss notification" onPress={onDismiss}>

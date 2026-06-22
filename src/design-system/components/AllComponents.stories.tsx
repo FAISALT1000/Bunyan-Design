@@ -94,7 +94,10 @@ function ChipDemo() {
 function AccordionDemo() {
   return (
     <Accordion title="Account details">
-      <Text tone="secondary">Your enterprise account is active and verified.</Text>
+      <Text
+        value="Your enterprise account is active and verified."
+        tone="secondary"
+      />
     </Accordion>
   );
 }
@@ -112,7 +115,7 @@ function TabsDemo() {
           { value: 'settings', label: 'Settings' },
         ]}
       />
-      <Text>Selected tab: {tab}</Text>
+      <Text value={`Selected tab: ${tab}`} />
     </StoryStack>
   );
 }
@@ -121,7 +124,7 @@ function ModalDemo() {
   const [visible, setVisible] = useState(false);
   return (
     <>
-      <Button onPress={() => setVisible(true)}>Open modal</Button>
+      <Button title="Open modal" onPress={() => setVisible(true)} />
       <Modal
         visible={visible}
         onClose={() => setVisible(false)}
@@ -130,7 +133,7 @@ function ModalDemo() {
         primaryAction={{ label: 'Confirm', onPress: () => setVisible(false) }}
         secondaryAction={{ label: 'Cancel', onPress: () => setVisible(false) }}
       >
-        <Text>The selected account settings will be updated.</Text>
+        <Text value="The selected account settings will be updated." />
       </Modal>
     </>
   );
@@ -140,7 +143,7 @@ function BottomSheetDemo() {
   const [visible, setVisible] = useState(false);
   return (
     <>
-      <Button onPress={() => setVisible(true)}>Open bottom sheet</Button>
+      <Button title="Open bottom sheet" onPress={() => setVisible(true)} />
       <BottomSheet visible={visible} onClose={() => setVisible(false)} title="Account actions">
         <ListItem title="Share account" onPress={() => setVisible(false)} />
         <ListItem title="Download statement" onPress={() => setVisible(false)} />
@@ -152,9 +155,13 @@ function BottomSheetDemo() {
 function ToastTrigger() {
   const { showToast } = useToast();
   return (
-    <Button onPress={() => showToast({ message: 'Changes saved successfully', tone: 'success' })}>
-      Show toast
-    </Button>
+    <Button
+      title="Show toast"
+      onPress={() => showToast({
+        message: 'Changes saved successfully',
+        tone: 'success',
+      })}
+    />
   );
 }
 
@@ -181,10 +188,14 @@ export const TextComponent: Story = {
   name: 'Text',
   render: () => (
     <StoryStack>
-      <Text>Primary body text</Text>
-      <Text variant="bodySmall" tone="secondary">Secondary supporting text</Text>
-      <Text variant="caption" tone="tertiary">Caption text</Text>
-      <Text variant="code">const bunyan = true;</Text>
+      <Text value="Primary body text" />
+      <Text
+        value="Secondary supporting text"
+        variant="bodySmall"
+        tone="secondary"
+      />
+      <Text value="Caption text" variant="caption" tone="tertiary" />
+      <Text value="const bunyan = true;" variant="bodySmall" />
     </StoryStack>
   ),
 };
@@ -193,10 +204,10 @@ export const HeadingComponent: Story = {
   name: 'Heading',
   render: () => (
     <StoryStack>
-      <Heading level={1}>Heading one</Heading>
-      <Heading level={2}>Heading two</Heading>
-      <Heading level={3}>Heading three</Heading>
-      <Heading level={4}>Heading four</Heading>
+      <Heading title="Heading one" level={1} />
+      <Heading title="Heading two" level={2} />
+      <Heading title="Heading three" level={3} />
+      <Heading title="Heading four" level={4} />
     </StoryStack>
   ),
 };
@@ -218,11 +229,11 @@ export const ButtonComponent: Story = {
   name: 'Button',
   render: () => (
     <StoryStack>
-      <Button>Primary</Button>
-      <Button variant="secondary">Secondary</Button>
-      <Button variant="outline">Outline</Button>
-      <Button variant="danger">Danger</Button>
-      <Button loading>Loading</Button>
+      <Button title="Primary" />
+      <Button title="Secondary" variant="secondary" />
+      <Button title="Outline" variant="outline" />
+      <Button title="Danger" variant="danger" />
+      <Button title="Loading" loading />
     </StoryStack>
   ),
 };
@@ -240,7 +251,9 @@ export const IconButtonComponent: Story = {
 
 export const LinkComponent: Story = {
   name: 'Link',
-  render: () => <Link href="https://example.com" external>View documentation</Link>,
+  render: () => (
+    <Link label="View documentation" href="https://example.com" external />
+  ),
 };
 
 export const InputComponent: Story = {
@@ -248,7 +261,7 @@ export const InputComponent: Story = {
   render: () => (
     <StoryStack>
       <Input placeholder="Default input" />
-      <Input leadingIcon="search" placeholder="With icon" />
+      <Input leftIcon="search" placeholder="With icon" />
       <Input status="error" value="Invalid value" />
       <Input editable={false} value="Disabled input" />
     </StoryStack>
@@ -311,11 +324,11 @@ export const BadgeComponent: Story = {
   name: 'Badge',
   render: () => (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-      <Badge>Neutral</Badge>
-      <Badge tone="primary">Primary</Badge>
-      <Badge tone="success">Approved</Badge>
-      <Badge tone="warning">Pending</Badge>
-      <Badge tone="error">Rejected</Badge>
+      <Badge label="Neutral" />
+      <Badge label="Primary" tone="primary" />
+      <Badge label="Approved" tone="success" />
+      <Badge label="Pending" tone="warning" />
+      <Badge label="Rejected" tone="error" />
     </View>
   ),
 };
@@ -341,9 +354,9 @@ export const DividerComponent: Story = {
   name: 'Divider',
   render: () => (
     <StoryStack>
-      <Text>Content above</Text>
+      <Text value="Content above" />
       <Divider />
-      <Text>Content below</Text>
+      <Text value="Content below" />
     </StoryStack>
   ),
 };
@@ -352,9 +365,9 @@ export const CardComponent: Story = {
   name: 'Card',
   render: () => (
     <StoryStack>
-      <Card variant="outlined"><Text>Outlined card</Text></Card>
-      <Card variant="filled"><Text>Filled card</Text></Card>
-      <Card variant="elevated"><Text>Elevated card</Text></Card>
+      <Card variant="outline"><Text value="Outlined card" /></Card>
+      <Card variant="tertiary"><Text value="Filled card" /></Card>
+      <Card variant="elevated"><Text value="Elevated card" /></Card>
     </StoryStack>
   ),
 };

@@ -43,8 +43,10 @@ export const AuthenticationTemplate = memo(function AuthenticationTemplate({
       <View style={styles.content}>
         {logo ? <View style={styles.logo}>{logo}</View> : null}
         <View style={styles.heading}>
-          <Heading level={2} align="center">{title}</Heading>
-          {description ? <Text tone="secondary" align="center">{description}</Text> : null}
+          <Heading title={title} level={2} align="center" />
+          {description ? (
+            <Text value={description} tone="secondary" align="center" />
+          ) : null}
         </View>
         {error ? <Alert tone="error" title={error} /> : null}
         <View style={styles.form}>{form}</View>
@@ -52,6 +54,7 @@ export const AuthenticationTemplate = memo(function AuthenticationTemplate({
           <View style={styles.actions}>
             {primaryAction ? (
               <Button
+                title={primaryAction.label}
                 fullWidth
                 variant={primaryAction.variant ?? 'primary'}
                 onPress={primaryAction.onPress}
@@ -61,26 +64,27 @@ export const AuthenticationTemplate = memo(function AuthenticationTemplate({
                 {...(primaryAction.loading !== undefined
                   ? { loading: primaryAction.loading }
                   : {})}
-              >
-                {primaryAction.label}
-              </Button>
+              />
             ) : null}
             {biometricAction ? (
               <Button
+                title={biometricAction.label}
                 fullWidth
                 variant={biometricAction.variant ?? 'outline'}
                 onPress={biometricAction.onPress}
                 {...(biometricAction.disabled !== undefined
                   ? { disabled: biometricAction.disabled }
                   : {})}
-              >
-                {biometricAction.label}
-              </Button>
+              />
             ) : null}
             {secondaryActions.length > 0 ? (
               <View style={styles.secondaryActions}>
                 {secondaryActions.map(action => (
-                  <Link key={action.label} onPress={action.onPress}>{action.label}</Link>
+                  <Link
+                    key={action.label}
+                    label={action.label}
+                    onPress={action.onPress}
+                  />
                 ))}
               </View>
             ) : null}

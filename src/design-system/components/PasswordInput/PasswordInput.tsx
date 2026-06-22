@@ -1,5 +1,5 @@
 import React, { forwardRef, memo, useState } from 'react';
-import type { TextInput } from 'react-native';
+import type { BaseInputHandle } from '../../base/Input';
 import { IconButton } from '../IconButton';
 import { Input, type InputProps } from '../Input';
 
@@ -8,7 +8,7 @@ export type PasswordInputProps = Omit<InputProps, 'secureTextEntry' | 'trailing'
   hidePasswordLabel?: string;
 };
 
-export const PasswordInput = memo(forwardRef<TextInput, PasswordInputProps>(function PasswordInput(
+export const PasswordInput = memo(forwardRef<BaseInputHandle, PasswordInputProps>(function PasswordInput(
   { showPasswordLabel = 'Show password', hidePasswordLabel = 'Hide password', ...props },
   ref,
 ) {

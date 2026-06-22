@@ -5,17 +5,19 @@
   "description": "Accessible React Native design system for iOS, Android, and web.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "react-native": "src/index.ts",
+  "react-native": "dist/index.js",
   "sideEffects": false,
   "files": [
     "dist",
-    "src",
+    "scripts",
     "README.md",
     "docs"
   ],
   "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
+    "lint": "node ./scripts/lint-source.mjs",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -23,7 +25,12 @@
     "storybook:ios": "npm --prefix showcase run ios",
     "storybook:android": "npm --prefix showcase run android",
     "storybook:web": "npm --prefix showcase run web",
-    "GP":"nvm use && npm i && npm pack"
+    "package": "node ./scripts/generate-package.mjs patch",
+    "package:patch": "node ./scripts/generate-package.mjs patch",
+    "package:minor": "node ./scripts/generate-package.mjs minor",
+    "package:major": "node ./scripts/generate-package.mjs major",
+    "package:dry-run": "node ./scripts/generate-package.mjs patch --dry-run",
+    "GP": "nvm use && npm i && npm pack"
   },
   "peerDependencies": {
     "@react-native-community/datetimepicker": ">=8.0.0",
@@ -54,5 +61,8 @@
   },
   "engines": {
     "node": ">=20.19.4"
+  },
+  "dependencies": {
+    "i18n-js": "^4.5.3"
   }
 }

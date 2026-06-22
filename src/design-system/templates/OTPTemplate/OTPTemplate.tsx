@@ -110,14 +110,15 @@ const OTPContent = memo(function OTPContent({
     >
       {showHeading ? (
         <View style={{ gap: theme.spacing.sm }}>
-          <Heading level={3} align="center">{title}</Heading>
-          <Text tone="secondary" align="center">
-            {description}
-            {showDestination && destination ? ` ${destination}` : ''}
-          </Text>
+          <Heading title={title} level={3} align="center" />
+          <Text
+            value={`${description}${showDestination && destination ? ` ${destination}` : ''}`}
+            tone="secondary"
+            align="center"
+          />
         </View>
       ) : showDestination && destination ? (
-        <Text tone="secondary" align="center">{destination}</Text>
+        <Text value={destination} tone="secondary" align="center" />
       ) : null}
 
       <Pressable
@@ -161,14 +162,10 @@ const OTPContent = memo(function OTPContent({
               }}
             >
               <Text
+                value={digit ? (secure ? '•' : digit) : ''}
+                variant="headingMedium"
                 weight="bold"
-                style={{
-                  fontSize: theme.typography.fontSize.xl,
-                  lineHeight: theme.typography.lineHeight.xl,
-                }}
-              >
-                {digit ? (secure ? '•' : digit) : ''}
-              </Text>
+              />
             </View>
           );
         })}
@@ -196,9 +193,13 @@ const OTPContent = memo(function OTPContent({
       />
 
       {error ? (
-        <Text accessibilityRole="alert" variant="bodySmall" tone="error" align="center">
-          {error}
-        </Text>
+        <Text
+          value={error}
+          accessibilityRole="alert"
+          variant="bodySmall"
+          tone="error"
+          align="center"
+        />
       ) : null}
 
       {useNumPad ? (
@@ -212,19 +213,18 @@ const OTPContent = memo(function OTPContent({
 
       <View style={{ gap: theme.spacing.md }}>
         <Button
+          title={submitLabel}
           fullWidth
           loading={loading}
           disabled={disabled || !complete}
           onPress={() => onSubmit(normalizedValue)}
-        >
-          {submitLabel}
-        </Button>
+        />
         {onResend ? (
           <View style={{ alignItems: 'center' }}>
             {resendDisabled ? (
-              <Text variant="label" tone="tertiary">{resendLabel}</Text>
+              <Text value={resendLabel} variant="labelMedium" tone="tertiary" />
             ) : (
-              <Link onPress={onResend}>{resendLabel}</Link>
+              <Link label={resendLabel} onPress={onResend} />
             )}
           </View>
         ) : null}

@@ -34,18 +34,26 @@ export const EmptyStateTemplate = memo(function EmptyStateTemplate({
           <Icon name={icon} size="xl" tone="secondary" />
         </View>
       )}
-      <Heading level={variant === 'fullScreen' ? 3 : 4} align="center">{title}</Heading>
-      {description ? <Text tone="secondary" align="center">{description}</Text> : null}
+      <Heading
+        title={title}
+        level={variant === 'fullScreen' ? 3 : 4}
+        align="center"
+      />
+      {description ? (
+        <Text value={description} tone="secondary" align="center" />
+      ) : null}
       {supportingContent}
       {primaryAction || secondaryAction ? (
         <View style={styles.actions}>
           {primaryAction ? (
-            <Button onPress={primaryAction.onPress}>{primaryAction.label}</Button>
+            <Button title={primaryAction.label} onPress={primaryAction.onPress} />
           ) : null}
           {secondaryAction ? (
-            <Button variant="ghost" onPress={secondaryAction.onPress}>
-              {secondaryAction.label}
-            </Button>
+            <Button
+              title={secondaryAction.label}
+              variant="ghost"
+              onPress={secondaryAction.onPress}
+            />
           ) : null}
         </View>
       ) : null}

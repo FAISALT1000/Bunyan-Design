@@ -1,5 +1,10 @@
 import React, { memo } from 'react';
-import { Modal, Pressable, ScrollView, View } from 'react-native';
+import { Box } from '../../base/Box';
+import { Inline } from '../../base/Inline';
+import { BaseModal } from '../../base/Modal';
+import { BasePressable } from '../../base/Pressable';
+import { ScrollContainer } from '../../base/ScrollContainer';
+import { Stack } from '../../base/Stack';
 import { useTheme } from '../../hooks';
 import { Heading } from '../Heading';
 import { IconButton } from '../IconButton';
@@ -12,6 +17,9 @@ export interface BottomSheetProps {
   description?: string;
   children: React.ReactNode;
   dismissible?: boolean;
+  closeAccessibilityLabel?: string;
+  accessibilityLabel?: string;
+  testID?: string;
 }
 
 export const BottomSheet = memo(function BottomSheet({
@@ -21,35 +29,78 @@ export const BottomSheet = memo(function BottomSheet({
   description,
   children,
   dismissible = true,
+  closeAccessibilityLabel = 'Close bottom sheet',
+  accessibilityLabel,
+  testID,
 }: BottomSheetProps) {
-  const { theme, direction } = useTheme();
+  const { theme } = useTheme();
+
   return (
-    <Modal transparent visible={visible} animationType="slide" onRequestClose={dismissible ? onClose : undefined} statusBarTranslucent>
-      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: theme.color.overlay.scrim }}>
-        {dismissible ? <Pressable accessibilityLabel="Close bottom sheet overlay" onPress={onClose} style={{ flex: 1 }} /> : null}
-        <View
+    <BaseModal
+      transparent
+      visible={visible}
+      animationType="slide"
+      onRequestClose={dismissible ? onClose : undefined}
+      statusBarTranslucent
+    >
+      <Box
+        flex={1}
+        justifyContent="flex-end"
+        internalStyle={{ backgroundColor: theme.color.overlay.scrim }}
+      >
+        {dismissible ? (
+          <BasePressable
+            accessible={false}
+            importantForAccessibility="no-hide-descendants"
+            minTouchTarget={false}
+            onPress={onClose}
+            baseStyle={{ flex: 1 }}
+          >
+            <Box flex={1} />
+          </BasePressable>
+        ) : null}
+        <Box
           accessibilityViewIsModal
-          style={{
-            maxHeight: '90%',
-            padding: theme.spacing.xxl,
-            gap: theme.spacing.lg,
-            borderTopLeftRadius: theme.radius.xl,
-            borderTopRightRadius: theme.radius.xl,
-            backgroundColor: theme.color.surface.elevated,
-            ...theme.shadow.lg,
-          }}
+          accessibilityLabel={accessibilityLabel ?? title}
+          testID={testID}
+          maxHeight="90%"
+          padding="xxl"
+          internalStyle={[
+            {
+              borderTopStartRadius: theme.radius.xl,
+              borderTopEndRadius: theme.radius.xl,
+              backgroundColor: theme.color.surface.elevated,
+            },
+            theme.shadow.lg,
+          ]}
         >
-          <View style={{ alignSelf: 'center', width: theme.componentHeight.xl, height: theme.borderWidth.thick, borderRadius: theme.radius.pill, backgroundColor: theme.color.border.primary }} />
-          <View style={{ flexDirection: direction === 'rtl' ? 'row-reverse' : 'row', alignItems: 'flex-start', gap: theme.spacing.md }}>
-            <View style={{ flex: 1 }}>
-              <Heading level={4}>{title}</Heading>
-              {description ? <Text tone="secondary">{description}</Text> : null}
-            </View>
-            {dismissible ? <IconButton icon="close" accessibilityLabel="Close bottom sheet" onPress={onClose} /> : null}
-          </View>
-          <ScrollView keyboardShouldPersistTaps="handled">{children}</ScrollView>
-        </View>
-      </View>
-    </Modal>
+          <Stack gap="lg">
+            <Box
+              alignSelf="center"
+              width={theme.componentHeight.xl}
+              height={theme.borderWidth.thick}
+              radius="pill"
+              internalStyle={{ backgroundColor: theme.color.border.primary }}
+            />
+            <Inline gap="md" alignItems="flex-start">
+              <Stack flex={1} gap="xs">
+                <Heading title={title} level={4} />
+                {description ? <Text value={description} tone="secondary" /> : null}
+              </Stack>
+              {dismissible ? (
+                <IconButton
+                  icon="close"
+                  accessibilityLabel={closeAccessibilityLabel}
+                  onPress={onClose}
+                />
+              ) : null}
+            </Inline>
+            <ScrollContainer keyboardShouldPersistTaps="handled">
+              {children}
+            </ScrollContainer>
+          </Stack>
+        </Box>
+      </Box>
+    </BaseModal>
   );
 });

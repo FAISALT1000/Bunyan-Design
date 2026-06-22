@@ -1,92 +1,103 @@
-import React, { forwardRef, memo, useState } from 'react';
+import React, { forwardRef, memo } from 'react';
 import {
-  TextInput,
-  View,
-  type TextInputProps,
-  type ViewStyle,
-} from 'react-native';
-import { useTheme } from '../../hooks';
-import { heightForSize, logicalRow, logicalText, statusBorderColor, type ComponentSize, type FeedbackStatus } from '../../utilities/styles';
-import type { IconName } from '../Icon';
-import { Icon } from '../Icon';
+  BaseInput,
+  type BaseInputHandle,
+  type BaseInputProps,
+} from '../../base/Input';
+import { Stack } from '../../base/Stack';
+import {
+  resolveLocalizedText,
+  type TranslationOptions,
+  useOptionalLocalization,
+} from '../../localization';
+import { Text } from '../Text';
 
-export interface InputProps extends Omit<TextInputProps, 'style'> {
-  size?: ComponentSize;
-  status?: FeedbackStatus;
-  leadingIcon?: IconName;
-  trailing?: React.ReactNode;
-  containerStyle?: Pick<ViewStyle, 'flex' | 'width' | 'maxWidth' | 'minWidth' | 'alignSelf'>;
+export interface InputProps extends BaseInputProps {
+  label?: string;
+  labelLocalize?: string;
+  labelTranslationOptions?: TranslationOptions;
+  placeholderLocalize?: string;
+  placeholderTranslationOptions?: TranslationOptions;
+  helperText?: string;
+  errorText?: string;
+  successText?: string;
 }
 
-export const Input = memo(forwardRef<TextInput, InputProps>(function Input(
+export const Input = memo(forwardRef<BaseInputHandle, InputProps>(function Input(
   {
-    size = 'medium',
-    status = 'default',
-    leadingIcon,
-    trailing,
-    editable = true,
-    containerStyle,
-    onFocus,
-    onBlur,
-    accessibilityState,
+    label,
+    labelLocalize,
+    labelTranslationOptions,
+    placeholder,
+    placeholderLocalize,
+    placeholderTranslationOptions,
+    helperText,
+    errorText,
+    successText,
+    status = errorText ? 'error' : successText ? 'success' : 'default',
+    accessibilityLabel,
     ...props
   },
   ref,
 ) {
-  const { theme, direction } = useTheme();
-  const [focused, setFocused] = useState(false);
-  const disabled = !editable;
+  const localization = useOptionalLocalization();
+  const supportingText = errorText ?? successText ?? helperText;
+  const resolvedLabel = labelLocalize
+    ? resolveLocalizedText({
+        localize: labelLocalize,
+        ...(label !== undefined ? { value: label } : {}),
+        ...(labelTranslationOptions
+          ? { translationOptions: labelTranslationOptions }
+          : {}),
+        ...(localization ? { localization } : {}),
+      })
+    : label;
+  const resolvedPlaceholder = placeholderLocalize
+    ? resolveLocalizedText({
+        localize: placeholderLocalize,
+        ...(placeholder !== undefined ? { value: placeholder } : {}),
+        ...(placeholderTranslationOptions
+          ? { translationOptions: placeholderTranslationOptions }
+          : {}),
+        ...(localization ? { localization } : {}),
+      })
+    : placeholder;
 
   return (
-    <View
-      style={[
-        logicalRow(direction),
-        {
-          minHeight: heightForSize(theme, size),
-          alignItems: 'center',
-          gap: theme.spacing.sm,
-          paddingHorizontal: theme.spacing.md,
-          borderRadius: theme.radius.md,
-          borderWidth: focused ? theme.borderWidth.medium : theme.borderWidth.thin,
-          borderColor: focused ? theme.color.border.focus : statusBorderColor(theme, status),
-          backgroundColor: disabled ? theme.color.disabled.background : theme.color.surface.primary,
-          opacity: disabled ? theme.opacity.disabled : theme.opacity.opaque,
-        },
-        containerStyle,
-      ]}
-    >
-      {leadingIcon ? <Icon name={leadingIcon} size="md" tone="secondary" /> : null}
-      <TextInput
+    <Stack gap="xs">
+      {label || labelLocalize ? (
+        <Text
+          {...(labelLocalize ? { localize: labelLocalize } : {})}
+          {...(label !== undefined ? { value: label } : {})}
+          {...(labelTranslationOptions
+            ? { translationOptions: labelTranslationOptions }
+            : {})}
+          variant="labelMedium"
+          weight="semibold"
+        />
+      ) : null}
+      <BaseInput
         ref={ref}
-        editable={editable}
-        accessibilityState={{ ...accessibilityState, disabled }}
-        aria-invalid={status === 'error'}
-        placeholderTextColor={theme.color.text.tertiary}
-        selectionColor={theme.color.primary.default}
-        cursorColor={theme.color.primary.default}
-        onFocus={event => {
-          setFocused(true);
-          onFocus?.(event);
-        }}
-        onBlur={event => {
-          setFocused(false);
-          onBlur?.(event);
-        }}
+        status={status}
+        accessibilityLabel={
+          accessibilityLabel
+          ?? (resolvedLabel !== undefined ? String(resolvedLabel) : undefined)
+        }
+        placeholder={
+          resolvedPlaceholder !== undefined
+            ? String(resolvedPlaceholder)
+            : undefined
+        }
         {...props}
-        style={[
-          logicalText(direction),
-          {
-            flex: 1,
-            minWidth: theme.spacing.none,
-            color: disabled ? theme.color.disabled.text : theme.color.text.primary,
-            fontFamily: direction === 'rtl' ? theme.typography.fontFamily.arabic : theme.typography.fontFamily.sans,
-            fontSize: theme.typography.fontSize.md,
-            lineHeight: theme.typography.lineHeight.md,
-            paddingVertical: theme.spacing.none,
-          },
-        ]}
       />
-      {trailing}
-    </View>
+      {supportingText ? (
+        <Text
+          value={supportingText}
+          variant="caption"
+          tone={errorText ? 'error' : successText ? 'success' : 'secondary'}
+          accessibilityRole={errorText ? 'alert' : undefined}
+        />
+      ) : null}
+    </Stack>
   );
 }));

@@ -24,9 +24,9 @@ export const Default: Story = {
     profileAction: <Avatar name="Faisal Alhejaili" />,
     balanceSummary: (
       <>
-        <Text tone="secondary">Total balance</Text>
-        <Heading level={2}>42,850.00 SAR</Heading>
-        <Badge tone="success">Updated now</Badge>
+        <Text value="Total balance" tone="secondary" />
+        <Heading title="42,850.00 SAR" level={2} />
+        <Badge label="Updated now" tone="success" />
       </>
     ),
     quickActions: [
@@ -35,7 +35,9 @@ export const Default: Story = {
       { id: 'cards', label: 'Cards', icon: 'user', onPress: () => undefined },
     ],
     promotionalBanner: (
-      <Card variant="filled"><Heading level={4}>Explore premium banking</Heading></Card>
+      <Card variant="tertiary">
+        <Heading title="Explore premium banking" level={4} />
+      </Card>
     ),
     sections: [
       {

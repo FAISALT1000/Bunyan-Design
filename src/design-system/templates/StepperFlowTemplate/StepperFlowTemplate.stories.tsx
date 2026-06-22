@@ -30,7 +30,7 @@ function StepperDemo({ loading = false }: { loading?: boolean }) {
           id: 'review',
           title: 'Review',
           description: 'Review your application before submission.',
-          content: <Text>Everything looks ready.</Text>,
+          content: <Text value="Everything looks ready." />,
         },
       ]}
       onNext={() => setStep(current => Math.min(current + 1, 2))}
@@ -57,9 +57,9 @@ export const HiddenOptionalStep: Story = {
   args: {
     currentStep: 0,
     steps: [
-      { id: 'one', title: 'Required', content: <Text>Required step</Text> },
-      { id: 'hidden', title: 'Hidden', content: <Text>Hidden</Text>, hidden: true },
-      { id: 'optional', title: 'Optional', content: <Text>Optional step</Text>, optional: true },
+      { id: 'one', title: 'Required', content: <Text value="Required step" /> },
+      { id: 'hidden', title: 'Hidden', content: <Text value="Hidden" />, hidden: true },
+      { id: 'optional', title: 'Optional', content: <Text value="Optional step" />, optional: true },
     ],
     onNext: () => undefined,
   },

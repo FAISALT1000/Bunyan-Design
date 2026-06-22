@@ -10,7 +10,7 @@ describe('DashboardTemplate', () => {
     renderWithTheme(
       <DashboardTemplate
         greeting="Good morning"
-        balanceSummary={<Text>10,000 SAR</Text>}
+        balanceSummary={<Text value="10,000 SAR" />}
         quickActions={[{ id: 'transfer', label: 'Transfer', onPress: transfer }]}
       />,
     );

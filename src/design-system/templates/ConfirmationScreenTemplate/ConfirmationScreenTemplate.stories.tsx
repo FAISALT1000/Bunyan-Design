@@ -22,11 +22,16 @@ function ConfirmationDemo({ loading = false, error }: { loading?: boolean; error
       ]}
       amountSummary={{
         label: 'Transfer amount',
-        amount: <Heading level={4}>1,000 SAR</Heading>,
-        fees: <Text>2.50 SAR</Text>,
-        total: <Heading level={4}>1,002.50 SAR</Heading>,
+        amount: <Heading title="1,000 SAR" level={4} />,
+        fees: <Text value="2.50 SAR" />,
+        total: <Heading title="1,002.50 SAR" level={4} />,
       }}
-      terms={<Text variant="bodySmall">Read the <Link>terms and conditions</Link>.</Text>}
+      terms={(
+        <>
+          <Text value="Read the terms before continuing." variant="bodySmall" />
+          <Link label="Terms and conditions" />
+        </>
+      )}
       confirmationRequired
       confirmed={confirmed}
       onConfirmedChange={setConfirmed}

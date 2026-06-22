@@ -7,7 +7,7 @@ describe('Accordion', () => {
   it('supports controlled disclosure interaction', () => {
     renderWithTheme(
       <Accordion title="Account details">
-        <Text>Account number 1234</Text>
+        <Text value="Account number 1234" />
       </Accordion>,
     );
     expect(screen.queryByText('Account number 1234')).toBeNull();

@@ -64,24 +64,27 @@ export const ConfirmationScreenTemplate = memo(function ConfirmationScreenTempla
       <View style={styles.content}>
         {error ? <Alert tone="error" title={error} /> : null}
         {sections.map(section => (
-          <Card key={section.id} padding="large">
+          <Card key={section.id} size="large">
             <View style={styles.section}>
-              {section.title ? <Heading level={5}>{section.title}</Heading> : null}
+              {section.title ? <Heading title={section.title} level={5} /> : null}
               {section.rows.map((row, index) => (
                 <React.Fragment key={row.id}>
                   {index > 0 ? <Divider /> : null}
                   <View style={styles.row}>
                     <View style={styles.rowContent}>
-                      <Text variant="bodySmall" tone="secondary">{row.label}</Text>
+                      <Text value={row.label} variant="bodySmall" tone="secondary" />
                       {typeof row.value === 'string' || typeof row.value === 'number' ? (
-                        <Text weight="semibold">{row.value}</Text>
+                        <Text value={row.value} weight="semibold" />
                       ) : row.value}
                     </View>
                     {row.onEdit ? (
                       <View style={styles.rowActions}>
-                        <Button variant="ghost" size="small" onPress={row.onEdit}>
-                          {row.editLabel ?? 'Edit'}
-                        </Button>
+                        <Button
+                          title={row.editLabel ?? 'Edit'}
+                          variant="ghost"
+                          size="small"
+                          onPress={row.onEdit}
+                        />
                       </View>
                     ) : null}
                   </View>
@@ -91,15 +94,15 @@ export const ConfirmationScreenTemplate = memo(function ConfirmationScreenTempla
           </Card>
         ))}
         {amountSummary ? (
-          <Card variant="filled" padding="large">
+          <Card variant="tertiary" size="large">
             <View style={styles.amount}>
               <View style={styles.amountRow}>
-                <Text tone="secondary">{amountSummary.label}</Text>
+                <Text value={amountSummary.label} tone="secondary" />
                 {amountSummary.amount}
               </View>
               {amountSummary.fees ? (
                 <View style={styles.amountRow}>
-                  <Text tone="secondary">Fees</Text>
+                  <Text value="Fees" tone="secondary" />
                   {amountSummary.fees}
                 </View>
               ) : null}
@@ -107,7 +110,7 @@ export const ConfirmationScreenTemplate = memo(function ConfirmationScreenTempla
                 <>
                   <Divider />
                   <View style={styles.amountRow}>
-                    <Text weight="semibold">Total</Text>
+                    <Text value="Total" weight="semibold" />
                     {amountSummary.total}
                   </View>
                 </>

@@ -124,9 +124,13 @@ export function ListScreenTemplate<T>({
               if (item.type === 'section') {
                 return (
                   <View style={styles.sectionHeader}>
-                    {item.title ? <Heading level={5}>{item.title}</Heading> : null}
+                    {item.title ? <Heading title={item.title} level={5} /> : null}
                     {item.description ? (
-                      <Text variant="bodySmall" tone="secondary">{item.description}</Text>
+                      <Text
+                        value={item.description}
+                        variant="bodySmall"
+                        tone="secondary"
+                      />
                     ) : null}
                   </View>
                 );
@@ -162,12 +166,11 @@ export function ListScreenTemplate<T>({
                 <View style={styles.pagination}>
                   {pagination.hasMore ? (
                     <Button
+                      title={pagination.label ?? 'Load more'}
                       variant="outline"
                       loading={Boolean(pagination.loading)}
                       onPress={pagination.onLoadMore}
-                    >
-                      {pagination.label ?? 'Load more'}
-                    </Button>
+                    />
                   ) : null}
                 </View>
               ) : null
@@ -177,12 +180,13 @@ export function ListScreenTemplate<T>({
         {floatingAction ? (
           <View style={styles.floating}>
             <Button
+              title={floatingAction.label}
               variant={floatingAction.variant ?? 'primary'}
-              disabled={floatingAction.disabled}
               onPress={floatingAction.onPress}
-            >
-              {floatingAction.label}
-            </Button>
+              {...(floatingAction.disabled !== undefined
+                ? { disabled: floatingAction.disabled }
+                : {})}
+            />
           </View>
         ) : null}
       </View>

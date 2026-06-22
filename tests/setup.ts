@@ -22,3 +22,25 @@ jest.mock('react-native-safe-area-context', () => {
     },
   };
 });
+
+jest.mock('react-native/Libraries/Modal/Modal', () => {
+  const React = require('react');
+  const View = require('react-native/Libraries/Components/View/View').default;
+
+  function ModalMock({
+    children,
+    visible = true,
+    ...props
+  }: {
+    children?: React.ReactNode;
+    visible?: boolean;
+    [key: string]: unknown;
+  }) {
+    return visible ? React.createElement(View, props, children) : null;
+  }
+
+  return {
+    __esModule: true,
+    default: ModalMock,
+  };
+});

@@ -57,7 +57,12 @@ export const StepperFlowTemplate = memo(function StepperFlowTemplate({
     >
       {onSaveAndExit ? (
         <Pressable accessibilityRole="button" onPress={onSaveAndExit}>
-          <Text tone="link" weight="semibold" align="center">{saveAndExitLabel}</Text>
+          <Text
+            value={saveAndExitLabel}
+            tone="info"
+            weight="semibold"
+            align="center"
+          />
         </Pressable>
       ) : null}
     </BottomActionTemplate>
@@ -114,12 +119,11 @@ export const StepperFlowTemplate = memo(function StepperFlowTemplate({
                       <Icon name="check" size="sm" tone="inverse" />
                     ) : (
                       <Text
+                        value={index + 1}
                         variant="caption"
                         weight="semibold"
-                        tone={status === 'current' ? 'link' : 'secondary'}
-                      >
-                        {index + 1}
-                      </Text>
+                        tone={status === 'current' ? 'info' : 'secondary'}
+                      />
                     )}
                   </View>
                   <View style={[
@@ -131,13 +135,14 @@ export const StepperFlowTemplate = memo(function StepperFlowTemplate({
                 </View>
                 <View style={styles.stepLabel}>
                   <Text
+                    value={step.title}
                     variant="caption"
                     weight={status === 'current' ? 'semibold' : 'regular'}
                     align="center"
-                  >
-                    {step.title}
-                  </Text>
-                  {step.optional ? <Text variant="caption" tone="tertiary">Optional</Text> : null}
+                  />
+                  {step.optional ? (
+                    <Text value="Optional" variant="caption" tone="tertiary" />
+                  ) : null}
                 </View>
               </Pressable>
             );
@@ -145,9 +150,9 @@ export const StepperFlowTemplate = memo(function StepperFlowTemplate({
         </View>
         <View style={styles.body}>
           <View style={styles.heading}>
-            <Heading level={3}>{activeStep.title}</Heading>
+            <Heading title={activeStep.title} level={3} />
             {activeStep.description ? (
-              <Text tone="secondary">{activeStep.description}</Text>
+              <Text value={activeStep.description} tone="secondary" />
             ) : null}
           </View>
           {activeStep.content}

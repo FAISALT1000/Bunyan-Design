@@ -17,6 +17,7 @@ export * from './Icon';
 export * from './IconButton';
 export * from './Input';
 export * from './Link';
+export * from './Line';
 export * from './ListItem';
 export * from './Modal';
 export * from './PasswordInput';

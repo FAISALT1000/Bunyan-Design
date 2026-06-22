@@ -11,8 +11,8 @@ describe('StepperFlowTemplate', () => {
       <StepperFlowTemplate
         currentStep={0}
         steps={[
-          { id: 'one', title: 'Identity', content: <Text>Identity content</Text> },
-          { id: 'two', title: 'Review', content: <Text>Review content</Text> },
+          { id: 'one', title: 'Identity', content: <Text value="Identity content" /> },
+          { id: 'two', title: 'Review', content: <Text value="Review content" /> },
         ]}
         onNext={next}
       />,

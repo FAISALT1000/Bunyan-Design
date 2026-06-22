@@ -51,17 +51,23 @@ function Catalog() {
   return (
     <ToastProvider>
       <View style={{ gap: theme.spacing.xxl }}>
-        <Heading level={1}>Bunyan component catalog</Heading>
-        <Text tone="secondary">A compact visual regression surface for every exported component.</Text>
+        <Heading title="Bunyan component catalog" level={1} />
+        <Text
+          value="A compact visual regression surface for every exported component."
+          tone="secondary"
+        />
 
-        <Card variant="outlined">
+        <Card variant="outline">
           <View style={{ gap: theme.spacing.md }}>
-            <Heading level={4}>Typography and actions</Heading>
-            <Text>Body text with <Link>an accessible link</Link>.</Text>
+            <Heading title="Typography and actions" level={4} />
+            <View style={{ gap: theme.spacing.xs }}>
+              <Text value="Body text with an accessible link." />
+              <Link label="Open accessible link" />
+            </View>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
-              <Button leadingIcon="check">Primary</Button>
+              <Button title="Primary" leftIcon="check" />
               <IconButton icon="search" accessibilityLabel="Search" />
-              <Badge tone="success">Approved</Badge>
+              <Badge label="Approved" tone="success" />
               <Chip label="Enterprise" selected />
               <Avatar name="Bunyan System" />
               <Tooltip content="Helpful context"><Icon name="info" accessibilityLabel="Information" /></Tooltip>
@@ -71,7 +77,7 @@ function Catalog() {
 
         <Card>
           <View style={{ gap: theme.spacing.lg }}>
-            <Heading level={4}>Form controls</Heading>
+            <Heading title="Form controls" level={4} />
             <FormField label="Full name" required><Input placeholder="Enter your name" /></FormField>
             <FormField label="Password"><PasswordInput placeholder="Enter a password" /></FormField>
             <SearchInput value="" placeholder="Search records" />
@@ -92,7 +98,9 @@ function Catalog() {
         <Alert tone="error" title="Could not save" description="Review the highlighted fields." />
         <Divider />
         <ListItem title="Account settings" description="Security and preferences" leading={<Avatar name="Account" />} onPress={() => undefined} />
-        <Accordion title="Advanced details"><Text>Expanded enterprise configuration.</Text></Accordion>
+        <Accordion title="Advanced details">
+          <Text value="Expanded enterprise configuration." />
+        </Accordion>
         <Tabs
           value={tab}
           onValueChange={setTab}
@@ -105,11 +113,15 @@ function Catalog() {
         <EmptyState title="No records" description="Create a record to get started." actionLabel="Create record" onAction={() => undefined} />
         <ErrorState title="Unable to load" description="Check your connection and retry." onRetry={() => undefined} />
         <View style={{ flexDirection: 'row', gap: theme.spacing.md }}>
-          <Button onPress={() => setModal(true)}>Open modal</Button>
-          <Button variant="outline" onPress={() => setSheet(true)}>Open sheet</Button>
+          <Button title="Open modal" onPress={() => setModal(true)} />
+          <Button
+            title="Open sheet"
+            variant="outline"
+            onPress={() => setSheet(true)}
+          />
         </View>
         <Modal visible={modal} onClose={() => setModal(false)} title="Confirm change">
-          <Text>This action updates the selected record.</Text>
+          <Text value="This action updates the selected record." />
         </Modal>
         <BottomSheet visible={sheet} onClose={() => setSheet(false)} title="Actions">
           <ListItem title="Share record" onPress={() => setSheet(false)} />

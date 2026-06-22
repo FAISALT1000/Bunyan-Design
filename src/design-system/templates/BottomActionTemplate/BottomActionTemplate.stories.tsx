@@ -41,7 +41,14 @@ export const Disabled: Story = {
 export const WithSupportingContent: Story = {
   args: {
     primaryAction: { label: 'Accept and continue', onPress: () => undefined },
-    children: <Text variant="caption" tone="secondary" align="center">By continuing, you accept the terms.</Text>,
+    children: (
+      <Text
+        value="By continuing, you accept the terms."
+        variant="caption"
+        tone="secondary"
+        align="center"
+      />
+    ),
   },
 };
 

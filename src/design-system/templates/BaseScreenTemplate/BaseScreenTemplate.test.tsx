@@ -11,7 +11,7 @@ describe('BaseScreenTemplate', () => {
   it('renders header, safe content, and loading overlay', () => {
     renderWithTheme(
       <BaseScreenTemplate title="Transfer" loading loadingLabel="Loading transfer">
-        <Text>Transfer content</Text>
+        <Text value="Transfer content" />
       </BaseScreenTemplate>,
     );
     const title = screen.getByText('Transfer', { includeHiddenElements: true });
@@ -23,7 +23,9 @@ describe('BaseScreenTemplate', () => {
 
   it('uses safe-area and keyboard-aware containers by default', () => {
     const view = renderWithTheme(
-      <BaseScreenTemplate title="Profile"><Text>Content</Text></BaseScreenTemplate>,
+      <BaseScreenTemplate title="Profile">
+        <Text value="Content" />
+      </BaseScreenTemplate>,
     );
     expect(view.UNSAFE_getByType(SafeAreaView)).toBeTruthy();
     expect(view.UNSAFE_getByType(KeyboardAvoidingView)).toBeTruthy();
@@ -31,7 +33,9 @@ describe('BaseScreenTemplate', () => {
 
   it('renders semantic dark-theme colors', () => {
     renderWithTheme(
-      <BaseScreenTemplate title="Dark screen"><Text>Content</Text></BaseScreenTemplate>,
+      <BaseScreenTemplate title="Dark screen">
+        <Text value="Content" />
+      </BaseScreenTemplate>,
       { initialPreference: 'dark' },
     );
     expect(screen.getByText('Dark screen')).toHaveStyle({ color: darkTheme.color.text.primary });
@@ -47,7 +51,7 @@ describe('BaseScreenTemplate', () => {
           retryAction: { label: 'Try again', onPress: retry },
         }}
       >
-        <Text>Hidden content</Text>
+        <Text value="Hidden content" />
       </BaseScreenTemplate>,
     );
     fireEvent.press(screen.getByRole('button', { name: 'Try again' }));
@@ -56,7 +60,9 @@ describe('BaseScreenTemplate', () => {
 
   it('renders Arabic using RTL theme direction', () => {
     renderWithTheme(
-      <BaseScreenTemplate title="التحويل"><Text>المحتوى</Text></BaseScreenTemplate>,
+      <BaseScreenTemplate title="التحويل">
+        <Text value="المحتوى" />
+      </BaseScreenTemplate>,
       { locale: 'ar-SA' },
     );
     expect(screen.getByText('التحويل')).toHaveStyle({ writingDirection: 'rtl' });

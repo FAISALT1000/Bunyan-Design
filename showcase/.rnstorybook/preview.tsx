@@ -5,7 +5,7 @@ import type { Preview } from '@storybook/react-native';
 import {
   ThemeProvider,
   useTheme,
-} from '@bunyan/design-system';
+} from '../../src';
 
 function StorySurface({ children }: { children: React.ReactNode }) {
   const { theme } = useTheme();

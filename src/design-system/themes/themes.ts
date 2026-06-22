@@ -1,5 +1,15 @@
-import { palette, tokens } from '../tokens';
-import type { SemanticColors, Theme, ThemeMode } from './types';
+import {
+  cardBaseTokens,
+  lineBaseTokens,
+  palette,
+  tokens,
+} from '../tokens';
+import type {
+  ComponentTokens,
+  SemanticColors,
+  Theme,
+  ThemeMode,
+} from './types';
 
 const shared = {
   typography: tokens.typography,
@@ -88,9 +98,104 @@ const blackColors: SemanticColors = {
   border: { ...darkColors.border, primary: palette.gray[700], secondary: palette.gray[800] },
 };
 
-export const lightTheme: Theme = { mode: 'light', color: lightColors, ...shared };
-export const darkTheme: Theme = { mode: 'dark', color: darkColors, ...shared };
-export const blackTheme: Theme = { mode: 'black', color: blackColors, ...shared };
+const createComponentTokens = (color: SemanticColors): ComponentTokens => ({
+  line: {
+    ...lineBaseTokens,
+    dividerColor: color.border.secondary,
+    pressedBackground: color.overlay.subtle,
+    focusedBorderColor: color.border.focus,
+  },
+  card: {
+    ...cardBaseTokens,
+    selectedBorderColor: color.primary.default,
+    focusedBorderColor: color.border.focus,
+    disabledOpacity: tokens.opacity.disabled,
+    variants: {
+      primary: {
+        background: color.primary.subtle,
+        borderColor: color.primary.default,
+        borderWidth: tokens.borderWidth.thin,
+        shadow: 'none',
+        pressedBackground: color.primary.subtle,
+      },
+      secondary: {
+        background: color.secondary.subtle,
+        borderColor: color.secondary.default,
+        borderWidth: tokens.borderWidth.thin,
+        shadow: 'none',
+        pressedBackground: color.secondary.subtle,
+      },
+      tertiary: {
+        background: color.surface.secondary,
+        borderColor: color.border.secondary,
+        borderWidth: tokens.borderWidth.thin,
+        shadow: 'none',
+        pressedBackground: color.overlay.subtle,
+      },
+      outline: {
+        background: color.overlay.transparent,
+        borderColor: color.border.primary,
+        borderWidth: tokens.borderWidth.thin,
+        shadow: 'none',
+        pressedBackground: color.overlay.subtle,
+      },
+      elevated: {
+        background: color.surface.elevated,
+        borderColor: color.overlay.transparent,
+        borderWidth: tokens.borderWidth.none,
+        shadow: 'md',
+        pressedBackground: color.overlay.subtle,
+      },
+      ghost: {
+        background: color.overlay.transparent,
+        borderColor: color.overlay.transparent,
+        borderWidth: tokens.borderWidth.none,
+        shadow: 'none',
+        pressedBackground: color.overlay.subtle,
+      },
+      success: {
+        background: color.success.subtle,
+        borderColor: color.success.border,
+        borderWidth: tokens.borderWidth.thin,
+        shadow: 'none',
+        pressedBackground: color.overlay.subtle,
+      },
+      warning: {
+        background: color.warning.subtle,
+        borderColor: color.warning.border,
+        borderWidth: tokens.borderWidth.thin,
+        shadow: 'none',
+        pressedBackground: color.overlay.subtle,
+      },
+      error: {
+        background: color.error.subtle,
+        borderColor: color.error.border,
+        borderWidth: tokens.borderWidth.thin,
+        shadow: 'none',
+        pressedBackground: color.overlay.subtle,
+      },
+    },
+  },
+});
+
+export const lightTheme: Theme = {
+  mode: 'light',
+  color: lightColors,
+  components: createComponentTokens(lightColors),
+  ...shared,
+};
+export const darkTheme: Theme = {
+  mode: 'dark',
+  color: darkColors,
+  components: createComponentTokens(darkColors),
+  ...shared,
+};
+export const blackTheme: Theme = {
+  mode: 'black',
+  color: blackColors,
+  components: createComponentTokens(blackColors),
+  ...shared,
+};
 
 export const themes: Record<ThemeMode, Theme> = {
   light: lightTheme,

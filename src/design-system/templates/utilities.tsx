@@ -29,6 +29,7 @@ export function actionButton(action: TemplateAction, fullWidth = false) {
   return (
     <Button
       key={action.label}
+      title={action.label}
       variant={action.variant ?? 'primary'}
       fullWidth={fullWidth}
       onPress={action.onPress}
@@ -37,9 +38,7 @@ export function actionButton(action: TemplateAction, fullWidth = false) {
       {...(action.accessibilityLabel
         ? { accessibilityLabel: action.accessibilityLabel }
         : {})}
-    >
-      {action.label}
-    </Button>
+    />
   );
 }
 
@@ -96,9 +95,12 @@ export function renderScreenState(
             : {})}
         />
         {state.referenceCode ? (
-          <Text variant="caption" tone="tertiary" align="center">
-            Reference: {state.referenceCode}
-          </Text>
+          <Text
+            value={`Reference: ${state.referenceCode}`}
+            variant="caption"
+            tone="tertiary"
+            align="center"
+          />
         ) : null}
       </View>
     );

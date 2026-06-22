@@ -7,8 +7,8 @@ describe('RTL support', () => {
   it('renders Arabic content using RTL direction', () => {
     renderWithTheme(
       <>
-        <Heading>لوحة التحكم</Heading>
-        <Text>مرحباً بك في بنيان</Text>
+        <Heading title="لوحة التحكم" />
+        <Text value="مرحباً بك في بنيان" />
         <ListItem title="الإعدادات" onPress={jest.fn()} />
       </>,
       { locale: 'ar-SA' },

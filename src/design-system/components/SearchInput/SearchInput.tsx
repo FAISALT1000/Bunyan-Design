@@ -1,14 +1,14 @@
 import React, { forwardRef, memo } from 'react';
-import type { TextInput } from 'react-native';
+import type { BaseInputHandle } from '../../base/Input';
 import { IconButton } from '../IconButton';
 import { Input, type InputProps } from '../Input';
 
-export interface SearchInputProps extends Omit<InputProps, 'leadingIcon' | 'trailing'> {
+export interface SearchInputProps extends Omit<InputProps, 'leftIcon' | 'trailing'> {
   clearLabel?: string;
   onClear?: () => void;
 }
 
-export const SearchInput = memo(forwardRef<TextInput, SearchInputProps>(function SearchInput(
+export const SearchInput = memo(forwardRef<BaseInputHandle, SearchInputProps>(function SearchInput(
   { value, clearLabel = 'Clear search', onClear, returnKeyType = 'search', ...props },
   ref,
 ) {
@@ -16,7 +16,7 @@ export const SearchInput = memo(forwardRef<TextInput, SearchInputProps>(function
     <Input
       ref={ref}
       value={value}
-      leadingIcon="search"
+      leftIcon="search"
       returnKeyType={returnKeyType}
       {...props}
       trailing={value ? (

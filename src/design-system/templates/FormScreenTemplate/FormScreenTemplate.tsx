@@ -69,28 +69,35 @@ export const FormScreenTemplate = memo(function FormScreenTemplate({
           />
         ) : null}
         {sections.map(section => (
-          <Card key={section.id} padding="large">
+          <Card key={section.id} size="large">
             <View style={styles.section}>
               {section.title || section.description ? (
                 <View style={styles.sectionHeader}>
                   {section.title ? (
                     <View style={styles.sectionTitle}>
-                      <Heading level={5}>{section.title}</Heading>
+                      <Heading title={section.title} level={5} />
                       {section.required ? (
-                        <Text variant="caption" tone="error">{requiredLabel}</Text>
+                        <Text value={requiredLabel} variant="caption" tone="error" />
                       ) : null}
                     </View>
                   ) : null}
                   {section.description ? (
-                    <Text variant="bodySmall" tone="secondary">{section.description}</Text>
+                    <Text
+                      value={section.description}
+                      variant="bodySmall"
+                      tone="secondary"
+                    />
                   ) : null}
                 </View>
               ) : null}
               {section.content}
               {section.error ? (
-                <Text accessibilityRole="alert" variant="caption" tone="error">
-                  {section.error}
-                </Text>
+                <Text
+                  value={section.error}
+                  accessibilityRole="alert"
+                  variant="caption"
+                  tone="error"
+                />
               ) : null}
             </View>
           </Card>

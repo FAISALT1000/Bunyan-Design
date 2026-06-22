@@ -39,8 +39,8 @@ export const Default: Story = {
     status: { label: 'Active', tone: 'success' },
     summary: (
       <>
-        <Text tone="secondary">Available balance</Text>
-        <Heading level={2}>24,850.00 SAR</Heading>
+        <Text value="Available balance" tone="secondary" />
+        <Heading title="24,850.00 SAR" level={2} />
       </>
     ),
     sections,

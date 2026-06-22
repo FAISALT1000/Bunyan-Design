@@ -79,7 +79,7 @@ back icon mirrors through the design-system icon behavior.
   subtitle="Enter the transfer details"
   showBackButton
   onBack={goBack}
-  footer={<Button onPress={continueTransfer}>Continue</Button>}
+  footer={<Button title="Continue" onPress={continueTransfer} />}
 >
   <TransferFields />
 </BaseScreenTemplate>

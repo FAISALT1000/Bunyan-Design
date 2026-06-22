@@ -33,7 +33,7 @@ function ListDemo({ state = 'content' }: { state?: 'content' | 'loading' | 'empt
           title={item.name}
           description={item.number}
           leading={<Avatar name={item.name} />}
-          trailing={<Badge tone="success">Active</Badge>}
+          trailing={<Badge label="Active" tone="success" />}
           onPress={() => undefined}
         />
       )}

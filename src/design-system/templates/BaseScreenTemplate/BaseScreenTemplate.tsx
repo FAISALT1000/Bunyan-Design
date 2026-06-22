@@ -120,9 +120,15 @@ export const BaseScreenTemplate = memo(function BaseScreenTemplate({
             />
           ) : resolvedHeader.leading}
           <View style={styles.headerTitles}>
-            {resolvedHeader.title ? <Heading level={4}>{resolvedHeader.title}</Heading> : null}
+            {resolvedHeader.title ? (
+              <Heading title={resolvedHeader.title} level={4} />
+            ) : null}
             {resolvedHeader.subtitle ? (
-              <Text variant="bodySmall" tone="secondary">{resolvedHeader.subtitle}</Text>
+              <Text
+                value={resolvedHeader.subtitle}
+                variant="bodySmall"
+                tone="secondary"
+              />
             ) : null}
           </View>
           {resolvedHeader.actions ? (
@@ -155,7 +161,12 @@ export const BaseScreenTemplate = memo(function BaseScreenTemplate({
           accessibilityLabel={loadingLabel}
           style={styles.loadingOverlay}
         >
-          <Spinner size="large" label={loadingLabel} tone="inverse" />
+          <Spinner
+            size="large"
+            label={loadingLabel}
+            tone="inverse"
+            accessible={false}
+          />
         </View>
       ) : null}
     </View>
