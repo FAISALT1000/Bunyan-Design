@@ -1,6 +1,18 @@
-import React, { createContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { Appearance, I18nManager, type ColorSchemeName } from 'react-native';
-import { themes } from '../themes/themes';
+import {
+  getDesignSystemPlatform,
+  resolvePlatformTokens,
+  type DesignSystemPlatform,
+  type PlatformTokens,
+} from '../platform';
+import { themes as defaultThemes } from '../themes/themes';
 import type { Direction, Theme, ThemeMode } from '../themes/types';
 
 export type ThemePreference = ThemeMode | 'system';
@@ -13,16 +25,20 @@ export interface ThemeContextValue {
   direction: Direction;
   isRTL: boolean;
   locale: string;
+  platform: DesignSystemPlatform;
+  platformTokens: PlatformTokens;
 }
 
 const defaultContext: ThemeContextValue = {
-  theme: themes.light,
+  theme: defaultThemes.light,
   mode: 'light',
   preference: 'system',
   setPreference: () => undefined,
   direction: 'ltr',
   isRTL: false,
   locale: 'en',
+  platform: 'default',
+  platformTokens: resolvePlatformTokens('default'),
 };
 
 export const ThemeContext = createContext<ThemeContextValue>(defaultContext);
@@ -30,9 +46,13 @@ export const ThemeContext = createContext<ThemeContextValue>(defaultContext);
 export interface ThemeProviderProps {
   children: React.ReactNode;
   initialPreference?: ThemePreference;
+  preference?: ThemePreference;
+  onPreferenceChange?: (preference: ThemePreference) => void;
   locale?: string;
   direction?: Direction;
   blackForSystemDark?: boolean;
+  themes?: Partial<Record<ThemeMode, Theme>>;
+  platform?: DesignSystemPlatform;
 }
 
 const resolveSystemMode = (scheme: ColorSchemeName | null, blackForSystemDark: boolean): ThemeMode =>
@@ -41,11 +61,24 @@ const resolveSystemMode = (scheme: ColorSchemeName | null, blackForSystemDark: b
 export function ThemeProvider({
   children,
   initialPreference = 'system',
+  preference: controlledPreference,
+  onPreferenceChange,
   locale = 'en',
   direction,
   blackForSystemDark = false,
+  themes,
+  platform: platformOverride,
 }: ThemeProviderProps) {
-  const [preference, setPreference] = useState<ThemePreference>(initialPreference);
+  const [internalPreference, setInternalPreference] = useState<ThemePreference>(
+    initialPreference,
+  );
+  const preference = controlledPreference ?? internalPreference;
+  const setPreference = useCallback((nextPreference: ThemePreference) => {
+    if (controlledPreference === undefined) {
+      setInternalPreference(nextPreference);
+    }
+    onPreferenceChange?.(nextPreference);
+  }, [controlledPreference, onPreferenceChange]);
   const [systemScheme, setSystemScheme] = useState<ColorSchemeName | null>(
     Appearance.getColorScheme() ?? null,
   );
@@ -61,17 +94,32 @@ export function ThemeProvider({
     ? resolveSystemMode(systemScheme, blackForSystemDark)
     : preference;
 
+  const activeTheme = themes?.[mode] ?? defaultThemes[mode];
+  const platform = platformOverride ?? getDesignSystemPlatform();
+  const platformTokens = resolvePlatformTokens(platform);
+
   const value = useMemo<ThemeContextValue>(
     () => ({
-      theme: themes[mode],
+      theme: activeTheme,
       mode,
       preference,
       setPreference,
       direction: resolvedDirection,
       isRTL: resolvedDirection === 'rtl',
       locale,
+      platform,
+      platformTokens,
     }),
-    [locale, mode, preference, resolvedDirection],
+    [
+      activeTheme,
+      locale,
+      mode,
+      platform,
+      platformTokens,
+      preference,
+      resolvedDirection,
+      setPreference,
+    ],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

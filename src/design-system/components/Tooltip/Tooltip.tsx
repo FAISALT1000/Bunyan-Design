@@ -16,7 +16,7 @@ export const Tooltip = memo(function Tooltip({ content, children, placement = 't
     <View style={{ alignSelf: 'flex-start', alignItems: 'center' }}>
       {visible && placement === 'top' ? (
         <View accessible accessibilityLabel={content} style={{ marginBottom: theme.spacing.xs, maxWidth: theme.breakpoint.medium / 2, paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.sm, borderRadius: theme.radius.md, backgroundColor: theme.color.surface.inverse, ...theme.shadow.sm }}>
-          <Text variant="caption" tone="inverse">{content}</Text>
+          <Text value={content} variant="caption" tone="inverse" />
         </View>
       ) : null}
       <Pressable
@@ -32,7 +32,7 @@ export const Tooltip = memo(function Tooltip({ content, children, placement = 't
       </Pressable>
       {visible && placement === 'bottom' ? (
         <View accessible accessibilityLabel={content} style={{ marginTop: theme.spacing.xs, maxWidth: theme.breakpoint.medium / 2, paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.sm, borderRadius: theme.radius.md, backgroundColor: theme.color.surface.inverse, ...theme.shadow.sm }}>
-          <Text variant="caption" tone="inverse">{content}</Text>
+          <Text value={content} variant="caption" tone="inverse" />
         </View>
       ) : null}
     </View>

@@ -2,14 +2,66 @@
 
 A strongly typed React Native design system for iOS, Android, and web. Bunyan supports light, dark, and true-black themes; English and Arabic; LTR and RTL layouts; WCAG 2.2 AA-oriented interaction patterns; and controlled component customization through semantic variants.
 
+## Quick start
+
+```bash
+npm install @bunyan/design-system
+npm install @react-native-community/datetimepicker react-native-safe-area-context react-native-svg
+npx @bunyan/design-system setup
+cd ios && pod install && cd ..
+npm run validate:design-system
+```
+
+```tsx
+export default function App() {
+  return (
+    <DesignSystemSetup locale="en" themePreference="system">
+      <ApplicationRoot />
+    </DesignSystemSetup>
+  );
+}
+```
+
+Use `--navigation=rnn` with the setup generator for Wix React Native
+Navigation. The complete installation, native, provider, adapter, navigation,
+Metro, TypeScript, and testing guide is in [docs/SETUP.md](docs/SETUP.md).
+
+## Installation and peer dependencies
+
+The package supports npm, Yarn, pnpm, local `.tgz` archives, and local paths.
+React and React Native stay owned by the consuming application. The actual
+required peers and optional integrations are listed in
+[docs/SETUP.md](docs/SETUP.md#dependencies).
+
+## Native, provider, theme, localization, RTL, and adapter setup
+
+The generated `DesignSystemSetup` composes safe area, application adapters,
+localization, and theme providers in the required order. It includes typed
+light/dark/black configuration, English/Arabic starter resources, controlled
+locale and theme preference, and optional Wix React Native Navigation files.
+See [docs/SETUP.md](docs/SETUP.md#generated-setup).
+
+## Troubleshooting and upgrading
+
+Use [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) for Metro, duplicate
+React, native module, icon, font, RTL, theme, navigation, and local archive
+issues. Use [docs/UPGRADING.md](docs/UPGRADING.md) for version verification,
+deprecated APIs, cache refresh, and native dependency changes.
+
 ## 1. Architecture overview
 
-The system has four dependency directions:
+The system has six dependency directions:
 
 1. Primitive tokens contain raw values and never import components.
 2. Themes map primitives to semantic roles such as `color.text.secondary`.
 3. Utilities resolve direction, size, and state from the active theme.
 4. Components consume semantic tokens through `useTheme`.
+5. Templates compose components into reusable screen structures without owning
+   product data or business logic.
+6. Hooks expose reusable behavior, while adapters isolate navigation and
+   project-selected native libraries from the design-system package.
+7. Localization receives project-owned resources through a provider; the
+   package never imports application translation files.
 
 Components never depend on product screens. Product code may compose components, but should not reach into component internals. This keeps visual changes centralized and makes theme, RTL, and accessibility behavior consistent.
 
@@ -77,7 +129,18 @@ src/
         Button.tsx
         Button.stories.tsx
         index.ts
+    templates/
+      BaseScreenTemplate/
+        BaseScreenTemplate.tsx
+        BaseScreenTemplate.types.ts
+        BaseScreenTemplate.styles.ts
+        BaseScreenTemplate.test.tsx
+        BaseScreenTemplate.stories.tsx
+        index.ts
     hooks/
+    navigation/
+    application/
+    adapters/
     providers/
     themes/
     tokens/
@@ -95,20 +158,72 @@ docs/
 
 ```tsx
 <Button
+  title="Continue"
   variant="primary"
   size="large"
   loading={false}
   disabled={false}
   fullWidth
-  trailingIcon="chevron-right"
->
-  Continue
-</Button>
+  rightIcon="chevron-right"
+/>
 ```
 
 ## 6. Components
 
 All component contracts and guidance are in [docs/COMPONENTS.md](docs/COMPONENTS.md).
+
+Localization setup, fallbacks, RTL behavior, and project-owned typed keys are
+documented in [docs/LOCALIZATION.md](docs/LOCALIZATION.md).
+
+## Template layer
+
+The template layer provides typed, safe-area-aware screen structures for forms,
+lists, details, confirmations, results, authentication, dashboards, stepped
+flows, empty/error states, and bottom actions. Templates use only Bunyan
+components and semantic tokens; applications supply content and callbacks.
+
+```tsx
+<ResultScreenTemplate
+  status={{ type: 'success' }}
+  title="Transfer completed"
+  referenceNumber="TRX-123456"
+  primaryAction={{ label: 'Done', onPress: handleDone }}
+/>
+```
+
+Architecture, contracts, examples, accessibility behavior, RTL guidance, and
+do/don't rules are in [docs/TEMPLATES.md](docs/TEMPLATES.md).
+
+## Hooks and application adapters
+
+Bunyan includes portable hooks for application state, keyboard, safe areas,
+debouncing, previous values, toggles, disclosure, asynchronous actions,
+accessibility, and RTL. Network status, clipboard, haptics, and permissions use
+dependency-injected application adapters.
+
+Navigation is framework-neutral at the hook boundary and includes a structural
+adapter for Wix React Native Navigation. Consuming projects own all screen names,
+screen props, IDs, options, registration, and root layouts.
+
+```ts
+const adapter = createReactNativeNavigationAdapter<
+  AppScreenParams,
+  AppLayout,
+  AppOptions,
+  AppComponentId
+>({ navigation: Navigation });
+
+const { NavigationScreenProvider, useNavigation } = createNavigation<
+  AppScreenParams,
+  AppLayout,
+  AppOptions,
+  AppComponentId
+>();
+```
+
+See [docs/HOOKS_AND_ADAPTERS.md](docs/HOOKS_AND_ADAPTERS.md) for complete Wix
+setup, typed command examples, native adapter integration, hook contracts, and
+testing guidance.
 
 ## 7. Tests
 
@@ -120,6 +235,19 @@ npm run test:coverage
 ```
 
 The suite covers tokens, themes, accessibility roles and states, interactions, form errors, loading behavior, and Arabic RTL rendering. Snapshots are intentionally reserved for stable visual structures; behavior assertions are preferred.
+
+See [docs/HEALTH_CHECK.md](docs/HEALTH_CHECK.md) for the latest focused
+architecture, accessibility, theme-validation, and migration audit.
+
+Safe semantic-version package generation and local `.tgz` installation are
+documented in [docs/PACKAGING.md](docs/PACKAGING.md).
+
+Consumer troubleshooting and upgrades:
+
+- [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
+- [docs/UPGRADING.md](docs/UPGRADING.md)
+- [docs/CROSS_PLATFORM_GUIDELINES.md](docs/CROSS_PLATFORM_GUIDELINES.md)
+- [docs/INPUT_FIELD_AND_LINK_MIGRATION.md](docs/INPUT_FIELD_AND_LINK_MIGRATION.md)
 
 ## 8. Storybook
 
@@ -166,7 +294,7 @@ export function AccountForm() {
             />
           )}
         </FormField>
-        <Button fullWidth>Continue</Button>
+        <Button title="Continue" fullWidth />
       </ToastProvider>
     </ThemeProvider>
   );

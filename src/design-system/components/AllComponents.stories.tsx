@@ -19,13 +19,10 @@ import {
   Heading,
   Icon,
   IconButton,
-  Input,
-  Link,
+  InputField,
   ListItem,
   Modal,
-  PasswordInput,
   Radio,
-  SearchInput,
   Select,
   Skeleton,
   Spinner,
@@ -94,7 +91,10 @@ function ChipDemo() {
 function AccordionDemo() {
   return (
     <Accordion title="Account details">
-      <Text tone="secondary">Your enterprise account is active and verified.</Text>
+      <Text
+        value="Your enterprise account is active and verified."
+        tone="secondary"
+      />
     </Accordion>
   );
 }
@@ -112,7 +112,7 @@ function TabsDemo() {
           { value: 'settings', label: 'Settings' },
         ]}
       />
-      <Text>Selected tab: {tab}</Text>
+      <Text value={`Selected tab: ${tab}`} />
     </StoryStack>
   );
 }
@@ -121,7 +121,7 @@ function ModalDemo() {
   const [visible, setVisible] = useState(false);
   return (
     <>
-      <Button onPress={() => setVisible(true)}>Open modal</Button>
+      <Button title="Open modal" onPress={() => setVisible(true)} />
       <Modal
         visible={visible}
         onClose={() => setVisible(false)}
@@ -130,7 +130,7 @@ function ModalDemo() {
         primaryAction={{ label: 'Confirm', onPress: () => setVisible(false) }}
         secondaryAction={{ label: 'Cancel', onPress: () => setVisible(false) }}
       >
-        <Text>The selected account settings will be updated.</Text>
+        <Text value="The selected account settings will be updated." />
       </Modal>
     </>
   );
@@ -140,7 +140,7 @@ function BottomSheetDemo() {
   const [visible, setVisible] = useState(false);
   return (
     <>
-      <Button onPress={() => setVisible(true)}>Open bottom sheet</Button>
+      <Button title="Open bottom sheet" onPress={() => setVisible(true)} />
       <BottomSheet visible={visible} onClose={() => setVisible(false)} title="Account actions">
         <ListItem title="Share account" onPress={() => setVisible(false)} />
         <ListItem title="Download statement" onPress={() => setVisible(false)} />
@@ -152,9 +152,13 @@ function BottomSheetDemo() {
 function ToastTrigger() {
   const { showToast } = useToast();
   return (
-    <Button onPress={() => showToast({ message: 'Changes saved successfully', tone: 'success' })}>
-      Show toast
-    </Button>
+    <Button
+      title="Show toast"
+      onPress={() => showToast({
+        message: 'Changes saved successfully',
+        tone: 'success',
+      })}
+    />
   );
 }
 
@@ -181,10 +185,14 @@ export const TextComponent: Story = {
   name: 'Text',
   render: () => (
     <StoryStack>
-      <Text>Primary body text</Text>
-      <Text variant="bodySmall" tone="secondary">Secondary supporting text</Text>
-      <Text variant="caption" tone="tertiary">Caption text</Text>
-      <Text variant="code">const bunyan = true;</Text>
+      <Text value="Primary body text" />
+      <Text
+        value="Secondary supporting text"
+        variant="bodySmall"
+        tone="secondary"
+      />
+      <Text value="Caption text" variant="caption" tone="tertiary" />
+      <Text value="const bunyan = true;" variant="bodySmall" />
     </StoryStack>
   ),
 };
@@ -193,10 +201,10 @@ export const HeadingComponent: Story = {
   name: 'Heading',
   render: () => (
     <StoryStack>
-      <Heading level={1}>Heading one</Heading>
-      <Heading level={2}>Heading two</Heading>
-      <Heading level={3}>Heading three</Heading>
-      <Heading level={4}>Heading four</Heading>
+      <Heading title="Heading one" level={1} />
+      <Heading title="Heading two" level={2} />
+      <Heading title="Heading three" level={3} />
+      <Heading title="Heading four" level={4} />
     </StoryStack>
   ),
 };
@@ -218,11 +226,11 @@ export const ButtonComponent: Story = {
   name: 'Button',
   render: () => (
     <StoryStack>
-      <Button>Primary</Button>
-      <Button variant="secondary">Secondary</Button>
-      <Button variant="outline">Outline</Button>
-      <Button variant="danger">Danger</Button>
-      <Button loading>Loading</Button>
+      <Button title="Primary" />
+      <Button title="Secondary" variant="secondary" />
+      <Button title="Outline" variant="outline" />
+      <Button title="Danger" variant="danger" />
+      <Button title="Loading" loading />
     </StoryStack>
   ),
 };
@@ -240,24 +248,37 @@ export const IconButtonComponent: Story = {
 
 export const LinkComponent: Story = {
   name: 'Link',
-  render: () => <Link href="https://example.com" external>View documentation</Link>,
-};
-
-export const InputComponent: Story = {
-  name: 'Input',
   render: () => (
-    <StoryStack>
-      <Input placeholder="Default input" />
-      <Input leadingIcon="search" placeholder="With icon" />
-      <Input status="error" value="Invalid value" />
-      <Input editable={false} value="Disabled input" />
-    </StoryStack>
+    <Button
+      title="View documentation"
+      variant="link"
+      actionType="externalLink"
+    />
   ),
 };
 
+export const InputComponent: Story = {
+  name: 'InputField',
+  render: function InputFieldStory() {
+    const [defaultValue, setDefaultValue] = useState('');
+    const [iconValue, setIconValue] = useState('');
+    return (
+      <StoryStack>
+        <InputField label="Default input" value={defaultValue} onChangeText={setDefaultValue} />
+        <InputField label="With icon" value={iconValue} onChangeText={setIconValue} leftIcon="search" />
+        <InputField label="Invalid value" value="Invalid value" onChangeText={() => undefined} errorText="Review this value" />
+        <InputField label="Disabled input" value="Disabled input" onChangeText={() => undefined} disabled />
+      </StoryStack>
+    );
+  },
+};
+
 export const PasswordInputComponent: Story = {
-  name: 'PasswordInput',
-  render: () => <PasswordInput placeholder="Enter password" />,
+  name: 'InputField / Password',
+  render: function PasswordStory() {
+    const [value, setValue] = useState('');
+    return <InputField type="password" label="Password" value={value} onChangeText={setValue} />;
+  },
 };
 
 export const TextAreaComponent: Story = {
@@ -266,10 +287,18 @@ export const TextAreaComponent: Story = {
 };
 
 export const SearchInputComponent: Story = {
-  name: 'SearchInput',
+  name: 'InputField / Search',
   render: function SearchStory() {
     const [query, setQuery] = useState('');
-    return <SearchInput value={query} onChangeText={setQuery} onClear={() => setQuery('')} placeholder="Search records" />;
+    return (
+      <InputField
+        type="search"
+        label="Search records"
+        value={query}
+        onChangeText={setQuery}
+        showClearButton
+      />
+    );
   },
 };
 
@@ -277,7 +306,17 @@ export const FormFieldComponent: Story = {
   name: 'FormField',
   render: () => (
     <FormField label="Email address" description="Use your work email" error="Enter a valid email" required>
-      {ids => <Input accessibilityLabelledBy={ids.labelId} aria-describedby={ids.errorId} status="error" value="invalid" />}
+      {ids => (
+        <InputField
+          type="email"
+          label="Email address"
+          value="invalid"
+          onChangeText={() => undefined}
+          errorText="Enter a valid email"
+          accessibilityLabelledBy={ids.labelId}
+          {...(ids.errorId ? { 'aria-describedby': ids.errorId } : {})}
+        />
+      )}
     </FormField>
   ),
 };
@@ -311,11 +350,11 @@ export const BadgeComponent: Story = {
   name: 'Badge',
   render: () => (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-      <Badge>Neutral</Badge>
-      <Badge tone="primary">Primary</Badge>
-      <Badge tone="success">Approved</Badge>
-      <Badge tone="warning">Pending</Badge>
-      <Badge tone="error">Rejected</Badge>
+      <Badge label="Neutral" />
+      <Badge label="Primary" tone="primary" />
+      <Badge label="Approved" tone="success" />
+      <Badge label="Pending" tone="warning" />
+      <Badge label="Rejected" tone="error" />
     </View>
   ),
 };
@@ -341,9 +380,9 @@ export const DividerComponent: Story = {
   name: 'Divider',
   render: () => (
     <StoryStack>
-      <Text>Content above</Text>
+      <Text value="Content above" />
       <Divider />
-      <Text>Content below</Text>
+      <Text value="Content below" />
     </StoryStack>
   ),
 };
@@ -352,9 +391,9 @@ export const CardComponent: Story = {
   name: 'Card',
   render: () => (
     <StoryStack>
-      <Card variant="outlined"><Text>Outlined card</Text></Card>
-      <Card variant="filled"><Text>Filled card</Text></Card>
-      <Card variant="elevated"><Text>Elevated card</Text></Card>
+      <Card variant="outline"><Text value="Outlined card" /></Card>
+      <Card variant="tertiary"><Text value="Filled card" /></Card>
+      <Card variant="elevated"><Text value="Elevated card" /></Card>
     </StoryStack>
   ),
 };

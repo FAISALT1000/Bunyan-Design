@@ -5,7 +5,7 @@ import { heightForSize, logicalRow, statusBorderColor, type ComponentSize, type 
 import { BottomSheet } from '../BottomSheet';
 import { Icon } from '../Icon';
 import { ListItem } from '../ListItem';
-import { SearchInput } from '../SearchInput';
+import { InputField } from '../InputField';
 import { Text } from '../Text';
 
 export interface SelectOption {
@@ -78,12 +78,25 @@ export const Select = memo(function Select({
           },
         ]}
       >
-        <Text tone={selected ? 'primary' : 'tertiary'} style={{ flex: 1 }}>{selected?.label ?? placeholder}</Text>
+        <View style={{ flex: 1 }}>
+          <Text
+            value={selected?.label ?? placeholder}
+            tone={selected ? 'primary' : 'tertiary'}
+          />
+        </View>
         <Icon name="chevron-down" size="sm" tone="secondary" />
       </Pressable>
       <BottomSheet visible={open} onClose={() => setOpen(false)} title={title}>
         <View style={{ gap: theme.spacing.md }}>
-          {searchable ? <SearchInput value={query} placeholder={searchPlaceholder} onChangeText={setQuery} onClear={() => setQuery('')} /> : null}
+          {searchable ? (
+            <InputField
+              type="search"
+              label={searchPlaceholder}
+              value={query}
+              placeholder={searchPlaceholder}
+              onChangeText={setQuery}
+            />
+          ) : null}
           <ScrollView keyboardShouldPersistTaps="handled">
             {filtered.length ? filtered.map(option => (
               <ListItem
@@ -100,7 +113,7 @@ export const Select = memo(function Select({
                   setQuery('');
                 }}
               />
-            )) : <Text tone="secondary" align="center">{emptyMessage}</Text>}
+            )) : <Text value={emptyMessage} tone="secondary" align="center" />}
           </ScrollView>
         </View>
       </BottomSheet>

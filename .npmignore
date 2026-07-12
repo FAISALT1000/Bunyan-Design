@@ -1,0 +1,13 @@
+**/*.test.ts
+**/*.test.tsx
+**/*.stories.ts
+**/*.stories.tsx
+tests/
+showcase/
+coverage/
+package-output/
+.env
+.env.*
+.npmrc
+.git/
+.DS_Store

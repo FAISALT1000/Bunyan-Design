@@ -5,3 +5,42 @@ jest.mock('@react-native-community/datetimepicker', () => {
     return React.createElement(View, { ...props, testID: 'native-date-picker' });
   };
 });
+
+jest.mock('react-native-safe-area-context', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+
+  return {
+    SafeAreaProvider: ({ children }: { children?: React.ReactNode }) =>
+      React.createElement(View, null, children),
+    SafeAreaView: ({ children, ...props }: { children?: React.ReactNode }) =>
+      React.createElement(View, props, children),
+    useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }),
+    initialWindowMetrics: {
+      frame: { x: 0, y: 0, width: 0, height: 0 },
+      insets: { top: 0, right: 0, bottom: 0, left: 0 },
+    },
+  };
+});
+
+jest.mock('react-native/Libraries/Modal/Modal', () => {
+  const React = require('react');
+  const View = require('react-native/Libraries/Components/View/View').default;
+
+  function ModalMock({
+    children,
+    visible = true,
+    ...props
+  }: {
+    children?: React.ReactNode;
+    visible?: boolean;
+    [key: string]: unknown;
+  }) {
+    return visible ? React.createElement(View, props, children) : null;
+  }
+
+  return {
+    __esModule: true,
+    default: ModalMock,
+  };
+});

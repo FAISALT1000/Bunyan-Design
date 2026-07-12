@@ -24,12 +24,12 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 
 ## Text
 
-- Purpose: Semantic body, label, caption, and code text.
-- Props: `TextProps`; `variant`, `tone`, `align`, `weight`, plus native `TextProps`.
-- Variants/sizes/states: `body`, `bodySmall`, `caption`, `label`, `code`; tone and weight APIs; inherits native selection and truncation states.
+- Purpose: Predictable semantic display text with explicit content.
+- Props: Required direct `value` or `localize`, optional localized fallback `value`, `translationOptions`, plus typography and accessibility props.
+- Variants/sizes/states: Display, heading, body, label, and caption variants; semantic tones and four weights.
 - Accessibility: Font scaling is enabled with a 2× multiplier; direction follows the provider.
-- Example: `<Text variant="bodySmall" tone="secondary">Updated today</Text>`.
-- Do/don’t: Use tone names; do not pass raw color or font styles.
+- Example: `<Text value="Updated today" variant="bodySmall" tone="secondary" />`.
+- Do/don’t: Use `value` for direct copy and `localize` with a fallback `value` for project-owned translations; do not pass arbitrary children or raw styles.
 - Edge cases: Use `numberOfLines` for constrained layouts and test at maximum font size.
 
 ## Heading
@@ -38,7 +38,7 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Props: `HeadingProps`; `level`, `tone`, `align`, plus native text props.
 - Variants/sizes/states: Levels 1–6 map to the type scale.
 - Accessibility: Uses the header role and web `aria-level`.
-- Example: `<Heading level={2}>Account summary</Heading>`.
+- Example: `<Heading title="Account summary" level={2} />`.
 - Do/don’t: Keep levels sequential; do not choose a level only for visual size.
 - Edge cases: Long localized headings should wrap; avoid truncating critical titles.
 
@@ -55,10 +55,10 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 ## Button
 
 - Purpose: Triggers a primary or secondary action.
-- Props: `ButtonProps`; native press props plus `variant`, `size`, `loading`, `fullWidth`, and leading/trailing icons.
-- Variants/sizes/states: `primary`, `secondary`, `outline`, `ghost`, `danger`; small/medium/large; pressed, disabled, loading, busy.
+- Props: Required `title`, `onPress`, `variant`, `size`, `loading`, `fullWidth`, `leftIcon`, `rightIcon`, and accessibility props.
+- Variants/sizes/states: `primary`, `secondary`, `tertiary`, `outline`, `ghost`, `danger`; small/medium/large; pressed, focused, disabled, loading, busy.
 - Accessibility: Button role and busy/disabled states are automatic.
-- Example: `<Button variant="primary" size="large" fullWidth>Continue</Button>`.
+- Example: `<Button title="Continue" variant="primary" size="large" fullWidth />`.
 - Do/don’t: Use one primary action per region; do not use a button for navigation.
 - Edge cases: Loading disables duplicate submission; long text wraps within full-width buttons.
 
@@ -75,20 +75,22 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 ## Link
 
 - Purpose: Navigates to internal or external content.
-- Props: `LinkProps`; `href`, `external`, native press props.
+- Props: Required `label`, plus `onPress`, `href`, `external`, disabled, and accessibility props.
 - Variants/sizes/states: Link tone; pressed and disabled native states.
 - Accessibility: Uses the link role; external links include a visible marker.
-- Example: `<Link href="https://example.com" external>Privacy policy</Link>`.
+- Deprecated: migrate `Link` to
+  `<Button title="Privacy policy" variant="link" actionType="externalLink" />`.
 - Do/don’t: Use descriptive text; do not label links “click here.”
 - Edge cases: Validate deep-link schemes before passing them to `href`.
 
 ## Input
 
 - Purpose: Single-line text entry primitive.
-- Props: `InputProps`; native input props plus `size`, `status`, `leadingIcon`, `trailing`, constrained `containerStyle`.
+- Props: Native input behavior plus `label`, `helperText`, `errorText`, `successText`, `size`, `status`, `leftIcon`, and `trailing`.
 - Variants/sizes/states: Small/medium/large; default/error/success; focused and disabled.
 - Accessibility: Supports native labelling props and announces invalid state with `aria-invalid`.
-- Example: `<Input keyboardType="email-address" status="error" />`.
+- Deprecated: migrate to
+  `<InputField type="email" label="Email" value={email} onChangeText={setEmail} />`.
 - Do/don’t: Wrap in `FormField`; do not use placeholder text as the only label.
 - Edge cases: Controlled inputs require `onChangeText`; custom trailing controls must have labels.
 
@@ -98,7 +100,8 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Props: `PasswordInputProps`; Input props plus localized show/hide labels.
 - Variants/sizes/states: Inherits Input states; hidden and visible states.
 - Accessibility: Visibility button announces its current action.
-- Example: `<PasswordInput accessibilityLabel="Password" />`.
+- Deprecated: migrate to
+  `<InputField type="password" label="Password" value={password} onChangeText={setPassword} />`.
 - Do/don’t: Allow password managers; do not block paste.
 - Edge cases: Platform keyboards may briefly retain suggestions after visibility changes.
 
@@ -118,7 +121,8 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Props: `SearchInputProps`; Input props plus `onClear` and localized `clearLabel`.
 - Variants/sizes/states: Inherits Input; clear action appears when `value` is non-empty.
 - Accessibility: Search return key and labelled clear button.
-- Example: `<SearchInput value={query} onChangeText={setQuery} onClear={() => setQuery('')} />`.
+- Deprecated: migrate to
+  `<InputField type="search" label="Search" value={query} onChangeText={setQuery} />`.
 - Do/don’t: Debounce network requests outside the component; do not clear without user action.
 - Edge cases: Controlled value is required for the clear affordance to track content.
 
@@ -185,10 +189,10 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 ## Badge
 
 - Purpose: Displays compact read-only status or metadata.
-- Props: `BadgeProps`; `children`, `tone`, `size`.
+- Props: Required `label`, plus `tone`, `size`, and accessibility props.
 - Variants/sizes/states: Neutral, primary, success, warning, error, information; small/medium.
 - Accessibility: Text remains the source of meaning; color is supplemental.
-- Example: `<Badge tone="success">Approved</Badge>`.
+- Example: `<Badge label="Approved" tone="success" />`.
 - Do/don’t: Keep copy short; do not make badges interactive.
 - Edge cases: Long localized status text may wrap; use a Chip if interaction is needed.
 
@@ -224,13 +228,47 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 
 ## Card
 
-- Purpose: Groups related content or exposes a single card-level action.
-- Props: `CardProps`; `variant`, `padding`, children, and a discriminated interactive `onPress` form.
-- Variants/sizes/states: Elevated, outlined, filled; four padding levels; pressed.
-- Accessibility: Interactive cards require an accessibility label and use button semantics.
-- Example: `<Card variant="elevated"><Text>Summary</Text></Card>`.
+- Purpose: Groups related content, provides explicit metadata, or exposes one card-level action.
+- Props: `variant`, `size`, `title`, `subtitle`, `description`, icons, actions, press behavior, disabled/loading/selected state, dividers, and structural `children`.
+- Variants/sizes/states: Primary, secondary, tertiary, outline, elevated, ghost, success, warning, and error; small/medium/large; pressed, focused, disabled, loading, and selected.
+- Accessibility: Interactive cards derive a label from visible metadata, expose button semantics, and announce disabled/loading/selected state.
+- Example: `<Card variant="elevated" title="Savings account" onPress={openAccount} />`.
 - Do/don’t: Keep one information hierarchy; do not nest multiple large interactive regions.
-- Edge cases: Use `padding="none"` for edge-to-edge media.
+- Edge cases: Internal Bunyan buttons stop propagation so their actions do not invoke the card action.
+
+## Line
+
+- Purpose: Reusable logical information, settings, navigation, action, and key-value row.
+- Props: `type`, left/right text groups, icons, buttons, controlled custom slots, press behavior, disabled/loading states, alignment, token padding/gap, divider, haptics, and accessibility.
+- Variants/sizes/states: Single/double/triple line, inferred line count, pressable, disabled, loading, and divider states.
+- Accessibility: Pressable lines derive a useful label from visible text. Text scales, directional icons mirror, nested buttons remain independently accessible, and layout follows LTR/RTL.
+- Example: `<Line leftText={{ text1: "Reference number" }} rightText={{ text1: "TRX-123456" }} />`. Advanced items use `{ value, localize, translationOptions }`.
+- Do/don’t: Place only Bunyan components in `leftContent` and `rightContent`; do not add product business logic to the row.
+- Edge cases: A supplied type limits rendered rows even when additional text values exist. `preventDoublePressMs` can guard navigation rows.
+
+## Semantic API migration
+
+Semantic leaf components use explicit content props:
+
+```tsx
+// Before
+<Button onPress={confirm}>Confirm</Button>
+<Text>Transfer completed</Text>
+<Heading>Transfer details</Heading>
+<Link onPress={openDetails}>View details</Link>
+<Badge>Pending</Badge>
+
+// After
+<Button title="Confirm" onPress={confirm} />
+<Text value="Transfer completed" />
+<Heading title="Transfer details" />
+<Link label="View details" onPress={openDetails} />
+<Badge label="Pending" />
+```
+
+String or number children remain temporarily available for `Button`, `Text`,
+`Heading`, `Link`, and `Badge`. They emit a development warning and are
+scheduled for removal in `1.0.0`. Arbitrary nested children are not accepted.
 
 ## ListItem
 

@@ -1,11 +1,13 @@
 import React, { memo } from 'react';
-import { View } from 'react-native';
+import { Box } from '../../base/Box';
+import { Inline } from '../../base/Inline';
+import { Stack } from '../../base/Stack';
 import { useTheme } from '../../hooks';
-import { logicalRow } from '../../utilities/styles';
+import { createAccessibilityLabel } from '../../utilities/accessibility';
 import { Button } from '../Button';
 import { Icon, type IconName } from '../Icon';
 import { IconButton } from '../IconButton';
-import { Text } from '../Text';
+import { Text, type TextTone } from '../Text';
 
 export type AlertTone = 'information' | 'success' | 'warning' | 'error';
 
@@ -16,6 +18,9 @@ export interface AlertProps {
   actionLabel?: string;
   onAction?: () => void;
   onDismiss?: () => void;
+  accessibilityLabel?: string;
+  dismissAccessibilityLabel?: string;
+  testID?: string;
 }
 
 export const Alert = memo(function Alert({
@@ -25,38 +30,88 @@ export const Alert = memo(function Alert({
   actionLabel,
   onAction,
   onDismiss,
+  accessibilityLabel,
+  dismissAccessibilityLabel = 'Dismiss alert',
+  testID,
 }: AlertProps) {
-  const { theme, direction } = useTheme();
-  const toneMap: Record<AlertTone, { background: string; border: string; text: string; icon: IconName }> = {
-    information: { background: theme.color.information.subtle, border: theme.color.information.border, text: theme.color.information.text, icon: 'info' },
-    success: { background: theme.color.success.subtle, border: theme.color.success.border, text: theme.color.success.text, icon: 'success' },
-    warning: { background: theme.color.warning.subtle, border: theme.color.warning.border, text: theme.color.warning.text, icon: 'warning' },
-    error: { background: theme.color.error.subtle, border: theme.color.error.border, text: theme.color.error.text, icon: 'error' },
+  const { theme } = useTheme();
+  const toneMap: Record<
+    AlertTone,
+    { background: string; border: string; icon: IconName; textTone: TextTone }
+  > = {
+    information: {
+      background: theme.color.information.subtle,
+      border: theme.color.information.border,
+      icon: 'info',
+      textTone: 'info',
+    },
+    success: {
+      background: theme.color.success.subtle,
+      border: theme.color.success.border,
+      icon: 'success',
+      textTone: 'success',
+    },
+    warning: {
+      background: theme.color.warning.subtle,
+      border: theme.color.warning.border,
+      icon: 'warning',
+      textTone: 'warning',
+    },
+    error: {
+      background: theme.color.error.subtle,
+      border: theme.color.error.border,
+      icon: 'error',
+      textTone: 'error',
+    },
   };
   const current = toneMap[tone];
+
   return (
-    <View
+    <Box
+      accessible
       accessibilityRole={tone === 'error' || tone === 'warning' ? 'alert' : 'summary'}
-      style={[
-        logicalRow(direction),
-        {
-          alignItems: 'flex-start',
-          gap: theme.spacing.md,
-          padding: theme.spacing.lg,
-          borderRadius: theme.radius.lg,
-          borderWidth: theme.borderWidth.thin,
-          borderColor: current.border,
-          backgroundColor: current.background,
-        },
-      ]}
+      accessibilityLabel={
+        accessibilityLabel ?? createAccessibilityLabel([title, description])
+      }
+      accessibilityLiveRegion={tone === 'error' ? 'assertive' : 'polite'}
+      testID={testID}
+      padding="lg"
+      radius="lg"
+      internalStyle={{
+        borderWidth: theme.borderWidth.thin,
+        borderColor: current.border,
+        backgroundColor: current.background,
+      }}
     >
-      <Icon name={current.icon} size="lg" tone={tone} />
-      <View style={{ flex: 1, gap: theme.spacing.xs }}>
-        <Text weight="semibold" style={{ color: current.text }}>{title}</Text>
-        {description ? <Text variant="bodySmall" style={{ color: current.text }}>{description}</Text> : null}
-        {actionLabel && onAction ? <Button variant="ghost" size="small" onPress={onAction}>{actionLabel}</Button> : null}
-      </View>
-      {onDismiss ? <IconButton icon="close" size="small" accessibilityLabel="Dismiss alert" onPress={onDismiss} /> : null}
-    </View>
+      <Inline gap="md" alignItems="flex-start">
+        <Icon name={current.icon} size="lg" tone={tone} />
+        <Stack flex={1} gap="xs">
+          <Text value={title} weight="semibold" tone={current.textTone} />
+          {description ? (
+            <Text
+              value={description}
+              variant="bodySmall"
+              tone={current.textTone}
+            />
+          ) : null}
+          {actionLabel && onAction ? (
+            <Button
+              title={actionLabel}
+              variant="ghost"
+              size="small"
+              onPress={onAction}
+            />
+          ) : null}
+        </Stack>
+        {onDismiss ? (
+          <IconButton
+            icon="close"
+            size="small"
+            accessibilityLabel={dismissAccessibilityLabel}
+            onPress={onDismiss}
+          />
+        ) : null}
+      </Inline>
+    </Box>
   );
 });

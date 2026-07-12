@@ -76,9 +76,12 @@ export const TextArea = memo(forwardRef<TextInput, TextAreaProps>(function TextA
         ]}
       />
       {showCounter && maxLength ? (
-        <Text variant="caption" tone={displayedValue.length >= maxLength ? 'error' : 'tertiary'} align="end">
-          {displayedValue.length}/{maxLength}
-        </Text>
+        <Text
+          value={`${displayedValue.length}/${maxLength}`}
+          variant="caption"
+          tone={displayedValue.length >= maxLength ? 'error' : 'tertiary'}
+          align="end"
+        />
       ) : null}
     </View>
   );
