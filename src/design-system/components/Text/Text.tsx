@@ -32,6 +32,11 @@ export interface BaseTextProps {
   accessibilityLiveRegion?: 'none' | 'polite' | 'assertive' | undefined;
   nativeID?: string | undefined;
   testID?: string | undefined;
+  decoration?: 'none' | 'underline';
+  /**
+   * Internal composition escape hatch for semantic components.
+   */
+  internalColor?: string;
 }
 
 export type TextProps = BaseTextProps & (
@@ -107,6 +112,8 @@ export const Text = memo(forwardRef<
     tone = 'primary',
     align = 'start',
     weight = 'regular',
+    decoration = 'none',
+    internalColor,
     ...props
   },
   ref,
@@ -156,18 +163,18 @@ export const Text = memo(forwardRef<
     <NativeText
       ref={ref}
       allowFontScaling
-      maxFontSizeMultiplier={2}
       {...props}
       style={[
         logicalText(resolvedDirection),
         variantStyle(theme, variant),
         {
-          color: tones[tone],
+          color: internalColor ?? tones[tone],
           fontFamily: resolvedDirection === 'rtl'
             ? theme.typography.fontFamily.arabic
             : theme.typography.fontFamily.sans,
           fontWeight: theme.typography.fontWeight[weight],
           textAlign,
+          textDecorationLine: decoration,
         },
       ]}
     >

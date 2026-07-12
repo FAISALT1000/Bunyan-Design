@@ -19,13 +19,10 @@ import {
   Heading,
   Icon,
   IconButton,
-  Input,
-  Link,
+  InputField,
   ListItem,
   Modal,
-  PasswordInput,
   Radio,
-  SearchInput,
   Select,
   Skeleton,
   Spinner,
@@ -252,25 +249,36 @@ export const IconButtonComponent: Story = {
 export const LinkComponent: Story = {
   name: 'Link',
   render: () => (
-    <Link label="View documentation" href="https://example.com" external />
+    <Button
+      title="View documentation"
+      variant="link"
+      actionType="externalLink"
+    />
   ),
 };
 
 export const InputComponent: Story = {
-  name: 'Input',
-  render: () => (
-    <StoryStack>
-      <Input placeholder="Default input" />
-      <Input leftIcon="search" placeholder="With icon" />
-      <Input status="error" value="Invalid value" />
-      <Input editable={false} value="Disabled input" />
-    </StoryStack>
-  ),
+  name: 'InputField',
+  render: function InputFieldStory() {
+    const [defaultValue, setDefaultValue] = useState('');
+    const [iconValue, setIconValue] = useState('');
+    return (
+      <StoryStack>
+        <InputField label="Default input" value={defaultValue} onChangeText={setDefaultValue} />
+        <InputField label="With icon" value={iconValue} onChangeText={setIconValue} leftIcon="search" />
+        <InputField label="Invalid value" value="Invalid value" onChangeText={() => undefined} errorText="Review this value" />
+        <InputField label="Disabled input" value="Disabled input" onChangeText={() => undefined} disabled />
+      </StoryStack>
+    );
+  },
 };
 
 export const PasswordInputComponent: Story = {
-  name: 'PasswordInput',
-  render: () => <PasswordInput placeholder="Enter password" />,
+  name: 'InputField / Password',
+  render: function PasswordStory() {
+    const [value, setValue] = useState('');
+    return <InputField type="password" label="Password" value={value} onChangeText={setValue} />;
+  },
 };
 
 export const TextAreaComponent: Story = {
@@ -279,10 +287,18 @@ export const TextAreaComponent: Story = {
 };
 
 export const SearchInputComponent: Story = {
-  name: 'SearchInput',
+  name: 'InputField / Search',
   render: function SearchStory() {
     const [query, setQuery] = useState('');
-    return <SearchInput value={query} onChangeText={setQuery} onClear={() => setQuery('')} placeholder="Search records" />;
+    return (
+      <InputField
+        type="search"
+        label="Search records"
+        value={query}
+        onChangeText={setQuery}
+        showClearButton
+      />
+    );
   },
 };
 
@@ -290,7 +306,17 @@ export const FormFieldComponent: Story = {
   name: 'FormField',
   render: () => (
     <FormField label="Email address" description="Use your work email" error="Enter a valid email" required>
-      {ids => <Input accessibilityLabelledBy={ids.labelId} aria-describedby={ids.errorId} status="error" value="invalid" />}
+      {ids => (
+        <InputField
+          type="email"
+          label="Email address"
+          value="invalid"
+          onChangeText={() => undefined}
+          errorText="Enter a valid email"
+          accessibilityLabelledBy={ids.labelId}
+          {...(ids.errorId ? { 'aria-describedby': ids.errorId } : {})}
+        />
+      )}
     </FormField>
   ),
 };

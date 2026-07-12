@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import type { Meta, StoryObj } from '@storybook/react-native';
 import { Avatar } from '../../components/Avatar';
-import { FormField } from '../../components/FormField';
-import { Input } from '../../components/Input';
-import { PasswordInput } from '../../components/PasswordInput';
+import { InputField } from '../../components/InputField';
 import { useTheme } from '../../hooks';
 import { OTPTemplate } from '../OTPTemplate';
 import { AuthenticationTemplate } from './AuthenticationTemplate';
@@ -21,12 +19,20 @@ function LoginDemo({ error, loading = false }: { error?: string; loading?: boole
       logo={<Avatar name="Bunyan" size="xlarge" />}
       form={(
         <View style={{ gap: theme.spacing.lg }}>
-          <FormField label="Username" required>
-            <Input value={username} onChangeText={setUsername} autoCapitalize="none" />
-          </FormField>
-          <FormField label="Password" required>
-            <PasswordInput value={password} onChangeText={setPassword} />
-          </FormField>
+          <InputField
+            label="Username"
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
+            required
+          />
+          <InputField
+            type="password"
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            required
+          />
         </View>
       )}
       {...(error !== undefined ? { error } : {})}
@@ -57,7 +63,14 @@ export const Registration: Story = {
     mode: 'registration',
     title: 'Create your account',
     description: 'Enter your details to begin.',
-    form: <Input placeholder="Mobile number" />,
+    form: (
+      <InputField
+        type="phone"
+        label="Mobile number"
+        value=""
+        onChangeText={() => undefined}
+      />
+    ),
     primaryAction: { label: 'Continue', onPress: () => undefined },
   },
 };
@@ -66,7 +79,14 @@ export const PasswordReset: Story = {
     mode: 'passwordReset',
     title: 'Reset password',
     description: 'Choose a strong new password.',
-    form: <PasswordInput placeholder="New password" />,
+    form: (
+      <InputField
+        type="password"
+        label="New password"
+        value=""
+        onChangeText={() => undefined}
+      />
+    ),
     primaryAction: { label: 'Reset password', onPress: () => undefined },
   },
 };

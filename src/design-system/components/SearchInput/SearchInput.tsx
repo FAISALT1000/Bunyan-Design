@@ -1,27 +1,61 @@
 import React, { forwardRef, memo } from 'react';
 import type { BaseInputHandle } from '../../base/Input';
-import { IconButton } from '../IconButton';
-import { Input, type InputProps } from '../Input';
+import { warnDeprecated } from '../../utilities/deprecations';
+import {
+  InputField,
+  type SearchInputFieldProps,
+} from '../InputField';
 
-export interface SearchInputProps extends Omit<InputProps, 'leftIcon' | 'trailing'> {
+/**
+ * @deprecated Use `InputField` with `type="search"`.
+ */
+export type SearchInputProps = Omit<
+  SearchInputFieldProps,
+  'type' | 'label' | 'value' | 'onChangeText'
+> & {
+  label?: string;
+  value?: string;
+  onChangeText?: (value: string) => void;
   clearLabel?: string;
   onClear?: () => void;
-}
+};
 
-export const SearchInput = memo(forwardRef<BaseInputHandle, SearchInputProps>(function SearchInput(
-  { value, clearLabel = 'Clear search', onClear, returnKeyType = 'search', ...props },
+/**
+ * @deprecated Use `InputField` with `type="search"`.
+ */
+export const SearchInput = memo(forwardRef<
+  BaseInputHandle,
+  SearchInputProps
+>(function SearchInput(
+  {
+    label,
+    value = '',
+    onChangeText = () => undefined,
+    accessibilityLabel,
+    placeholder,
+    clearLabel,
+    onClear,
+    ...props
+  },
   ref,
 ) {
+  warnDeprecated(
+    'SearchInput is deprecated. Use <InputField type="search" ... />. It will be removed in 1.0.0.',
+  );
   return (
-    <Input
+    <InputField
       ref={ref}
+      type="search"
+      label={label ?? accessibilityLabel ?? placeholder ?? 'Search'}
       value={value}
-      leftIcon="search"
-      returnKeyType={returnKeyType}
+      onChangeText={nextValue => {
+        onChangeText(nextValue);
+        if (!nextValue) onClear?.();
+      }}
+      {...(accessibilityLabel ? { accessibilityLabel } : {})}
+      {...(placeholder ? { placeholder } : {})}
+      {...(clearLabel ? { clearAccessibilityLabel: clearLabel } : {})}
       {...props}
-      trailing={value ? (
-        <IconButton icon="close" size="small" accessibilityLabel={clearLabel} onPress={onClear} />
-      ) : null}
     />
   );
 }));

@@ -1,5 +1,7 @@
 import {
+  buttonBaseTokens,
   cardBaseTokens,
+  inputFieldBaseTokens,
   lineBaseTokens,
   palette,
   tokens,
@@ -99,6 +101,43 @@ const blackColors: SemanticColors = {
 };
 
 const createComponentTokens = (color: SemanticColors): ComponentTokens => ({
+  button: {
+    link: {
+      ...buttonBaseTokens.link,
+      textColor: color.text.link,
+      pressedTextColor: color.primary.pressed,
+      disabledTextColor: color.disabled.text,
+      focusIndicatorColor: color.border.focus,
+    },
+  },
+  inputField: {
+    ...inputFieldBaseTokens,
+    disabledOpacity: tokens.opacity.disabled,
+    focusedBorderColor: color.border.focus,
+    errorBorderColor: color.border.error,
+    successBorderColor: color.border.success,
+    labelColor: color.text.secondary,
+    focusedLabelColor: color.primary.default,
+    errorLabelColor: color.error.text,
+    successLabelColor: color.success.text,
+    variants: {
+      outlined: {
+        ...inputFieldBaseTokens.variants.outlined,
+        background: color.surface.primary,
+        borderColor: color.border.primary,
+      },
+      filled: {
+        ...inputFieldBaseTokens.variants.filled,
+        background: color.surface.secondary,
+        borderColor: color.border.secondary,
+      },
+      underlined: {
+        ...inputFieldBaseTokens.variants.underlined,
+        background: color.overlay.transparent,
+        borderColor: color.border.primary,
+      },
+    },
+  },
   line: {
     ...lineBaseTokens,
     dividerColor: color.border.secondary,

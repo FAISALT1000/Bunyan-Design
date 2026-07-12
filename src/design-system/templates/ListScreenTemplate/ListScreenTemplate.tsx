@@ -4,7 +4,7 @@ import { Button } from '../../components/Button';
 import { Divider } from '../../components/Divider';
 import { EmptyState } from '../../components/EmptyState';
 import { Heading } from '../../components/Heading';
-import { SearchInput } from '../../components/SearchInput';
+import { InputField } from '../../components/InputField';
 import { Skeleton } from '../../components/Skeleton';
 import { Tabs } from '../../components/Tabs';
 import { Text } from '../../components/Text';
@@ -95,12 +95,16 @@ export function ListScreenTemplate<T>({
             />
           ) : null}
           {search ? (
-            <SearchInput
+            <InputField
+              type="search"
+              label={search.accessibilityLabel ?? search.placeholder ?? 'Search'}
               value={search.value}
-              onChangeText={search.onChangeText}
+              onChangeText={value => {
+                search.onChangeText(value);
+                if (!value) search.onClear?.();
+              }}
               placeholder={search.placeholder ?? 'Search'}
               accessibilityLabel={search.accessibilityLabel ?? 'Search list'}
-              {...(search.onClear ? { onClear: search.onClear } : {})}
             />
           ) : null}
           {filter || sort ? (

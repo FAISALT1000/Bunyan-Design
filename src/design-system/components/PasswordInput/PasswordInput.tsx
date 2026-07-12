@@ -1,34 +1,57 @@
-import React, { forwardRef, memo, useState } from 'react';
+import React, { forwardRef, memo } from 'react';
 import type { BaseInputHandle } from '../../base/Input';
-import { IconButton } from '../IconButton';
-import { Input, type InputProps } from '../Input';
+import { warnDeprecated } from '../../utilities/deprecations';
+import {
+  InputField,
+  type PasswordInputFieldProps,
+} from '../InputField';
 
-export type PasswordInputProps = Omit<InputProps, 'secureTextEntry' | 'trailing'> & {
+/**
+ * @deprecated Use `InputField` with `type="password"`.
+ */
+export type PasswordInputProps = Omit<
+  PasswordInputFieldProps,
+  'type' | 'label' | 'value' | 'onChangeText'
+> & {
+  label?: string;
+  value?: string;
+  onChangeText?: (value: string) => void;
   showPasswordLabel?: string;
   hidePasswordLabel?: string;
 };
 
-export const PasswordInput = memo(forwardRef<BaseInputHandle, PasswordInputProps>(function PasswordInput(
-  { showPasswordLabel = 'Show password', hidePasswordLabel = 'Hide password', ...props },
+/**
+ * @deprecated Use `InputField` with `type="password"`.
+ */
+export const PasswordInput = memo(forwardRef<
+  BaseInputHandle,
+  PasswordInputProps
+>(function PasswordInput(
+  {
+    label,
+    value = '',
+    onChangeText = () => undefined,
+    accessibilityLabel,
+    placeholder,
+    showPasswordLabel: _showPasswordLabel,
+    hidePasswordLabel: _hidePasswordLabel,
+    ...props
+  },
   ref,
 ) {
-  const [visible, setVisible] = useState(false);
+  warnDeprecated(
+    'PasswordInput is deprecated. Use <InputField type="password" ... />. It will be removed in 1.0.0.',
+  );
   return (
-    <Input
+    <InputField
       ref={ref}
-      autoCapitalize="none"
-      autoCorrect={false}
-      textContentType="password"
-      secureTextEntry={!visible}
+      type="password"
+      label={label ?? accessibilityLabel ?? placeholder ?? 'Password'}
+      value={value}
+      onChangeText={onChangeText}
+      {...(accessibilityLabel ? { accessibilityLabel } : {})}
+      {...(placeholder ? { placeholder } : {})}
       {...props}
-      trailing={(
-        <IconButton
-          icon={visible ? 'eye-off' : 'eye'}
-          size="small"
-          accessibilityLabel={visible ? hidePasswordLabel : showPasswordLabel}
-          onPress={() => setVisible(current => !current)}
-        />
-      )}
     />
   );
 }));

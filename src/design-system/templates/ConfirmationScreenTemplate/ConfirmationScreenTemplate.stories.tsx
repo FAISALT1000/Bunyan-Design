@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-native';
+import { Button } from '../../components/Button';
 import { Heading } from '../../components/Heading';
-import { Link } from '../../components/Link';
 import { Text } from '../../components/Text';
 import { ConfirmationScreenTemplate } from './ConfirmationScreenTemplate';
 
@@ -29,7 +29,11 @@ function ConfirmationDemo({ loading = false, error }: { loading?: boolean; error
       terms={(
         <>
           <Text value="Read the terms before continuing." variant="bodySmall" />
-          <Link label="Terms and conditions" />
+          <Button
+            title="Terms and conditions"
+            variant="link"
+            actionType="navigation"
+          />
         </>
       )}
       confirmationRequired

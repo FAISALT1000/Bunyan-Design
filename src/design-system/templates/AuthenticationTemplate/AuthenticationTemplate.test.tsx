@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, screen } from '@testing-library/react-native';
-import { Input } from '../../components/Input';
+import { InputField } from '../../components/InputField';
 import { renderWithTheme } from '../../../../tests/test-utils';
 import { AuthenticationTemplate } from './AuthenticationTemplate';
 
@@ -11,7 +11,13 @@ describe('AuthenticationTemplate', () => {
       <AuthenticationTemplate
         mode="login"
         title="Sign in"
-        form={<Input accessibilityLabel="Username" />}
+        form={(
+          <InputField
+            label="Username"
+            value=""
+            onChangeText={() => undefined}
+          />
+        )}
         primaryAction={{ label: 'Sign in', onPress: submit }}
       />,
     );

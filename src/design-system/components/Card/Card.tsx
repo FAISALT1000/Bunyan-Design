@@ -34,10 +34,17 @@ export const Card = memo(function Card({
   testID,
   children,
 }: CardProps) {
-  const { theme } = useTheme();
+  const { theme, platformTokens } = useTheme();
   const styles = useMemo(
-    () => createCardStyles(theme, variant, size, selected, showBorder),
-    [selected, showBorder, size, theme, variant],
+    () => createCardStyles(
+      theme,
+      variant,
+      size,
+      selected,
+      showBorder,
+      platformTokens,
+    ),
+    [platformTokens, selected, showBorder, size, theme, variant],
   );
   const hasHeader = Boolean(
     title ||

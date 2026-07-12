@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, screen } from '@testing-library/react-native';
-import { Input } from '../../components/Input';
+import { InputField } from '../../components/InputField';
 import { renderWithTheme } from '../../../../tests/test-utils';
 import { FormScreenTemplate } from './FormScreenTemplate';
 
@@ -10,7 +10,17 @@ describe('FormScreenTemplate', () => {
     renderWithTheme(
       <FormScreenTemplate
         title="Profile"
-        sections={[{ id: 'profile', title: 'Details', content: <Input accessibilityLabel="Name" /> }]}
+        sections={[{
+          id: 'profile',
+          title: 'Details',
+          content: (
+            <InputField
+              label="Name"
+              value=""
+              onChangeText={() => undefined}
+            />
+          ),
+        }]}
         submitLabel="Save"
         onSubmit={submit}
       />,

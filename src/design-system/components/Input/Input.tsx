@@ -1,17 +1,15 @@
 import React, { forwardRef, memo } from 'react';
-import {
-  BaseInput,
-  type BaseInputHandle,
-  type BaseInputProps,
+import type {
+  BaseInputHandle,
+  BaseInputProps,
 } from '../../base/Input';
-import { Stack } from '../../base/Stack';
-import {
-  resolveLocalizedText,
-  type TranslationOptions,
-  useOptionalLocalization,
-} from '../../localization';
-import { Text } from '../Text';
+import type { TranslationOptions } from '../../localization';
+import { warnDeprecated } from '../../utilities/deprecations';
+import { InputField } from '../InputField';
 
+/**
+ * @deprecated Use `InputField`. Scheduled for removal in 1.0.0.
+ */
 export interface InputProps extends BaseInputProps {
   label?: string;
   labelLocalize?: string;
@@ -23,6 +21,9 @@ export interface InputProps extends BaseInputProps {
   successText?: string;
 }
 
+/**
+ * @deprecated Use `InputField`. Scheduled for removal in 1.0.0.
+ */
 export const Input = memo(forwardRef<BaseInputHandle, InputProps>(function Input(
   {
     label,
@@ -35,69 +36,84 @@ export const Input = memo(forwardRef<BaseInputHandle, InputProps>(function Input
     errorText,
     successText,
     status = errorText ? 'error' : successText ? 'success' : 'default',
+    value = '',
+    onChangeText = () => undefined,
+    editable = true,
+    leftIcon,
     accessibilityLabel,
-    ...props
+    accessibilityHint,
+    accessibilityLabelledBy,
+    accessibilityRole,
+    testID,
+    autoCapitalize,
+    autoComplete,
+    autoCorrect,
+    autoFocus,
+    inputMode,
+    keyboardType,
+    maxLength,
+    multiline,
+    numberOfLines,
+    onBlur,
+    onFocus,
+    onPressIn,
+    onSubmitEditing,
+    returnKeyType,
+    secureTextEntry,
+    submitBehavior,
+    textContentType,
   },
   ref,
 ) {
-  const localization = useOptionalLocalization();
-  const supportingText = errorText ?? successText ?? helperText;
-  const resolvedLabel = labelLocalize
-    ? resolveLocalizedText({
-        localize: labelLocalize,
-        ...(label !== undefined ? { value: label } : {}),
-        ...(labelTranslationOptions
-          ? { translationOptions: labelTranslationOptions }
-          : {}),
-        ...(localization ? { localization } : {}),
-      })
-    : label;
-  const resolvedPlaceholder = placeholderLocalize
-    ? resolveLocalizedText({
-        localize: placeholderLocalize,
-        ...(placeholder !== undefined ? { value: placeholder } : {}),
-        ...(placeholderTranslationOptions
-          ? { translationOptions: placeholderTranslationOptions }
-          : {}),
-        ...(localization ? { localization } : {}),
-      })
-    : placeholder;
+  warnDeprecated(
+    'Input is deprecated. Use <InputField type="text" ... />. It will be removed in 1.0.0.',
+  );
+  const resolvedLabel = label
+    ?? accessibilityLabel
+    ?? placeholder
+    ?? 'Input';
 
   return (
-    <Stack gap="xs">
-      {label || labelLocalize ? (
-        <Text
-          {...(labelLocalize ? { localize: labelLocalize } : {})}
-          {...(label !== undefined ? { value: label } : {})}
-          {...(labelTranslationOptions
-            ? { translationOptions: labelTranslationOptions }
-            : {})}
-          variant="labelMedium"
-          weight="semibold"
-        />
-      ) : null}
-      <BaseInput
-        ref={ref}
-        status={status}
-        accessibilityLabel={
-          accessibilityLabel
-          ?? (resolvedLabel !== undefined ? String(resolvedLabel) : undefined)
-        }
-        placeholder={
-          resolvedPlaceholder !== undefined
-            ? String(resolvedPlaceholder)
-            : undefined
-        }
-        {...props}
-      />
-      {supportingText ? (
-        <Text
-          value={supportingText}
-          variant="caption"
-          tone={errorText ? 'error' : successText ? 'success' : 'secondary'}
-          accessibilityRole={errorText ? 'alert' : undefined}
-        />
-      ) : null}
-    </Stack>
+    <InputField
+      ref={ref}
+      type="text"
+      label={resolvedLabel}
+      {...(labelLocalize ? { labelLocalize } : {})}
+      {...(labelTranslationOptions ? { labelTranslationOptions } : {})}
+      value={String(value)}
+      onChangeText={onChangeText}
+      {...(placeholder !== undefined ? { placeholder } : {})}
+      {...(placeholderLocalize ? { placeholderLocalize } : {})}
+      {...(placeholderTranslationOptions
+        ? { placeholderTranslationOptions }
+        : {})}
+      {...(helperText ? { helperText } : {})}
+      {...(errorText ? { errorText } : {})}
+      {...(successText ? { successText } : {})}
+      state={status}
+      disabled={!editable}
+      {...(leftIcon ? { leftIcon } : {})}
+      {...(accessibilityLabel ? { accessibilityLabel } : {})}
+      {...(accessibilityHint ? { accessibilityHint } : {})}
+      {...(accessibilityLabelledBy ? { accessibilityLabelledBy } : {})}
+      {...(accessibilityRole ? { accessibilityRole } : {})}
+      {...(testID ? { testID } : {})}
+      {...(autoCapitalize ? { autoCapitalize } : {})}
+      {...(autoComplete ? { autoComplete } : {})}
+      {...(autoCorrect !== undefined ? { autoCorrect } : {})}
+      {...(autoFocus !== undefined ? { autoFocus } : {})}
+      {...(inputMode ? { inputMode } : {})}
+      {...(keyboardType ? { keyboardType } : {})}
+      {...(maxLength !== undefined ? { maxLength } : {})}
+      numberOfLines={multiline ? numberOfLines ?? 3 : numberOfLines ?? 1}
+      {...(onBlur ? { onBlur } : {})}
+      {...(onFocus ? { onFocus } : {})}
+      {...(onPressIn ? { onPressIn } : {})}
+      {...(onSubmitEditing ? { onSubmitEditing } : {})}
+      {...(returnKeyType ? { returnKeyType } : {})}
+      {...(secureTextEntry !== undefined ? { secureTextEntry } : {})}
+      {...(submitBehavior ? { submitBehavior } : {})}
+      {...(textContentType ? { textContentType } : {})}
+    />
   );
 }));

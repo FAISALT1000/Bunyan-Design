@@ -27,6 +27,12 @@
   "scripts": {
     "prestart": "node scripts/check-node.cjs",
     "start": "expo start --clear",
+    "preview": "EXPO_PUBLIC_SHOWCASE_ENTRY=preview expo start --clear",
+    "preview:web": "EXPO_PUBLIC_SHOWCASE_ENTRY=preview expo start --web --clear",
+    "preview:android": "EXPO_PUBLIC_SHOWCASE_ENTRY=preview expo start --android --clear",
+    "preview:apk": "node scripts/build-preview-apk.cjs",
+    "storybook": "EXPO_PUBLIC_SHOWCASE_ENTRY=storybook expo start --clear",
+    "storybook:web": "EXPO_PUBLIC_SHOWCASE_ENTRY=storybook expo start --web --clear",
     "preandroid": "node scripts/check-node.cjs",
     "android": "expo start --android --clear",
     "preios": "node scripts/check-node.cjs",

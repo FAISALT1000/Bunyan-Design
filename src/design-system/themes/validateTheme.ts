@@ -64,6 +64,9 @@ export const validateTheme = (theme: Theme): ThemeValidationResult => {
     ['color.primary.contrast', theme.color.primary.contrast],
     ['components.line.dividerColor', theme.components.line.dividerColor],
     ['components.card.focusedBorderColor', theme.components.card.focusedBorderColor],
+    ['components.inputField.focusedBorderColor', theme.components.inputField.focusedBorderColor],
+    ['components.inputField.errorBorderColor', theme.components.inputField.errorBorderColor],
+    ['components.button.link.textColor', theme.components.button.link.textColor],
   ];
 
   requiredStrings.forEach(([path, value]) => {
@@ -76,6 +79,8 @@ export const validateTheme = (theme: Theme): ThemeValidationResult => {
     ['components.line.minHeight', theme.components.line.minHeight],
     ['components.line.paddingHorizontal', theme.components.line.paddingHorizontal],
     ['components.card.radius', theme.components.card.radius],
+    ['components.inputField.minHeight', theme.components.inputField.minHeight],
+    ['components.inputField.animationDuration', theme.components.inputField.animationDuration],
   ];
   numericTokens.forEach(([path, value]) => {
     if (!Number.isFinite(value) || value < 0) {

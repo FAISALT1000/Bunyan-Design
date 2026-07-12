@@ -162,7 +162,9 @@ describe('localized semantic components', () => {
 
     fireEvent.press(screen.getByRole('button', { name: 'تأكيد' }));
     expect(onPress).toHaveBeenCalledTimes(1);
-    expect(screen.getByText('رقم الحساب')).toBeTruthy();
+    const localizedInput = screen.getByLabelText('رقم الحساب');
+    expect(localizedInput).toBeTruthy();
+    fireEvent(localizedInput, 'focus', {});
     expect(screen.getByPlaceholderText('أدخل رقم الحساب')).toBeTruthy();
     expect(screen.getByText('قيد الانتظار')).toBeTruthy();
     expect(screen.getByRole('button', {

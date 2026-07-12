@@ -78,7 +78,8 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Props: Required `label`, plus `onPress`, `href`, `external`, disabled, and accessibility props.
 - Variants/sizes/states: Link tone; pressed and disabled native states.
 - Accessibility: Uses the link role; external links include a visible marker.
-- Example: `<Link label="Privacy policy" href="https://example.com" external />`.
+- Deprecated: migrate `Link` to
+  `<Button title="Privacy policy" variant="link" actionType="externalLink" />`.
 - Do/don’t: Use descriptive text; do not label links “click here.”
 - Edge cases: Validate deep-link schemes before passing them to `href`.
 
@@ -88,7 +89,8 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Props: Native input behavior plus `label`, `helperText`, `errorText`, `successText`, `size`, `status`, `leftIcon`, and `trailing`.
 - Variants/sizes/states: Small/medium/large; default/error/success; focused and disabled.
 - Accessibility: Supports native labelling props and announces invalid state with `aria-invalid`.
-- Example: `<Input label="Email" placeholder="Enter email" keyboardType="email-address" />`.
+- Deprecated: migrate to
+  `<InputField type="email" label="Email" value={email} onChangeText={setEmail} />`.
 - Do/don’t: Wrap in `FormField`; do not use placeholder text as the only label.
 - Edge cases: Controlled inputs require `onChangeText`; custom trailing controls must have labels.
 
@@ -98,7 +100,8 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Props: `PasswordInputProps`; Input props plus localized show/hide labels.
 - Variants/sizes/states: Inherits Input states; hidden and visible states.
 - Accessibility: Visibility button announces its current action.
-- Example: `<PasswordInput accessibilityLabel="Password" />`.
+- Deprecated: migrate to
+  `<InputField type="password" label="Password" value={password} onChangeText={setPassword} />`.
 - Do/don’t: Allow password managers; do not block paste.
 - Edge cases: Platform keyboards may briefly retain suggestions after visibility changes.
 
@@ -118,7 +121,8 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Props: `SearchInputProps`; Input props plus `onClear` and localized `clearLabel`.
 - Variants/sizes/states: Inherits Input; clear action appears when `value` is non-empty.
 - Accessibility: Search return key and labelled clear button.
-- Example: `<SearchInput value={query} onChangeText={setQuery} onClear={() => setQuery('')} />`.
+- Deprecated: migrate to
+  `<InputField type="search" label="Search" value={query} onChangeText={setQuery} />`.
 - Do/don’t: Debounce network requests outside the component; do not clear without user action.
 - Edge cases: Controlled value is required for the clear affordance to track content.
 

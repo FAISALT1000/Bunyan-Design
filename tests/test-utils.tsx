@@ -6,7 +6,12 @@ export const renderWithTheme = (
   ui: React.ReactElement,
   providerProps: Omit<ThemeProviderProps, 'children'> = {},
   options?: RenderOptions,
-) => render(
-  <ThemeProvider {...providerProps}>{ui}</ThemeProvider>,
-  options,
-);
+) => {
+  const Wrapper = ({ children }: { children: React.ReactNode }) => (
+    <ThemeProvider {...providerProps}>{children}</ThemeProvider>
+  );
+  return render(ui, {
+    ...options,
+    wrapper: Wrapper,
+  });
+};

@@ -31,8 +31,10 @@ export type ButtonVariant =
   | 'tertiary'
   | 'outline'
   | 'ghost'
+  | 'link'
   | 'danger';
 export type ButtonSize = ComponentSize;
+export type ButtonActionType = 'action' | 'navigation' | 'externalLink';
 
 interface SharedButtonProps {
   onPress?: () => void;
@@ -48,6 +50,8 @@ interface SharedButtonProps {
   testID?: string;
   titleLocalize?: string;
   titleTranslationOptions?: TranslationOptions;
+  actionType?: ButtonActionType;
+  underline?: boolean;
 }
 
 export type ButtonProps = SharedButtonProps & (
@@ -81,10 +85,12 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
     accessibilityHint,
     testID,
     onPress,
+    actionType = 'action',
+    underline,
   },
   ref,
 ) {
-  const { theme } = useTheme();
+  const { platformTokens, theme } = useTheme();
   const localization = useOptionalLocalization();
   const titleFallback = title ?? children;
   const resolvedTitle = resolveLocalizedText({
@@ -107,6 +113,8 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
       border: string;
       textTone: TextTone;
       iconTone: IconTone;
+      textColor?: string;
+      pressedTextColor?: string;
     }
   > = {
     primary: {
@@ -144,6 +152,15 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
       textTone: 'info',
       iconTone: 'information',
     },
+    link: {
+      background: theme.color.overlay.transparent,
+      pressedBackground: theme.color.overlay.transparent,
+      border: theme.color.overlay.transparent,
+      textTone: 'info',
+      iconTone: 'information',
+      textColor: theme.components.button.link.textColor,
+      pressedTextColor: theme.components.button.link.pressedTextColor,
+    },
     danger: {
       background: theme.color.error.default,
       pressedBackground: theme.color.error.text,
@@ -156,7 +173,9 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
   const iconSize = size === 'small' ? 'sm' : size === 'large' ? 'lg' : 'md';
   const baseStyle: BasePressableProps['baseStyle'] = {
     minHeight: heightForSize(theme, size),
-    paddingHorizontal: horizontalPaddingForSize(theme, size),
+    paddingHorizontal: variant === 'link'
+      ? theme.components.button.link.touchTargetPadding
+      : horizontalPaddingForSize(theme, size),
     borderRadius: theme.radius.md,
     borderWidth: theme.borderWidth.thin,
     borderColor: current.border,
@@ -168,7 +187,11 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
   return (
     <BasePressable
       ref={ref}
-      accessibilityRole="button"
+      accessibilityRole={
+        variant === 'link' && actionType !== 'action'
+          ? 'link'
+          : 'button'
+      }
       accessibilityLabel={
         accessibilityLabel
         ?? createAccessibilityLabel([
@@ -188,8 +211,10 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
       baseStyle={baseStyle}
       pressedStyle={{ backgroundColor: current.pressedBackground }}
       focusedStyle={{
-        borderColor: theme.color.border.focus,
-        borderWidth: theme.borderWidth.medium,
+        borderColor: variant === 'link'
+          ? theme.components.button.link.focusIndicatorColor
+          : theme.color.border.focus,
+        borderWidth: platformTokens.interaction.focusRingWidth,
       }}
       disabledStyle={{
         backgroundColor: theme.color.disabled.background,
@@ -197,36 +222,76 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
         opacity: theme.opacity.disabled,
       }}
     >
-      <Inline
-        gap="sm"
-        alignItems="center"
-        justifyContent="center"
-      >
-        {loading ? (
-          <Spinner
-            size="small"
-            tone={current.textTone === 'inverse' ? 'inverse' : 'primary'}
-            label="Loading"
-            showLabel={false}
-            accessible={false}
+      {({ pressed }) => (
+        <Inline
+          gap="sm"
+          alignItems="center"
+          justifyContent="center"
+        >
+          {loading ? (
+            <Spinner
+              size="small"
+              tone={current.textTone === 'inverse' ? 'inverse' : 'primary'}
+              label="Loading"
+              showLabel={false}
+              accessible={false}
+            />
+          ) : leftIcon ? (
+            <Icon
+              name={leftIcon}
+              size={iconSize}
+              tone={current.iconTone}
+              {...(variant === 'link' && current.textColor
+                ? {
+                    color: pressed
+                      ? current.pressedTextColor
+                      : current.textColor,
+                  }
+                : {})}
+            />
+          ) : null}
+          <Text
+            value={titleFallback}
+            {...(titleLocalize ? { localize: titleLocalize } : {})}
+            {...(titleTranslationOptions
+              ? { translationOptions: titleTranslationOptions }
+              : {})}
+            variant="labelMedium"
+            weight="semibold"
+            tone={isDisabled ? 'disabled' : current.textTone}
+            decoration={
+              variant === 'link'
+              && (underline ?? theme.components.button.link.underline === 'always')
+                ? 'underline'
+                : 'none'
+            }
+            {...(variant === 'link'
+              ? {
+                  internalColor: isDisabled
+                    ? theme.components.button.link.disabledTextColor
+                    : pressed
+                      ? current.pressedTextColor
+                      : current.textColor,
+                }
+              : {})}
           />
-        ) : leftIcon ? (
-          <Icon name={leftIcon} size={iconSize} tone={current.iconTone} />
-        ) : null}
-        <Text
-          value={titleFallback}
-          {...(titleLocalize ? { localize: titleLocalize } : {})}
-          {...(titleTranslationOptions
-            ? { translationOptions: titleTranslationOptions }
-            : {})}
-          variant="labelMedium"
-          weight="semibold"
-          tone={isDisabled ? 'disabled' : current.textTone}
-        />
-        {!loading && rightIcon ? (
-          <Icon name={rightIcon} size={iconSize} tone={current.iconTone} mirroredInRTL />
-        ) : null}
-      </Inline>
+          {!loading && rightIcon ? (
+            <Icon
+              name={rightIcon}
+              size={iconSize}
+              tone={current.iconTone}
+              mirroredInRTL
+              {...(variant === 'link' && current.textColor
+                ? {
+                    color: pressed
+                      ? current.pressedTextColor
+                      : current.textColor,
+                  }
+                : {})}
+            />
+          ) : null}
+        </Inline>
+      )}
     </BasePressable>
   );
 }));

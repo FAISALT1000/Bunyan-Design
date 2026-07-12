@@ -1,4 +1,5 @@
 import type { Theme } from '../../themes';
+import type { PlatformTokens } from '../../platform';
 import type {
   CardSize,
   CardVariant,
@@ -10,6 +11,7 @@ export function createCardStyles(
   size: CardSize,
   selected: boolean,
   showBorder: boolean | undefined,
+  platformTokens: PlatformTokens,
 ) {
   const variantTokens = theme.components.card.variants[variant];
   const sizeTokens = theme.components.card.size[size];
@@ -29,14 +31,22 @@ export function createCardStyles(
         ? theme.components.card.selectedBorderColor
         : variantTokens.borderColor,
       backgroundColor: variantTokens.background,
-      ...theme.shadow[variantTokens.shadow],
+      ...platformTokens.elevation[
+        variantTokens.shadow === 'sm'
+          ? 'low'
+          : variantTokens.shadow === 'md'
+            ? 'medium'
+            : variantTokens.shadow === 'lg'
+              ? 'high'
+              : 'none'
+      ],
     },
     pressed: {
       backgroundColor: variantTokens.pressedBackground,
     },
     focused: {
       borderColor: theme.components.card.focusedBorderColor,
-      borderWidth: theme.borderWidth.medium,
+      borderWidth: platformTokens.interaction.focusRingWidth,
     },
     disabled: {
       opacity: theme.components.card.disabledOpacity,

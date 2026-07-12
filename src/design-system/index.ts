@@ -5,6 +5,7 @@ export * from './components';
 export * from './hooks';
 export * from './localization';
 export * from './navigation';
+export * from './platform';
 export * from './providers';
 export * from './templates';
 export * from './themes';

@@ -15,17 +15,13 @@ import {
   Divider,
   EmptyState,
   ErrorState,
-  FormField,
   Heading,
   Icon,
   IconButton,
-  Input,
-  Link,
+  InputField,
   ListItem,
   Modal,
-  PasswordInput,
   Radio,
-  SearchInput,
   Select,
   Skeleton,
   Spinner,
@@ -47,6 +43,9 @@ function Catalog() {
   const [date, setDate] = useState<Date>();
   const [modal, setModal] = useState(false);
   const [sheet, setSheet] = useState(false);
+  const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
+  const [query, setQuery] = useState('');
 
   return (
     <ToastProvider>
@@ -62,7 +61,7 @@ function Catalog() {
             <Heading title="Typography and actions" level={4} />
             <View style={{ gap: theme.spacing.xs }}>
               <Text value="Body text with an accessible link." />
-              <Link label="Open accessible link" />
+              <Button title="Open accessible link" variant="link" actionType="navigation" />
             </View>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
               <Button title="Primary" leftIcon="check" />
@@ -78,9 +77,9 @@ function Catalog() {
         <Card>
           <View style={{ gap: theme.spacing.lg }}>
             <Heading title="Form controls" level={4} />
-            <FormField label="Full name" required><Input placeholder="Enter your name" /></FormField>
-            <FormField label="Password"><PasswordInput placeholder="Enter a password" /></FormField>
-            <SearchInput value="" placeholder="Search records" />
+            <InputField label="Full name" value={name} onChangeText={setName} required />
+            <InputField type="password" label="Password" value={password} onChangeText={setPassword} />
+            <InputField type="search" label="Search records" value={query} onChangeText={setQuery} showClearButton />
             <TextArea placeholder="Add notes" maxLength={200} />
             <Checkbox checked={checked} onChange={setChecked} label="Accept terms" />
             <Radio selected onSelect={() => undefined} label="Primary account" />
@@ -143,7 +142,13 @@ export const Default: Story = {};
 export const ErrorStates: Story = {
   render: () => (
     <View style={{ gap: 16 }}>
-      <FormField label="Email" error="Enter a valid email"><Input status="error" value="invalid" /></FormField>
+      <InputField
+        type="email"
+        label="Email"
+        value="invalid"
+        onChangeText={() => undefined}
+        errorText="Enter a valid email"
+      />
       <Alert tone="error" title="Validation failed" description="Resolve all errors before continuing." />
     </View>
   ),

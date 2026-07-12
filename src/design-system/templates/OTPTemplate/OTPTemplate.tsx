@@ -13,7 +13,6 @@ import { BottomSheet } from '../../components/BottomSheet';
 import { Button } from '../../components/Button';
 import { Heading } from '../../components/Heading';
 import { IconButton } from '../../components/IconButton';
-import { Link } from '../../components/Link';
 import { Text } from '../../components/Text';
 import { useTheme } from '../../hooks';
 import { NumPad } from '../NumPad';
@@ -224,7 +223,11 @@ const OTPContent = memo(function OTPContent({
             {resendDisabled ? (
               <Text value={resendLabel} variant="labelMedium" tone="tertiary" />
             ) : (
-              <Link label={resendLabel} onPress={onResend} />
+              <Button
+                title={resendLabel}
+                variant="link"
+                onPress={onResend}
+              />
             )}
           </View>
         ) : null}

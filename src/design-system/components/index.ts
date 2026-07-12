@@ -16,6 +16,7 @@ export * from './Heading';
 export * from './Icon';
 export * from './IconButton';
 export * from './Input';
+export * from './InputField';
 export * from './Link';
 export * from './Line';
 export * from './ListItem';

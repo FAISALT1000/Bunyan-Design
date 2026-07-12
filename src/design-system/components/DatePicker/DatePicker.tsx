@@ -5,7 +5,7 @@ import { useTheme } from '../../hooks';
 import type { FeedbackStatus } from '../../utilities/styles';
 import { BottomSheet } from '../BottomSheet';
 import { Button } from '../Button';
-import { Input } from '../Input';
+import { InputField } from '../InputField';
 
 export interface DatePickerProps {
   value?: Date;
@@ -48,11 +48,15 @@ export const DatePicker = memo(function DatePicker({
 
   return (
     <>
-      <Input
+      <InputField
+        type="text"
+        label={accessibilityLabel}
         value={formatted}
+        onChangeText={() => undefined}
         placeholder={placeholder}
-        editable={false}
-        status={status}
+        readOnly
+        disabled={disabled}
+        state={status}
         accessibilityLabel={accessibilityLabel}
         accessibilityRole="button"
         onPressIn={() => {
@@ -61,16 +65,14 @@ export const DatePicker = memo(function DatePicker({
             setOpen(true);
           }
         }}
-        trailing={clearable && value ? (
-          <Button
-            title="Clear"
-            size="small"
-            variant="ghost"
-            accessibilityLabel="Clear date"
-            onPress={() => onChange(undefined)}
-          />
-        ) : undefined}
         leftIcon="calendar"
+        {...(clearable && value
+          ? {
+              rightIcon: 'close' as const,
+              rightIconAccessibilityLabel: 'Clear date',
+              onRightIconPress: () => onChange(undefined),
+            }
+          : {})}
       />
       {Platform.OS === 'android' && open ? (
         <DateTimePicker

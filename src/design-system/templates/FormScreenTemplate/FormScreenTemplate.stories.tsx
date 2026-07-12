@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import type { Meta, StoryObj } from '@storybook/react-native';
-import { FormField } from '../../components/FormField';
-import { Input } from '../../components/Input';
+import { InputField } from '../../components/InputField';
 import { useTheme } from '../../hooks';
 import { ThemeProvider } from '../../providers';
 import { FormScreenTemplate } from './FormScreenTemplate';
@@ -29,16 +28,21 @@ function FormDemo({
           required: true,
           content: (
             <View style={{ gap: theme.spacing.lg }}>
-              <FormField label="Full name" required>
-                <Input value={name} onChangeText={setName} />
-              </FormField>
-              <FormField
-                label="Email"
+              <InputField
+                label="Full name"
+                type="text"
+                value={name}
+                onChangeText={setName}
                 required
-                {...(withErrors ? { error: 'Enter a valid email' } : {})}
-              >
-                <Input value={email} onChangeText={setEmail} status={withErrors ? 'error' : 'default'} />
-              </FormField>
+              />
+              <InputField
+                type="email"
+                label="Email"
+                value={email}
+                onChangeText={setEmail}
+                required
+                {...(withErrors ? { errorText: 'Enter a valid email' } : {})}
+              />
             </View>
           ),
         },
@@ -68,7 +72,16 @@ export const UnsavedChanges: Story = {
   render: () => (
     <FormScreenTemplate
       title="Profile"
-      sections={[{ id: 'profile', content: <Input value="Changed value" /> }]}
+      sections={[{
+        id: 'profile',
+        content: (
+          <InputField
+            label="Profile value"
+            value="Changed value"
+            onChangeText={() => undefined}
+          />
+        ),
+      }]}
       submitLabel="Save"
       onSubmit={() => undefined}
       unsavedChanges

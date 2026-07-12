@@ -1,24 +1,35 @@
 import React, { forwardRef, memo, useState } from 'react';
 import {
   Pressable as RNPressable,
+  StyleSheet,
   type GestureResponderEvent,
   type PressableProps as RNPressableProps,
+  type StyleProp,
   type View,
   type ViewStyle,
 } from 'react-native';
 import { useTheme } from '../../hooks';
+import type { InteractionFeedback } from '../../platform';
 
 export type BasePressableHandle = View;
+
+export interface BasePressableState {
+  pressed: boolean;
+  focused: boolean;
+  hovered: boolean;
+}
 
 export interface BasePressableProps extends Omit<
   RNPressableProps,
   'children' | 'onPress' | 'style'
 > {
-  children: React.ReactNode;
+  children:
+    | React.ReactNode
+    | ((state: BasePressableState) => React.ReactNode);
   onPress?: (() => void) | undefined;
   stopPropagation?: boolean;
   minTouchTarget?: boolean;
-  baseStyle?: ViewStyle | readonly (ViewStyle | undefined)[];
+  baseStyle?: StyleProp<ViewStyle>;
   pressedStyle?: ViewStyle;
   focusedStyle?: ViewStyle;
   hoveredStyle?: ViewStyle;
@@ -26,6 +37,8 @@ export interface BasePressableProps extends Omit<
   accessibilityLabel?: string | undefined;
   accessibilityHint?: string | undefined;
   testID?: string | undefined;
+  feedback?: InteractionFeedback;
+  stateLayerColor?: string;
 }
 
 export const BasePressable = memo(forwardRef<BasePressableHandle, BasePressableProps>(
@@ -45,22 +58,53 @@ export const BasePressable = memo(forwardRef<BasePressableHandle, BasePressableP
       onBlur,
       onHoverIn,
       onHoverOut,
+      feedback = 'auto',
+      stateLayerColor,
+      android_ripple,
       ...props
     },
     ref,
   ) {
-    const { theme } = useTheme();
+    const { platformTokens, theme } = useTheme();
     const [focused, setFocused] = useState(false);
     const [hovered, setHovered] = useState(false);
     const handlePress = (event?: GestureResponderEvent) => {
       if (stopPropagation) event?.stopPropagation?.();
       onPress?.();
     };
+    const resolvedFeedback = feedback === 'auto'
+      ? platformTokens.interaction.pressFeedback
+      : feedback;
+    const flattenedBaseStyle = StyleSheet.flatten(baseStyle);
+    const minimumTouchStyle = minTouchTarget
+      ? {
+          minWidth: Math.max(
+            platformTokens.touchTarget.minimum,
+            typeof flattenedBaseStyle?.minWidth === 'number'
+              ? flattenedBaseStyle.minWidth
+              : 0,
+          ),
+          minHeight: Math.max(
+            platformTokens.touchTarget.minimum,
+            typeof flattenedBaseStyle?.minHeight === 'number'
+              ? flattenedBaseStyle.minHeight
+              : 0,
+          ),
+        }
+      : undefined;
 
     return (
       <RNPressable
         ref={ref}
         disabled={disabled}
+        android_ripple={
+          resolvedFeedback === 'stateLayer'
+            ? android_ripple ?? {
+                color: stateLayerColor ?? theme.color.overlay.subtle,
+                borderless: false,
+              }
+            : android_ripple
+        }
         onPress={handlePress}
         onFocus={event => {
           setFocused(true);
@@ -80,20 +124,22 @@ export const BasePressable = memo(forwardRef<BasePressableHandle, BasePressableP
         }}
         {...props}
         style={({ pressed }) => [
-          minTouchTarget
-            ? {
-                minHeight: theme.componentHeight.md,
-                minWidth: theme.componentHeight.md,
-              }
-            : undefined,
           baseStyle,
+          minimumTouchStyle,
           pressed ? pressedStyle : undefined,
+          pressed && resolvedFeedback === 'opacity'
+            ? { opacity: platformTokens.interaction.pressedOpacity }
+            : undefined,
           focused ? focusedStyle : undefined,
           hovered ? hoveredStyle : undefined,
           disabled ? disabledStyle : undefined,
         ]}
       >
-        {children}
+        {({ pressed }) => (
+          typeof children === 'function'
+            ? children({ pressed, focused, hovered })
+            : children
+        )}
       </RNPressable>
     );
   },

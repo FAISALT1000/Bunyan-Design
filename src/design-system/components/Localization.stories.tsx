@@ -5,7 +5,7 @@ import { DesignSystemLocalizationProvider } from '../localization';
 import { ThemeProvider } from '../providers';
 import { Badge } from './Badge';
 import { Button } from './Button';
-import { Input } from './Input';
+import { InputField } from './InputField';
 import { Line } from './Line';
 import { Text } from './Text';
 
@@ -52,9 +52,12 @@ function LocalizedSurface({ locale }: { locale: 'en' | 'ar' }) {
           <Text localize="welcome.message" value="Welcome" translationOptions={{ name: 'Faisal' }} />
           <Text localize="missing.key" value="Fallback value" tone="secondary" />
           <Button title="Confirm" titleLocalize="common.confirm" />
-          <Input
+          <InputField
+            type="text"
             label="Account number"
             labelLocalize="account.number"
+            value=""
+            onChangeText={() => undefined}
             placeholder="Enter account number"
             placeholderLocalize="account.placeholder"
           />

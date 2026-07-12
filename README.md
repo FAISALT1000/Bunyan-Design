@@ -246,6 +246,8 @@ Consumer troubleshooting and upgrades:
 
 - [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
 - [docs/UPGRADING.md](docs/UPGRADING.md)
+- [docs/CROSS_PLATFORM_GUIDELINES.md](docs/CROSS_PLATFORM_GUIDELINES.md)
+- [docs/INPUT_FIELD_AND_LINK_MIGRATION.md](docs/INPUT_FIELD_AND_LINK_MIGRATION.md)
 
 ## 8. Storybook
 

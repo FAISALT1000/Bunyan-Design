@@ -5,7 +5,7 @@ import { heightForSize, logicalRow, statusBorderColor, type ComponentSize, type 
 import { BottomSheet } from '../BottomSheet';
 import { Icon } from '../Icon';
 import { ListItem } from '../ListItem';
-import { SearchInput } from '../SearchInput';
+import { InputField } from '../InputField';
 import { Text } from '../Text';
 
 export interface SelectOption {
@@ -88,7 +88,15 @@ export const Select = memo(function Select({
       </Pressable>
       <BottomSheet visible={open} onClose={() => setOpen(false)} title={title}>
         <View style={{ gap: theme.spacing.md }}>
-          {searchable ? <SearchInput value={query} placeholder={searchPlaceholder} onChangeText={setQuery} onClear={() => setQuery('')} /> : null}
+          {searchable ? (
+            <InputField
+              type="search"
+              label={searchPlaceholder}
+              value={query}
+              placeholder={searchPlaceholder}
+              onChangeText={setQuery}
+            />
+          ) : null}
           <ScrollView keyboardShouldPersistTaps="handled">
             {filtered.length ? filtered.map(option => (
               <ListItem

@@ -40,4 +40,50 @@ describe('Button', () => {
       view.unmount();
     }
   });
+
+  it('renders link actions with semantic roles and touch targets', () => {
+    const view = renderWithTheme(
+      <Button
+        title="View details"
+        variant="link"
+        onPress={() => undefined}
+        testID="link-action"
+      />,
+      { platform: 'ios' },
+    );
+    expect(screen.getByRole('button', { name: 'View details' })).toBeTruthy();
+    expect(screen.getByText('View details')).toHaveStyle({
+      textDecorationLine: 'underline',
+    });
+    expect(screen.getByTestId('link-action')).toHaveStyle({
+      minWidth: 44,
+      minHeight: 44,
+    });
+    view.unmount();
+
+    renderWithTheme(
+      <Button
+        title="Open website"
+        variant="link"
+        actionType="externalLink"
+        leftIcon="info"
+        onPress={() => undefined}
+      />,
+    );
+    expect(screen.getByRole('link', { name: 'Open website' })).toBeTruthy();
+  });
+
+  it('keeps disabled link actions inert', () => {
+    const onPress = jest.fn();
+    renderWithTheme(
+      <Button
+        title="Unavailable"
+        variant="link"
+        disabled
+        onPress={onPress}
+      />,
+    );
+    fireEvent.press(screen.getByRole('button', { name: 'Unavailable' }));
+    expect(onPress).not.toHaveBeenCalled();
+  });
 });

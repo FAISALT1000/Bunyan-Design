@@ -6,6 +6,12 @@ import React, {
   useState,
 } from 'react';
 import { Appearance, I18nManager, type ColorSchemeName } from 'react-native';
+import {
+  getDesignSystemPlatform,
+  resolvePlatformTokens,
+  type DesignSystemPlatform,
+  type PlatformTokens,
+} from '../platform';
 import { themes as defaultThemes } from '../themes/themes';
 import type { Direction, Theme, ThemeMode } from '../themes/types';
 
@@ -19,6 +25,8 @@ export interface ThemeContextValue {
   direction: Direction;
   isRTL: boolean;
   locale: string;
+  platform: DesignSystemPlatform;
+  platformTokens: PlatformTokens;
 }
 
 const defaultContext: ThemeContextValue = {
@@ -29,6 +37,8 @@ const defaultContext: ThemeContextValue = {
   direction: 'ltr',
   isRTL: false,
   locale: 'en',
+  platform: 'default',
+  platformTokens: resolvePlatformTokens('default'),
 };
 
 export const ThemeContext = createContext<ThemeContextValue>(defaultContext);
@@ -42,6 +52,7 @@ export interface ThemeProviderProps {
   direction?: Direction;
   blackForSystemDark?: boolean;
   themes?: Partial<Record<ThemeMode, Theme>>;
+  platform?: DesignSystemPlatform;
 }
 
 const resolveSystemMode = (scheme: ColorSchemeName | null, blackForSystemDark: boolean): ThemeMode =>
@@ -56,6 +67,7 @@ export function ThemeProvider({
   direction,
   blackForSystemDark = false,
   themes,
+  platform: platformOverride,
 }: ThemeProviderProps) {
   const [internalPreference, setInternalPreference] = useState<ThemePreference>(
     initialPreference,
@@ -83,6 +95,8 @@ export function ThemeProvider({
     : preference;
 
   const activeTheme = themes?.[mode] ?? defaultThemes[mode];
+  const platform = platformOverride ?? getDesignSystemPlatform();
+  const platformTokens = resolvePlatformTokens(platform);
 
   const value = useMemo<ThemeContextValue>(
     () => ({
@@ -93,8 +107,19 @@ export function ThemeProvider({
       direction: resolvedDirection,
       isRTL: resolvedDirection === 'rtl',
       locale,
+      platform,
+      platformTokens,
     }),
-    [activeTheme, locale, mode, preference, resolvedDirection, setPreference],
+    [
+      activeTheme,
+      locale,
+      mode,
+      platform,
+      platformTokens,
+      preference,
+      resolvedDirection,
+      setPreference,
+    ],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

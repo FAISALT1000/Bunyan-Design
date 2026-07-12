@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import type { Meta, StoryObj } from '@storybook/react-native';
-import { FormField } from '../../components/FormField';
-import { Input } from '../../components/Input';
+import { InputField } from '../../components/InputField';
 import { Text } from '../../components/Text';
 import { ThemeProvider } from '../../providers';
 import { StepperFlowTemplate } from './StepperFlowTemplate';
 
 function StepperDemo({ loading = false }: { loading?: boolean }) {
   const [step, setStep] = useState(0);
+  const [name, setName] = useState('');
+  const [city, setCity] = useState('');
   return (
     <StepperFlowTemplate
       title="Open an account"
@@ -18,13 +19,13 @@ function StepperDemo({ loading = false }: { loading?: boolean }) {
           id: 'identity',
           title: 'Identity',
           description: 'Enter your personal information.',
-          content: <FormField label="Full name"><Input /></FormField>,
+          content: <InputField label="Full name" value={name} onChangeText={setName} />,
         },
         {
           id: 'address',
           title: 'Address',
           description: 'Tell us where you live.',
-          content: <FormField label="City"><Input /></FormField>,
+          content: <InputField label="City" value={city} onChangeText={setCity} />,
         },
         {
           id: 'review',

@@ -102,6 +102,56 @@ export interface CardComponentTokens {
 }
 
 export interface ComponentTokens {
+  button: ButtonComponentTokens;
+  inputField: InputFieldComponentTokens;
   line: LineComponentTokens;
   card: CardComponentTokens;
+}
+
+export interface ButtonComponentTokens {
+  link: {
+    textColor: string;
+    pressedTextColor: string;
+    disabledTextColor: string;
+    underline: 'always' | 'none';
+    focusIndicatorColor: string;
+    iconGap: number;
+    touchTargetPadding: number;
+  };
+}
+
+export interface InputFieldVariantTokens {
+  background: string;
+  borderColor: string;
+  borderWidth: number;
+  focusedBorderWidth: number;
+}
+
+export interface InputFieldComponentTokens {
+  minHeight: number;
+  radius: number;
+  contentPaddingHorizontal: number;
+  contentPaddingTop: number;
+  contentPaddingBottom: number;
+  iconGap: number;
+  helperTextSpacing: number;
+  disabledOpacity: number;
+  labelRestingTop: number;
+  labelFloatingTop: number;
+  labelScale: number;
+  labelFontSize: number;
+  animationDuration: number;
+  animationEasing: readonly [number, number, number, number];
+  focusedBorderColor: string;
+  errorBorderColor: string;
+  successBorderColor: string;
+  labelColor: string;
+  focusedLabelColor: string;
+  errorLabelColor: string;
+  successLabelColor: string;
+  variants: {
+    outlined: InputFieldVariantTokens;
+    filled: InputFieldVariantTokens;
+    underlined: InputFieldVariantTokens;
+  };
 }

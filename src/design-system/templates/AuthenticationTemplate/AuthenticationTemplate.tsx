@@ -3,7 +3,6 @@ import { View } from 'react-native';
 import { Alert } from '../../components/Alert';
 import { Button } from '../../components/Button';
 import { Heading } from '../../components/Heading';
-import { Link } from '../../components/Link';
 import { Text } from '../../components/Text';
 import { useTheme } from '../../hooks';
 import { BaseScreenTemplate } from '../BaseScreenTemplate';
@@ -80,9 +79,11 @@ export const AuthenticationTemplate = memo(function AuthenticationTemplate({
             {secondaryActions.length > 0 ? (
               <View style={styles.secondaryActions}>
                 {secondaryActions.map(action => (
-                  <Link
+                  <Button
                     key={action.label}
-                    label={action.label}
+                    title={action.label}
+                    variant="link"
+                    actionType="navigation"
                     onPress={action.onPress}
                   />
                 ))}
