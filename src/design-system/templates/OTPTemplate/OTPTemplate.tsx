@@ -233,7 +233,10 @@ const OTPContent = memo(function OTPContent({
             {resendDisabled ? (
               <Text variant="label" tone="tertiary">{resendLabel}</Text>
             ) : (
-              <Link onPress={onResend}>{resendLabel}</Link>
+              // Link aligns itself to flex-start; the wrapper shrink-wraps it so it stays centred.
+              <View>
+                <Link onPress={onResend}>{resendLabel}</Link>
+              </View>
             )}
           </View>
         ) : null}

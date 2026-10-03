@@ -164,6 +164,8 @@ mirroring again would render RTL apps left-to-right.
 
 All component contracts and guidance are in [docs/COMPONENTS.md](docs/COMPONENTS.md).
 
+A full illustrated reference (every component and variant in light, dark and Arabic RTL, plus tokens, hooks and utilities) is in [docs/Bunyan-Design-System-Reference.pdf](docs/Bunyan-Design-System-Reference.pdf). Ready-made prompts for AI assistants are in [docs/AI_PROMPTS.md](docs/AI_PROMPTS.md).
+
 ## 8. Tests
 
 ```bash

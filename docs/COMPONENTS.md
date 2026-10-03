@@ -47,10 +47,10 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Purpose: Renders the controlled Bunyan SVG icon set.
 - Props: `IconProps`; `name`, `size`, `tone`, `color`, `mirroredInRTL`, `accessibilityLabel`.
 - Variants/sizes/states: Six token sizes and eight semantic tones.
-- Accessibility: Decorative icons are hidden; meaningful icons need a label.
+- Accessibility: Decorative icons (no `accessibilityLabel`) are hidden from assistive tech; labelled icons get the image role.
 - Example: `<Icon name="chevron-right" mirroredInRTL />`.
 - Do/don’t: Prefer semantic tone; use `color` only for approved brand exceptions.
-- Edge cases: Directional icons must set `mirroredInRTL`.
+- Edge cases: Directional icons (chevron-left/right, backspace) mirror automatically in RTL; pass `mirroredInRTL` to override.
 
 ## Button
 
@@ -77,7 +77,7 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Purpose: Navigates to internal or external content.
 - Props: `LinkProps`; `href`, `external`, native press props.
 - Variants/sizes/states: Link tone; pressed and disabled native states.
-- Accessibility: Uses the link role; external links include a visible marker.
+- Accessibility: Uses the link role; external links show ↗ and announce `externalHint`. `openURL` failures go to `onOpenError`.
 - Example: `<Link href="https://example.com" external>Privacy policy</Link>`.
 - Do/don’t: Use descriptive text; do not label links “click here.”
 - Edge cases: Validate deep-link schemes before passing them to `href`.
@@ -120,7 +120,7 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Accessibility: Search return key and labelled clear button.
 - Example: `<SearchInput value={query} onChangeText={setQuery} onClear={() => setQuery('')} />`.
 - Do/don’t: Debounce network requests outside the component; do not clear without user action.
-- Edge cases: Controlled value is required for the clear affordance to track content.
+- Edge cases: Works controlled or uncontrolled; Clear calls `onChangeText('')` and `onClear`, then refocuses the field.
 
 ## FormField
 
@@ -140,7 +140,7 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Accessibility: Checkbox role and true/false/mixed state.
 - Example: `<Checkbox checked={accepted} onChange={setAccepted} label="Accept terms" />`.
 - Do/don’t: Use for independent choices; do not use for mutually exclusive options.
-- Edge cases: Mixed state should resolve predictably when pressed.
+- Edge cases: Pressing a mixed (indeterminate) checkbox always reports `true`.
 
 ## Radio
 
@@ -150,7 +150,7 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Accessibility: Radio role, checked state, and optional value.
 - Example: `<Radio selected={plan === 'pro'} onSelect={() => setPlan('pro')} label="Pro" />`.
 - Do/don’t: Present radios as a labelled group; do not offer only one radio.
-- Edge cases: Product code owns arrow-key group navigation on web.
+- Edge cases: Re-pressing the selected radio is a no-op; product code owns arrow-key group navigation on web.
 
 ## Switch
 
@@ -175,12 +175,12 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 ## DatePicker
 
 - Purpose: Selects a calendar date consistently across native platforms.
-- Props: `DatePickerProps`; `value`, `onChange`, date bounds, locale, placeholder, disabled, status, clearable.
+- Props: `DatePickerProps`; `value`, `onChange`, date bounds, locale, `formatOptions`, placeholder, title, disabled, status, size, clearable, localisable clear/confirm labels.
 - Variants/sizes/states: Empty, selected, open, disabled, error.
-- Accessibility: Labelled trigger; delegates date-grid semantics to the native picker.
+- Accessibility: Pressable trigger with button role, current value and expanded state; clear is a separate labelled button.
 - Example: `<DatePicker value={date} onChange={setDate} maximumDate={new Date()} />`.
 - Do/don’t: Pass a locale and valid bounds; do not parse display text manually.
-- Edge cases: Web hosts should provide the community picker’s web implementation or replace this adapter.
+- Edge cases: Label uses the Gregorian calendar by default (ar-SA would otherwise show Hijri); override with `formatOptions`. Value is clamped to min/max on confirm.
 
 ## Badge
 
@@ -197,7 +197,7 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Purpose: Represents a filter, selection, or removable value.
 - Props: `ChipProps`; `label`, `selected`, `disabled`, `onPress`, `onRemove`, `accessibilityLabel`.
 - Variants/sizes/states: Default, selected, pressed, disabled, removable.
-- Accessibility: Announces selected/disabled state; remove is a separate labelled action.
+- Accessibility: Label and remove are sibling buttons (never nested), each with its own label and state.
 - Example: `<Chip label="Finance" selected onRemove={removeFinance} />`.
 - Do/don’t: Use concise nouns; do not nest arbitrary controls inside a chip.
 - Edge cases: Removing a selected filter should update focus predictably.
@@ -217,7 +217,7 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Purpose: Separates adjacent content groups.
 - Props: `DividerProps`; `orientation`, `inset`, `decorative`.
 - Variants/sizes/states: Horizontal/vertical and four inset levels.
-- Accessibility: Decorative by default.
+- Accessibility: Decorative by default (hidden from screen readers); `decorative={false}` exposes the separator role.
 - Example: `<Divider inset="medium" />`.
 - Do/don’t: Use spacing before adding dividers; do not over-segment simple layouts.
 - Edge cases: Vertical dividers need a parent with defined height.
@@ -260,7 +260,7 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Accessibility: Tablist and tab roles with selected state.
 - Example: `<Tabs items={items} value={tab} onValueChange={setTab} />`.
 - Do/don’t: Keep labels short; do not use tabs as a stepper.
-- Edge cases: Horizontal scrolling handles narrow screens and long translations.
+- Edge cases: Horizontal scrolling handles long translations; re-pressing the active tab does not fire `onValueChange`.
 
 ## Modal
 
@@ -290,7 +290,7 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Accessibility: Content is also provided as an accessibility hint.
 - Example: `<Tooltip content="Archive record"><IconButton … /></Tooltip>`.
 - Do/don’t: Keep it brief; do not put essential instructions only in a tooltip.
-- Edge cases: Touch users reveal tooltips with long press.
+- Edge cases: Touch users reveal tooltips with long press; the bubble stays for `touchDuration` ms after release.
 
 ## Toast and ToastProvider
 
@@ -300,7 +300,7 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Accessibility: Polite live region; errors use alert semantics.
 - Example: `useToast().showToast({ message: 'Saved', tone: 'success' })`.
 - Do/don’t: Use concise status messages; do not use a toast for required decisions.
-- Edge cases: `duration: 0` persists until dismissed; queue length is bounded.
+- Edge cases: `duration: 0` persists until dismissed; the queue is capped at `maxVisible` (oldest evicted); pressing an action also dismisses; `dismissAll()` clears everything.
 
 ## Alert
 

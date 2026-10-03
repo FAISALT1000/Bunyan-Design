@@ -24,6 +24,12 @@ export interface DatePickerProps {
   clearable?: boolean;
   clearLabel?: string;
   confirmLabel?: string;
+  /**
+   * Display format. Defaults to the Gregorian calendar so the label matches the
+   * (Gregorian) native picker — `ar-SA` would otherwise format as Hijri.
+   * Pass `{ calendar: 'islamic-umalqura' }` to opt into Hijri display.
+   */
+  formatOptions?: Intl.DateTimeFormatOptions;
   testID?: string;
 }
 
@@ -33,12 +39,19 @@ const clampDate = (date: Date, min?: Date, max?: Date) => {
   return date;
 };
 
-const formatDate = (date: Date, locale: string) => {
+const DEFAULT_FORMAT: Intl.DateTimeFormatOptions = {
+  calendar: 'gregory',
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+};
+
+const formatDate = (date: Date, locale: string, options: Intl.DateTimeFormatOptions) => {
   try {
-    return new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'short', day: 'numeric' }).format(date);
+    return new Intl.DateTimeFormat(locale, options).format(date);
   } catch {
     // Invalid locale tags throw a RangeError; fall back to the runtime default.
-    return new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric' }).format(date);
+    return new Intl.DateTimeFormat(undefined, options).format(date);
   }
 };
 
@@ -57,13 +70,17 @@ export const DatePicker = memo(function DatePicker({
   clearable = true,
   clearLabel = 'Clear date',
   confirmLabel = 'Confirm',
+  formatOptions,
   testID,
 }: DatePickerProps) {
   const { theme, direction, locale: themeLocale } = useTheme();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(() => clampDate(value ?? new Date(), minimumDate, maximumDate));
   const resolvedLocale = locale ?? themeLocale;
-  const formatted = useMemo(() => (value ? formatDate(value, resolvedLocale) : ''), [resolvedLocale, value]);
+  const formatted = useMemo(
+    () => (value ? formatDate(value, resolvedLocale, { ...DEFAULT_FORMAT, ...formatOptions }) : ''),
+    [formatOptions, resolvedLocale, value],
+  );
   const limits = {
     ...(minimumDate ? { minimumDate } : {}),
     ...(maximumDate ? { maximumDate } : {}),
