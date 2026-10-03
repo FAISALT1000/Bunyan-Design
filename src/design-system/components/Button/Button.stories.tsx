@@ -15,7 +15,7 @@ const meta = {
     loading: false,
   },
   argTypes: {
-    variant: { control: 'select', options: ['primary', 'secondary', 'outline', 'ghost', 'danger'] },
+    variant: { control: 'select', options: ['primary', 'secondary', 'outline', 'ghost', 'danger', 'link'] },
     size: { control: 'select', options: ['small', 'medium', 'large'] },
   },
 } satisfies Meta<typeof Button>;
@@ -28,7 +28,7 @@ export const Default: Story = {};
 export const AllVariants: Story = {
   render: () => (
     <View style={{ gap: 12 }}>
-      {(['primary', 'secondary', 'outline', 'ghost', 'danger'] as const).map(variant => (
+      {(['primary', 'secondary', 'outline', 'ghost', 'danger', 'link'] as const).map(variant => (
         <Button key={variant} variant={variant}>{variant}</Button>
       ))}
     </View>

@@ -20,9 +20,10 @@ You are working with **Bunyan** (`@bunyan/design-system`), a strongly typed Reac
 ## Building blocks
 - Providers/hooks: `ThemeProvider`, `useTheme()` → `{ theme, mode, preference, setPreference, direction, isRTL, locale }`; `ToastProvider`, `useToast()` → `{ showToast, dismissToast, dismissAll }`.
 - Typography & icons: `Text` (variant/tone/weight/align), `Heading` (level 1–6), `Icon` (16 names, sizes xs–xxl, tones).
-- Actions: `Button` (primary|secondary|outline|ghost|danger; small|medium|large; loading; fullWidth; leading/trailing icons), `IconButton` (filled|outline|ghost; required accessibilityLabel), `Link` (href, external).
+- Actions: `Button` (primary|secondary|outline|ghost|danger|link; small|medium|large; loading; fullWidth; leading/trailing icons; `href`/`external` to navigate), `IconButton` (filled|outline|ghost; required accessibilityLabel). `Link` is an alias of `<Button variant="link">`.
 - Forms: `FormField` (label/description/error/success/required; render-prop ids), `Input`, `PasswordInput`, `SearchInput`, `TextArea`, `Checkbox`, `Radio`, `Switch`, `Select` (options, searchable), `DatePicker`.
 - Display: `Badge`, `Chip`, `Avatar`, `Divider`, `Card` (elevated|outlined|filled; pressable), `ListItem`.
+- Collections: `List<T, D>` renders any component per data item — `Component`, `data`, `formatItem(item, index) => props`, `shareProps` (common props; item props win), `keyExtractor`, `flexDirection`, `flexWrap`, `columns`, `spacing` (points or token), `withDivider`, `cardVariant`, `isScrolling`, `loading` + `loadingConfig`, `emptyForm` (EmptyState props), `ListHeaderComponent`, `ListFooterComponent`. Use it instead of `data.map(...)` in screens.
 - Feedback: `Alert`, toast via `useToast`, `Spinner`, `Skeleton`, `EmptyState`, `ErrorState`.
 - Disclosure/navigation: `Accordion`, `Tabs` (line|pill), `Tooltip`.
 - Overlays: `Modal` (primary/secondary actions), `BottomSheet`.
@@ -86,19 +87,33 @@ Use `useNumPad` on {phones without hardware keyboards}.
 Keep verification logic in a hook (`useVerifyCode`) outside the template. Return the screen + hook.
 ```
 
-### B4. Build a settings screen
+### B4. Render a collection with List
+
+```text
+Render `{data description}` with Bunyan's generic `List`.
+
+- Pick the item component: `ListItem` for rows, `Card` for tiles (`columns={2}`), `Chip` for tags (`flexDirection="row" flexWrap="wrap"`), `Button` for an action bar (`flexDirection="row"`), or a small custom component.
+- Map API objects to props in `formatItem` (return `null` to skip an item) and put props common to all items (handlers, variant, size) in `shareProps`.
+- Use `keyExtractor` if items have no `id`.
+- Handle states with `loading` + `loadingConfig` and `emptyForm`; add `withDivider`, `cardVariant`, `ListHeaderComponent` as the design needs.
+- Do not write `data.map(...)` by hand.
+
+Return the typed component and explain the chosen layout props.
+```
+
+### B5. Build a settings screen
 
 ```text
 Build a Settings screen with Bunyan: sections rendered with `Heading level={5}` and `ListItem` rows; toggles with `Switch`; a theme picker using `Radio` that calls `useTheme().setPreference('system' | 'light' | 'dark' | 'black')`; a language row that switches between `en` and `ar-SA`; a destructive "Delete account" row that opens a `Modal` with a `danger` primary action. Persist choices with {storage}. Make it fully RTL-correct.
 ```
 
-### B5. Build a dashboard / list screen
+### B6. Build a dashboard / list screen
 
 ```text
 Build a `{Name}` dashboard: a `Tabs` (line) header, summary `Card`s (elevated) with `Badge` status tones, and a list of `ListItem`s with `Avatar` leading and trailing `Badge`. Pull-to-refresh via `RNTheme.ScrollView` `refreshControl`. Show `Skeleton lines={3}` per card while loading, `EmptyState` with a create action when empty, `ErrorState` on failure, and `useToast().showToast` after mutations.
 ```
 
-### B6. Make an existing screen theme- and RTL-ready
+### B7. Make an existing screen theme- and RTL-ready
 
 ```text
 Here is an existing React Native screen:
@@ -112,7 +127,7 @@ Refactor it to Bunyan:
 - Keep behaviour identical. List every replacement you made in a table (before → after).
 ```
 
-### B7. Choose the right feedback pattern
+### B8. Choose the right feedback pattern
 
 ```text
 For each of these situations, choose between `Toast`, `Alert`, `Modal`, `BottomSheet`, `EmptyState`, `ErrorState`, `Skeleton` and `Spinner`, explain why in one sentence, and show the Bunyan code:

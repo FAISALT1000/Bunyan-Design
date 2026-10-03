@@ -1,5 +1,13 @@
 import React, { forwardRef, memo } from 'react';
-import { ActivityIndicator, Pressable, type PressableProps, type ViewRef, type ViewStyle } from '../RNTheme';
+import {
+  ActivityIndicator,
+  Linking,
+  Pressable,
+  type PressableProps,
+  type TextStyle,
+  type ViewRef,
+  type ViewStyle,
+} from '../RNTheme';
 import { useTheme } from '../../hooks';
 import {
   heightForSize,
@@ -9,18 +17,27 @@ import {
   type ComponentSize,
 } from '../../utilities/styles';
 import { Icon, type IconName } from '../Icon';
-import { Text, type TextTone } from '../Text';
+import { Text, type TextTone, type TextVariant } from '../Text';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'link';
 
 export interface ButtonProps extends Omit<PressableProps, 'children' | 'style'> {
   children: React.ReactNode;
+  /** `link` renders inline link text (no container); every other variant is a filled/outlined button. */
   variant?: ButtonVariant;
   size?: ComponentSize;
   loading?: boolean;
   fullWidth?: boolean;
   leadingIcon?: IconName;
   trailingIcon?: IconName;
+  /** URL opened with `Linking.openURL` after `onPress` (unless the event was `preventDefault`-ed). Gives the control the link role. */
+  href?: string;
+  /** Marks the destination as outside the app: shows ↗ and announces `externalHint`. */
+  external?: boolean;
+  /** Screen-reader hint for external destinations. */
+  externalHint?: string;
+  /** Called when `href` cannot be opened. */
+  onOpenError?: (error: unknown) => void;
 }
 
 interface VariantStyle {
@@ -29,6 +46,12 @@ interface VariantStyle {
   border: string;
   text: TextTone;
 }
+
+const linkTextVariant: Record<ComponentSize, TextVariant> = {
+  small: 'bodySmall',
+  medium: 'body',
+  large: 'body',
+};
 
 export const Button = memo(forwardRef<ViewRef, ButtonProps>(function Button(
   {
@@ -40,7 +63,13 @@ export const Button = memo(forwardRef<ViewRef, ButtonProps>(function Button(
     fullWidth = false,
     leadingIcon,
     trailingIcon,
+    href,
+    external = false,
+    externalHint = 'Opens in another app',
+    onOpenError,
+    onPress,
     accessibilityLabel,
+    accessibilityHint,
     accessibilityState,
     hitSlop,
     ...props
@@ -48,6 +77,7 @@ export const Button = memo(forwardRef<ViewRef, ButtonProps>(function Button(
   ref,
 ) {
   const { theme, direction } = useTheme();
+  const isLink = variant === 'link';
   const isDisabled = Boolean(disabled) || loading;
   const variants: Record<ButtonVariant, VariantStyle> = {
     primary: {
@@ -80,10 +110,17 @@ export const Button = memo(forwardRef<ViewRef, ButtonProps>(function Button(
       border: theme.color.error.default,
       text: 'inverse',
     },
+    link: {
+      background: theme.color.overlay.transparent,
+      pressedBackground: theme.color.overlay.transparent,
+      border: theme.color.overlay.transparent,
+      text: 'link',
+    },
   };
   const current = variants[variant];
-  const textTone: TextTone = isDisabled ? 'tertiary' : current.text;
-  const contentColor = isDisabled
+  // Links keep their link colour when disabled (opacity carries the state), buttons go grey.
+  const textTone: TextTone = isDisabled && !isLink ? 'tertiary' : current.text;
+  const contentColor = isDisabled && !isLink
     ? theme.color.text.tertiary
     : current.text === 'inverse'
     ? theme.color.text.inverse
@@ -91,42 +128,65 @@ export const Button = memo(forwardRef<ViewRef, ButtonProps>(function Button(
     ? theme.color.text.link
     : theme.color.text.primary;
   const height = heightForSize(theme, size);
-  // Keep at least a 44pt touch target for compact buttons (WCAG 2.5.8).
-  const touchSlop = Math.max(0, (theme.componentHeight.md - height) / 2);
+  // Keep at least a 44pt touch target (WCAG 2.5.8): compact buttons and inline links get hitSlop.
+  const touchSlop = isLink ? theme.spacing.sm : Math.max(0, (theme.componentHeight.md - height) / 2);
 
-  const resolveStyle = ({ pressed, focused }: { pressed: boolean; focused?: boolean }): ViewStyle => ({
-    ...logicalRow(direction),
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: theme.spacing.sm,
-    minHeight: height,
-    paddingHorizontal: horizontalPaddingForSize(theme, size),
-    borderRadius: theme.radius.md,
-    borderWidth: focused ? theme.borderWidth.medium : theme.borderWidth.thin,
-    borderColor: focused ? theme.color.border.focus : isDisabled ? theme.color.disabled.border : current.border,
-    backgroundColor: isDisabled
-      ? theme.color.disabled.background
-      : pressed
-      ? current.pressedBackground
-      : current.background,
-    opacity: isDisabled
-      ? theme.opacity.disabled
-      : pressed && variant === 'danger'
-      ? theme.opacity.strong
-      : theme.opacity.opaque,
-    alignSelf: fullWidth ? 'stretch' : 'flex-start',
-  });
-  const iconSize = iconTokenForSize(size);
+  const resolveStyle = ({ pressed, focused }: { pressed: boolean; focused?: boolean }): ViewStyle => {
+    if (isLink) {
+      return {
+        ...logicalRow(direction),
+        alignItems: 'center',
+        alignSelf: fullWidth ? 'stretch' : 'flex-start',
+        gap: theme.spacing.xs,
+        borderRadius: theme.radius.sm,
+        borderWidth: focused ? theme.borderWidth.medium : theme.borderWidth.none,
+        borderColor: theme.color.border.focus,
+        opacity: isDisabled ? theme.opacity.disabled : pressed ? theme.opacity.strong : theme.opacity.opaque,
+      };
+    }
+    return {
+      ...logicalRow(direction),
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: theme.spacing.sm,
+      minHeight: height,
+      paddingHorizontal: horizontalPaddingForSize(theme, size),
+      borderRadius: theme.radius.md,
+      borderWidth: focused ? theme.borderWidth.medium : theme.borderWidth.thin,
+      borderColor: focused ? theme.color.border.focus : isDisabled ? theme.color.disabled.border : current.border,
+      backgroundColor: isDisabled
+        ? theme.color.disabled.background
+        : pressed
+        ? current.pressedBackground
+        : current.background,
+      opacity: isDisabled
+        ? theme.opacity.disabled
+        : pressed && variant === 'danger'
+        ? theme.opacity.strong
+        : theme.opacity.opaque,
+      alignSelf: fullWidth ? 'stretch' : 'flex-start',
+    };
+  };
+  const iconSize = isLink ? (size === 'small' ? 'sm' : 'md') : iconTokenForSize(size);
+  const labelStyle: TextStyle | undefined = isLink ? { textDecorationLine: 'underline' } : undefined;
 
   return (
     <Pressable
       ref={ref}
-      accessibilityRole="button"
+      accessibilityRole={isLink || href ? 'link' : 'button'}
       accessibilityLabel={accessibilityLabel}
+      accessibilityHint={accessibilityHint ?? (external ? externalHint : undefined)}
       accessibilityState={{ ...accessibilityState, disabled: isDisabled, busy: loading }}
       disabled={isDisabled}
       hitSlop={hitSlop ?? (touchSlop > 0 ? touchSlop : undefined)}
       {...props}
+      onPress={event => {
+        onPress?.(event);
+        if (href && !event.defaultPrevented) {
+          // Linking.openURL rejects for unsupported URLs; never leave it unhandled.
+          Linking.openURL(href).catch((error: unknown) => onOpenError?.(error));
+        }
+      }}
       style={resolveStyle}
     >
       {loading ? (
@@ -134,8 +194,13 @@ export const Button = memo(forwardRef<ViewRef, ButtonProps>(function Button(
       ) : leadingIcon ? (
         <Icon name={leadingIcon} size={iconSize} color={contentColor} />
       ) : null}
-      <Text variant="label" weight="semibold" tone={textTone}>
-        {children}
+      <Text
+        variant={isLink ? linkTextVariant[size] : 'label'}
+        weight="semibold"
+        tone={textTone}
+        {...(labelStyle ? { style: labelStyle } : {})}
+      >
+        {children}{external ? ' ↗' : ''}
       </Text>
       {!loading && trailingIcon ? <Icon name={trailingIcon} size={iconSize} color={contentColor} /> : null}
     </Pressable>

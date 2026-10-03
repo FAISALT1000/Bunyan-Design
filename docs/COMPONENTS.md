@@ -54,13 +54,13 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 
 ## Button
 
-- Purpose: Triggers a primary or secondary action.
-- Props: `ButtonProps`; native press props plus `variant`, `size`, `loading`, `fullWidth`, and leading/trailing icons.
-- Variants/sizes/states: `primary`, `secondary`, `outline`, `ghost`, `danger`; small/medium/large; pressed, disabled, loading, busy.
-- Accessibility: Button role and busy/disabled states are automatic.
-- Example: `<Button variant="primary" size="large" fullWidth>Continue</Button>`.
-- Do/don’t: Use one primary action per region; do not use a button for navigation.
-- Edge cases: Loading disables duplicate submission; long text wraps within full-width buttons.
+- Purpose: Triggers an action, or — with `variant="link"` / `href` — navigates.
+- Props: `ButtonProps`; native press props plus `variant`, `size`, `loading`, `fullWidth`, leading/trailing icons, `href`, `external`, `externalHint`, `onOpenError`.
+- Variants/sizes/states: `primary`, `secondary`, `outline`, `ghost`, `danger`, `link`; small/medium/large; pressed, disabled, loading, busy.
+- Accessibility: Button role (link role for `variant="link"` or when `href` is set); busy/disabled states are automatic; external links announce `externalHint`; compact sizes and links get hitSlop for a 44 pt target.
+- Example: `<Button variant="primary" size="large" fullWidth>Continue</Button>` · `<Button variant="link" href="https://bunyan.sa" external>Help centre</Button>`.
+- Do/don’t: Use one primary action per region; use `variant="link"` (not `ghost`) for navigation inside text-heavy layouts.
+- Edge cases: Loading disables duplicate submission; `href` opens after `onPress` unless the event is `preventDefault`-ed; `openURL` failures go to `onOpenError`.
 
 ## IconButton
 
@@ -74,13 +74,13 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 
 ## Link
 
-- Purpose: Navigates to internal or external content.
-- Props: `LinkProps`; `href`, `external`, native press props.
-- Variants/sizes/states: Link tone; pressed and disabled native states.
+- Purpose: Inline navigation text. `Link` is an alias of `<Button variant="link" />` and accepts every Button prop except `variant`.
+- Props: `LinkProps` = `Omit<ButtonProps, 'variant'>`; `href`, `external`, `externalHint`, `onOpenError`, `size`, icons, `loading`, native press props.
+- Variants/sizes/states: small/medium/large text; pressed, disabled, loading.
 - Accessibility: Uses the link role; external links show ↗ and announce `externalHint`. `openURL` failures go to `onOpenError`.
-- Example: `<Link href="https://example.com" external>Privacy policy</Link>`.
+- Example: `<Link href="https://example.com" external>Privacy policy</Link>` (same as `<Button variant="link" …>`).
 - Do/don’t: Use descriptive text; do not label links “click here.”
-- Edge cases: Validate deep-link schemes before passing them to `href`.
+- Edge cases: Kept for convenience and backwards compatibility; styling lives in Button, so both stay in sync.
 
 ## Input
 
@@ -241,6 +241,17 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Example: `<ListItem title="Security" description="Password and devices" onPress={openSecurity} />`.
 - Do/don’t: Put the primary label in `title`; do not hide critical actions in an unlabeled trailing slot.
 - Edge cases: Long descriptions wrap while trailing content remains aligned.
+
+
+## List
+
+- Purpose: Generic list/grid that renders any component once per data item — rows of `ListItem`, a wrap of `Chip`s, a grid of `Card`s, a row of `Button`s, or your own component.
+- Props: `ListProps<T, D>`; `Component`, `data`, `formatItem`, `shareProps`, `keyExtractor`; layout `flexDirection`, `flexWrap`, `columns`, `spacing`; dividers `withDivider`, `dividerSpacing`, `dividerStyle`; container `cardVariant`, `isScrolling`, `style`, `paddingStyle`, `rowStyle`, `cellStyle`, `scrollViewContentContainerStyle`; states `loading`, `loadingConfig`, `emptyForm`, `filterNull`; `ListHeaderComponent`, `ListFooterComponent`.
+- Variants/sizes/states: Column (default), row, wrapping row, horizontal scroll, n-column grid; with/without dividers; inside a Card; loading skeletons; empty state.
+- Accessibility: Items container uses the list role and each cell the listitem role; loading is one progressbar announcement for the whole region; item accessibility comes from the rendered component.
+- Example: `<List Component={ListItem} data={users} formatItem={u => ({ title: u.name, description: u.email })} shareProps={{ onPress: open }} withDivider cardVariant="outlined" />`.
+- Do/don’t: Map API objects in `formatItem` and put common props in `shareProps`; do not use it for thousands of rows (it renders every item — use a virtualized list for very long data).
+- Edge cases: Item props override `shareProps`; `formatItem` is required by TypeScript when `data` does not match the component's props; returning `null` from `formatItem` skips the item (with `filterNull`, default on); keys default to `id`, then `key`, then index; the last grid row is padded so cells keep equal widths; spacing accepts points or token names (`'md'`); requires TypeScript ≥ 5.4 (`NoInfer`).
 
 ## Accordion
 

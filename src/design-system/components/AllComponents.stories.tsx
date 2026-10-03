@@ -21,6 +21,7 @@ import {
   IconButton,
   Input,
   Link,
+  List,
   ListItem,
   Modal,
   PasswordInput,
@@ -240,7 +241,12 @@ export const IconButtonComponent: Story = {
 
 export const LinkComponent: Story = {
   name: 'Link',
-  render: () => <Link href="https://example.com" external>View documentation</Link>,
+  render: () => (
+    <StoryStack>
+      <Button variant="link" href="https://example.com" external>View documentation</Button>
+      <Link onPress={() => undefined}>Link alias of Button variant=&quot;link&quot;</Link>
+    </StoryStack>
+  ),
 };
 
 export const InputComponent: Story = {
@@ -368,6 +374,52 @@ export const ListItemComponent: Story = {
       <ListItem title="Disabled record" disabled onPress={() => undefined} />
     </StoryStack>
   ),
+};
+
+interface Member { id: string; name: string; role: string }
+const MEMBERS: Member[] = [
+  { id: '1', name: 'Faisal Alhejaili', role: 'Owner' },
+  { id: '2', name: 'Sara Alqahtani', role: 'Admin' },
+  { id: '3', name: 'Omar Alharbi', role: 'Viewer' },
+];
+
+function ListDemo() {
+  const [loading, setLoading] = useState(false);
+  return (
+    <StoryStack>
+      <Button variant="outline" size="small" onPress={() => setLoading(current => !current)}>
+        {loading ? 'Show data' : 'Show loading'}
+      </Button>
+      <List
+        Component={ListItem}
+        data={MEMBERS}
+        formatItem={member => ({ title: member.name, description: member.role, leading: <Avatar name={member.name} size="small" /> })}
+        shareProps={{ onPress: () => undefined }}
+        withDivider
+        dividerSpacing="xs"
+        cardVariant="outlined"
+        loading={loading}
+        loadingConfig={{ count: 3, height: 44 }}
+        ListHeaderComponent={<Heading level={6}>Team members</Heading>}
+        paddingStyle={{ padding: 12 }}
+      />
+      <List Component={Chip} data={['Finance', 'HR', 'Legal', 'Sales', 'Operations']} formatItem={label => ({ label })} flexDirection="row" flexWrap="wrap" spacing="sm" />
+      <List
+        Component={Card}
+        data={MEMBERS}
+        formatItem={member => ({ children: <Text weight="semibold">{member.name}</Text> })}
+        shareProps={{ variant: 'filled' }}
+        columns={2}
+      />
+      <List Component={Button} data={[{ children: 'Approve' }, { children: 'Reject', variant: 'danger' as const }]} shareProps={{ size: 'small' }} flexDirection="row" spacing="sm" />
+      <List Component={ListItem} data={[]} emptyForm={{ title: 'No members yet', description: 'Invite your team to get started.' }} />
+    </StoryStack>
+  );
+}
+
+export const ListComponent: Story = {
+  name: 'List',
+  render: () => <ListDemo />,
 };
 
 export const AccordionComponent: Story = {
