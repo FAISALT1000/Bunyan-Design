@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
-import { Modal, Pressable, ScrollView, View } from 'react-native';
+import { KeyboardAvoidingView, Pressable, RNModal, ScrollView, StyleSheet, View } from '../RNTheme';
 import { useTheme } from '../../hooks';
+import { logicalRow } from '../../utilities/styles';
 import { Heading } from '../Heading';
 import { IconButton } from '../IconButton';
 import { Text } from '../Text';
@@ -12,6 +13,8 @@ export interface BottomSheetProps {
   description?: string;
   children: React.ReactNode;
   dismissible?: boolean;
+  closeLabel?: string;
+  testID?: string;
 }
 
 export const BottomSheet = memo(function BottomSheet({
@@ -21,35 +24,58 @@ export const BottomSheet = memo(function BottomSheet({
   description,
   children,
   dismissible = true,
+  closeLabel = 'Close bottom sheet',
+  testID,
 }: BottomSheetProps) {
   const { theme, direction } = useTheme();
   return (
-    <Modal transparent visible={visible} animationType="slide" onRequestClose={dismissible ? onClose : undefined} statusBarTranslucent>
-      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: theme.color.overlay.scrim }}>
-        {dismissible ? <Pressable accessibilityLabel="Close bottom sheet overlay" onPress={onClose} style={{ flex: 1 }} /> : null}
-        <View
-          accessibilityViewIsModal
-          style={{
-            maxHeight: '90%',
-            padding: theme.spacing.xxl,
-            gap: theme.spacing.lg,
-            borderTopLeftRadius: theme.radius.xl,
-            borderTopRightRadius: theme.radius.xl,
-            backgroundColor: theme.color.surface.elevated,
-            ...theme.shadow.lg,
-          }}
-        >
-          <View style={{ alignSelf: 'center', width: theme.componentHeight.xl, height: theme.borderWidth.thick, borderRadius: theme.radius.pill, backgroundColor: theme.color.border.primary }} />
-          <View style={{ flexDirection: direction === 'rtl' ? 'row-reverse' : 'row', alignItems: 'flex-start', gap: theme.spacing.md }}>
-            <View style={{ flex: 1 }}>
-              <Heading level={4}>{title}</Heading>
-              {description ? <Text tone="secondary">{description}</Text> : null}
+    <RNModal
+      transparent
+      visible={visible}
+      animationType="slide"
+      // Android back button: always handled so it never closes a non-dismissible sheet by default.
+      onRequestClose={() => {
+        if (dismissible) onClose();
+      }}
+      statusBarTranslucent
+    >
+      {/* Lifts the sheet above the keyboard (e.g. searchable Select). */}
+      <KeyboardAvoidingView style={{ flex: 1 }}>
+        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: theme.color.overlay.scrim }}>
+          {dismissible ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={closeLabel}
+              onPress={onClose}
+              style={StyleSheet.absoluteFill}
+            />
+          ) : null}
+          <View
+            testID={testID}
+            accessibilityViewIsModal
+            style={{
+              maxHeight: '90%',
+              padding: theme.spacing.xxl,
+              gap: theme.spacing.lg,
+              borderTopLeftRadius: theme.radius.xl,
+              borderTopRightRadius: theme.radius.xl,
+              backgroundColor: theme.color.surface.elevated,
+              ...theme.shadow.lg,
+            }}
+          >
+            <View style={{ alignSelf: 'center', width: theme.componentHeight.xl, height: theme.borderWidth.thick, borderRadius: theme.radius.pill, backgroundColor: theme.color.border.primary }} />
+            <View style={[logicalRow(direction), { alignItems: 'flex-start', gap: theme.spacing.md }]}>
+              <View style={{ flex: 1 }}>
+                <Heading level={4}>{title}</Heading>
+                {description ? <Text tone="secondary">{description}</Text> : null}
+              </View>
+              {dismissible ? <IconButton icon="close" accessibilityLabel={closeLabel} onPress={onClose} /> : null}
             </View>
-            {dismissible ? <IconButton icon="close" accessibilityLabel="Close bottom sheet" onPress={onClose} /> : null}
+            {/* flexShrink lets long content scroll inside the 90% sheet instead of overflowing it. */}
+            <ScrollView style={{ flexShrink: 1 }}>{children}</ScrollView>
           </View>
-          <ScrollView keyboardShouldPersistTaps="handled">{children}</ScrollView>
         </View>
-      </View>
-    </Modal>
+      </KeyboardAvoidingView>
+    </RNModal>
   );
 });

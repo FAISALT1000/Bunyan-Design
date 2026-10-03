@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { View } from 'react-native';
+import { View } from '../RNTheme';
 import { useTheme } from '../../hooks';
 import { logicalRow } from '../../utilities/styles';
 import { Button } from '../Button';

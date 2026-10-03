@@ -1,7 +1,7 @@
 import React, { forwardRef, memo } from 'react';
-import { Pressable, type PressableProps, type View } from 'react-native';
+import { Pressable, type PressableProps, type ViewRef } from '../RNTheme';
 import { useTheme } from '../../hooks';
-import { heightForSize, type ComponentSize } from '../../utilities/styles';
+import { heightForSize, iconTokenForSize, type ComponentSize } from '../../utilities/styles';
 import { Icon, type IconName, type IconTone } from '../Icon';
 
 export interface IconButtonProps extends Omit<PressableProps, 'children' | 'style'> {
@@ -11,9 +11,11 @@ export interface IconButtonProps extends Omit<PressableProps, 'children' | 'styl
   size?: ComponentSize;
   tone?: IconTone;
   selected?: boolean;
+  /** Mirror the glyph in RTL. Defaults to automatic (directional icons only). */
+  mirroredInRTL?: boolean;
 }
 
-export const IconButton = memo(forwardRef<View, IconButtonProps>(function IconButton(
+export const IconButton = memo(forwardRef<ViewRef, IconButtonProps>(function IconButton(
   {
     icon,
     accessibilityLabel,
@@ -22,21 +24,26 @@ export const IconButton = memo(forwardRef<View, IconButtonProps>(function IconBu
     tone = 'primary',
     selected = false,
     disabled = false,
+    mirroredInRTL,
+    accessibilityState,
+    hitSlop,
     ...props
   },
   ref,
 ) {
   const { theme } = useTheme();
+  const isDisabled = Boolean(disabled);
   const dimension = heightForSize(theme, size);
-  const iconSize = size === 'small' ? 'sm' : size === 'large' ? 'lg' : 'md';
+  const touchSlop = Math.max(0, (theme.componentHeight.md - dimension) / 2);
 
   return (
     <Pressable
       ref={ref}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      accessibilityState={{ disabled: Boolean(disabled), selected }}
-      disabled={disabled}
+      accessibilityState={{ ...accessibilityState, disabled: isDisabled, selected }}
+      disabled={isDisabled}
+      hitSlop={hitSlop ?? (touchSlop > 0 ? touchSlop : undefined)}
       {...props}
       style={({ pressed }) => ({
         width: dimension,
@@ -53,10 +60,14 @@ export const IconButton = memo(forwardRef<View, IconButtonProps>(function IconBu
           : pressed
           ? theme.color.overlay.subtle
           : theme.color.overlay.transparent,
-        opacity: disabled ? theme.opacity.disabled : theme.opacity.opaque,
+        opacity: isDisabled
+          ? theme.opacity.disabled
+          : pressed && (selected || variant === 'filled')
+          ? theme.opacity.strong
+          : theme.opacity.opaque,
       })}
     >
-      <Icon name={icon} size={iconSize} tone={tone} mirroredInRTL />
+      <Icon name={icon} size={iconTokenForSize(size)} tone={tone} {...(mirroredInRTL !== undefined ? { mirroredInRTL } : {})} />
     </Pressable>
   );
 }));

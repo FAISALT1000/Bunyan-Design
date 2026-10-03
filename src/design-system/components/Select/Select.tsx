@@ -1,5 +1,5 @@
 import React, { memo, useMemo, useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Pressable, View } from '../RNTheme';
 import { useTheme } from '../../hooks';
 import { heightForSize, logicalRow, statusBorderColor, type ComponentSize, type FeedbackStatus } from '../../utilities/styles';
 import { BottomSheet } from '../BottomSheet';
@@ -48,10 +48,18 @@ export const Select = memo(function Select({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const selected = options.find(option => option.value === value);
-  const filtered = useMemo(
-    () => options.filter(option => option.label.toLocaleLowerCase().includes(query.toLocaleLowerCase())),
-    [options, query],
-  );
+  const filtered = useMemo(() => {
+    const needle = query.trim().toLocaleLowerCase();
+    if (!needle) return options;
+    return options.filter(option =>
+      option.label.toLocaleLowerCase().includes(needle)
+      || option.description?.toLocaleLowerCase().includes(needle));
+  }, [options, query]);
+  const close = () => {
+    setOpen(false);
+    // Reset the search so the next open shows every option again.
+    setQuery('');
+  };
 
   return (
     <>
@@ -81,10 +89,10 @@ export const Select = memo(function Select({
         <Text tone={selected ? 'primary' : 'tertiary'} style={{ flex: 1 }}>{selected?.label ?? placeholder}</Text>
         <Icon name="chevron-down" size="sm" tone="secondary" />
       </Pressable>
-      <BottomSheet visible={open} onClose={() => setOpen(false)} title={title}>
+      <BottomSheet visible={open} onClose={close} title={title}>
         <View style={{ gap: theme.spacing.md }}>
           {searchable ? <SearchInput value={query} placeholder={searchPlaceholder} onChangeText={setQuery} onClear={() => setQuery('')} /> : null}
-          <ScrollView keyboardShouldPersistTaps="handled">
+          <View>
             {filtered.length ? filtered.map(option => (
               <ListItem
                 key={option.value}
@@ -95,13 +103,12 @@ export const Select = memo(function Select({
                 {...(option.disabled !== undefined ? { disabled: option.disabled } : {})}
                 {...(option.value === value ? { trailing: <Icon name="check" tone="primary" /> } : {})}
                 onPress={() => {
-                  onValueChange(option.value);
-                  setOpen(false);
-                  setQuery('');
+                  if (option.value !== value) onValueChange(option.value);
+                  close();
                 }}
               />
-            )) : <Text tone="secondary" align="center">{emptyMessage}</Text>}
-          </ScrollView>
+            )) : <Text tone="secondary" align="center" accessibilityLiveRegion="polite">{emptyMessage}</Text>}
+          </View>
         </View>
       </BottomSheet>
     </>

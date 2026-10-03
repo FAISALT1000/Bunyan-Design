@@ -73,6 +73,8 @@ function ThemeSettings() {
 src/
   design-system/
     components/
+      RNTheme/                 # themed RN primitives; native.ts is the only react-native import
+      createThemedComponent/   # factory used by RNTheme (and available to apps)
       Button/
         Button.tsx
         Button.stories.tsx
@@ -89,7 +91,59 @@ tests/
 docs/
 ```
 
-## 5. Base component implementation
+## 5. RNTheme: the React Native boundary
+
+Design-system code never imports from `react-native` directly. All primitives come
+from `src/design-system/components/RNTheme`, and
+`components/RNTheme/native.ts` is the **only** file allowed to import
+`react-native` (a test enforces this).
+
+```tsx
+// inside a component
+import { Pressable, View, type ViewRef } from '../RNTheme';
+```
+
+Every primitive is built with `createThemedComponent`, so it reads the active theme
+and accepts an optional `themeStyle` resolver:
+
+| Primitive | Theme defaults |
+| --- | --- |
+| `View`, `Pressable`, `Image`, `RNModal` | none (layout-neutral), `themeStyle` + ref forwarding |
+| `RNText` | text colour, direction-aware font family, `writingDirection`, font scaling capped at 2x |
+| `TextInput` | text/placeholder/selection/cursor colours, font family |
+| `ScrollView` | indicator style per mode, `keyboardShouldPersistTaps="handled"` |
+| `ActivityIndicator` | primary colour |
+| `RNSwitch` | track colours |
+| `KeyboardAvoidingView` | `behavior="padding"` on iOS |
+
+Non-visual APIs (`Animated`, `Platform`, `Linking`, `StyleSheet`, `I18nManager`,
+`AccessibilityInfo`, `Appearance`) and common types are re-exported from the same module.
+
+App code can use the namespace export:
+
+```tsx
+import { RNTheme, createThemedComponent } from '@bunyan/design-system';
+
+<RNTheme.View themeStyle={({ theme }) => ({ padding: theme.spacing.lg })} />;
+
+const Surface = createThemedComponent(RNTheme.View, {
+  displayName: 'Surface',
+  baseStyle: ({ theme }) => ({ backgroundColor: theme.color.surface.primary }),
+});
+```
+
+Style layers merge as `baseStyle` → `themeStyle` → `style` (explicit `style` wins).
+Pressable-style `(state) => style` functions keep working. Explicit `undefined`
+props never erase a theme default.
+
+### RTL
+
+`logicalRow`, `logicalText` and `logicalAlignItems` mirror only when the provider
+direction differs from the native `I18nManager` direction. React Native already
+mirrors layout and swaps `left`/`right` text alignment in native RTL, so
+mirroring again would render RTL apps left-to-right.
+
+## 6. Base component implementation
 
 `Text`, `Heading`, `Icon`, `Button`, and `Input` are the base primitives. Higher-level components compose them instead of recreating typography, icons, interaction states, or form chrome.
 
@@ -106,22 +160,34 @@ docs/
 </Button>
 ```
 
-## 6. Components
+## 7. Components
 
 All component contracts and guidance are in [docs/COMPONENTS.md](docs/COMPONENTS.md).
 
-## 7. Tests
+## 8. Tests
 
 ```bash
 npm install
 npm run typecheck
 npm test
 npm run test:coverage
+npm run verify   # typecheck + tests
 ```
+
+### Packaging
+
+```bash
+npm run pack
+```
+
+Runs `npm i && npm pack`. `npm pack` triggers `prepack`, which cleans and rebuilds
+`dist/` first, so the tarball (`bunyan-design-system-<version>.tgz`) always ships
+fresh compiled output. Install it elsewhere with
+`npm i ./path/to/bunyan-design-system-<version>.tgz`.
 
 The suite covers tokens, themes, accessibility roles and states, interactions, form errors, loading behavior, and Arabic RTL rendering. Snapshots are intentionally reserved for stable visual structures; behavior assertions are preferred.
 
-## 8. Storybook
+## 9. Storybook
 
 React Native Storybook 10 configuration lives in `.rnstorybook`. It includes on-device controls and actions.
 
@@ -140,7 +206,7 @@ Use `storybook:android` or `storybook:web` for the other platforms.
 Do not use Node 21 or 23 with Metro. The repository `.nvmrc` selects the
 supported Node 22.23.0 installation.
 
-## 9. Usage
+## 10. Usage
 
 ```tsx
 import {

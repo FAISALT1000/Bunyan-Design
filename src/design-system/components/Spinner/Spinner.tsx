@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View } from '../RNTheme';
 import { useTheme } from '../../hooks';
 import { Text } from '../Text';
 
@@ -13,7 +13,12 @@ export const Spinner = memo(function Spinner({ size = 'small', label = 'Loading'
   const { theme } = useTheme();
   const color = tone === 'inverse' ? theme.color.text.inverse : theme.color.primary.default;
   return (
-    <View accessibilityRole="progressbar" accessibilityLabel={label} style={{ alignItems: 'center', gap: theme.spacing.sm }}>
+    <View
+      accessible
+      accessibilityRole="progressbar"
+      accessibilityLabel={label || 'Loading'}
+      accessibilityState={{ busy: true }}
+      style={{ alignItems: 'center', gap: theme.spacing.sm }}>
       <ActivityIndicator size={size} color={color} />
       {label ? <Text variant="caption" tone={tone === 'inverse' ? 'inverse' : 'secondary'}>{label}</Text> : null}
     </View>

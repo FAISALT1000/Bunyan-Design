@@ -9,11 +9,15 @@ export type IconName =
 export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
 export type IconTone = 'primary' | 'secondary' | 'tertiary' | 'inverse' | 'success' | 'warning' | 'error' | 'information';
 
+/** Icons whose meaning depends on reading direction and should mirror in RTL. */
+export const DIRECTIONAL_ICONS: ReadonlySet<IconName> = new Set<IconName>(['backspace', 'chevron-left', 'chevron-right']);
+
 export interface IconProps {
   name: IconName;
   size?: IconSize;
   tone?: IconTone;
   color?: string;
+  /** Mirror in RTL. Defaults to `true` for directional icons only. */
   mirroredInRTL?: boolean;
   accessibilityLabel?: string;
   testID?: string;
@@ -43,7 +47,7 @@ export const Icon = memo(function Icon({
   size = 'md',
   tone = 'primary',
   color,
-  mirroredInRTL = false,
+  mirroredInRTL = DIRECTIONAL_ICONS.has(name),
   accessibilityLabel,
   testID,
 }: IconProps) {
@@ -71,7 +75,9 @@ export const Icon = memo(function Icon({
       strokeWidth={theme.borderWidth.medium}
       strokeLinecap="round"
       strokeLinejoin="round"
-      {...(accessibilityLabel ? { accessibilityRole: 'image' as const, accessibilityLabel } : {})}
+      {...(accessibilityLabel
+        ? { accessible: true, accessibilityRole: 'image' as const, accessibilityLabel }
+        : { accessible: false, accessibilityElementsHidden: true, importantForAccessibility: 'no-hide-descendants' as const })}
       {...(mirroredInRTL && isRTL ? { style: { transform: [{ scaleX: -1 }] } } : {})}
     >
       {paths[name]}

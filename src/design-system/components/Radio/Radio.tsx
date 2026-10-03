@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, View } from '../RNTheme';
 import { useTheme } from '../../hooks';
 import { logicalRow } from '../../utilities/styles';
 import { Text } from '../Text';
@@ -26,11 +26,14 @@ export const Radio = memo(function Radio({
     <Pressable
       accessibilityRole="radio"
       accessibilityLabel={label}
-      accessibilityHint={description}
+      {...(description ? { accessibilityHint: description } : {})}
       accessibilityValue={value ? { text: value } : undefined}
-      accessibilityState={{ selected, disabled, checked: selected }}
+      accessibilityState={{ disabled, checked: selected }}
       disabled={disabled}
-      onPress={onSelect}
+      // Re-selecting the current option is a no-op, like a native radio group.
+      onPress={() => {
+        if (!selected) onSelect();
+      }}
       style={({ pressed }) => [
         logicalRow(direction),
         { alignItems: 'flex-start', gap: theme.spacing.md, opacity: disabled ? theme.opacity.disabled : pressed ? theme.opacity.strong : theme.opacity.opaque },

@@ -1,5 +1,5 @@
-import React, { createContext, memo, useCallback, useContext, useMemo, useRef, useState } from 'react';
-import { Animated, Pressable, View } from 'react-native';
+import React, { createContext, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, Pressable, View } from '../RNTheme';
 import { useTheme } from '../../hooks';
 import { logicalRow } from '../../utilities/styles';
 import { Icon, type IconName } from '../Icon';
@@ -9,6 +9,7 @@ export type ToastTone = 'neutral' | 'success' | 'warning' | 'error' | 'informati
 export interface ToastOptions {
   message: string;
   tone?: ToastTone;
+  /** Milliseconds before auto-dismiss. `0` keeps the toast until dismissed. */
   duration?: number;
   actionLabel?: string;
   onAction?: () => void;
@@ -18,9 +19,10 @@ interface ToastItem extends ToastOptions {
   id: number;
 }
 
-interface ToastContextValue {
+export interface ToastContextValue {
   showToast: (options: ToastOptions) => number;
   dismissToast: (id: number) => void;
+  dismissAll: () => void;
 }
 
 const ToastContext = createContext<ToastContextValue | null>(null);
@@ -28,30 +30,72 @@ const ToastContext = createContext<ToastContextValue | null>(null);
 export interface ToastProviderProps {
   children: React.ReactNode;
   maxVisible?: number;
+  defaultDuration?: number;
+  dismissLabel?: string;
 }
 
-export function ToastProvider({ children, maxVisible = 3 }: ToastProviderProps) {
+const icons: Record<ToastTone, IconName> = {
+  neutral: 'info',
+  success: 'success',
+  warning: 'warning',
+  error: 'error',
+  information: 'info',
+};
+
+export function ToastProvider({
+  children,
+  maxVisible = 3,
+  defaultDuration = 5000,
+  dismissLabel = 'Dismiss notification',
+}: ToastProviderProps) {
   const { theme } = useTheme();
   const [items, setItems] = useState<ToastItem[]>([]);
   const nextId = useRef(0);
   const timers = useRef(new Map<number, ReturnType<typeof setTimeout>>());
 
-  const dismissToast = useCallback((id: number) => {
+  const clearTimer = useCallback((id: number) => {
     const timer = timers.current.get(id);
     if (timer) clearTimeout(timer);
     timers.current.delete(id);
+  }, []);
+
+  const dismissToast = useCallback((id: number) => {
+    clearTimer(id);
     setItems(current => current.filter(item => item.id !== id));
+  }, [clearTimer]);
+
+  const dismissAll = useCallback(() => {
+    timers.current.forEach(timer => clearTimeout(timer));
+    timers.current.clear();
+    setItems([]);
   }, []);
 
   const showToast = useCallback((options: ToastOptions) => {
     const id = ++nextId.current;
-    setItems(current => [...current.slice(-(maxVisible - 1)), { ...options, id }]);
-    const duration = options.duration ?? 5000;
+    const limit = Math.max(1, Math.floor(maxVisible));
+    setItems(current => {
+      // Old bug: slice(-(maxVisible - 1)) became slice(-0) === slice(0) for maxVisible=1,
+      // so nothing was ever evicted. Also clear timers of evicted toasts.
+      const next = [...current, { ...options, id }];
+      const evicted = next.slice(0, Math.max(0, next.length - limit));
+      evicted.forEach(item => clearTimer(item.id));
+      return next.slice(-limit);
+    });
+    const duration = options.duration ?? defaultDuration;
     if (duration > 0) timers.current.set(id, setTimeout(() => dismissToast(id), duration));
     return id;
-  }, [dismissToast, maxVisible]);
+  }, [clearTimer, defaultDuration, dismissToast, maxVisible]);
 
-  const contextValue = useMemo(() => ({ showToast, dismissToast }), [dismissToast, showToast]);
+  // Clear pending timers on unmount to avoid state updates on an unmounted provider.
+  useEffect(() => {
+    const pending = timers.current;
+    return () => {
+      pending.forEach(timer => clearTimeout(timer));
+      pending.clear();
+    };
+  }, []);
+
+  const contextValue = useMemo(() => ({ showToast, dismissToast, dismissAll }), [dismissAll, dismissToast, showToast]);
   return (
     <ToastContext.Provider value={contextValue}>
       {children}
@@ -68,22 +112,39 @@ export function ToastProvider({ children, maxVisible = 3 }: ToastProviderProps) 
           alignItems: 'center',
         }}
       >
-        {items.map(item => <ToastItemView key={item.id} item={item} onDismiss={() => dismissToast(item.id)} />)}
+        {items.map(item => (
+          <ToastItemView key={item.id} item={item} dismissLabel={dismissLabel} onDismiss={dismissToast} />
+        ))}
       </View>
     </ToastContext.Provider>
   );
 }
 
-const ToastItemView = memo(function ToastItemView({ item, onDismiss }: { item: ToastItem; onDismiss: () => void }) {
+const ToastItemView = memo(function ToastItemView({
+  item,
+  dismissLabel,
+  onDismiss,
+}: {
+  item: ToastItem;
+  dismissLabel: string;
+  onDismiss: (id: number) => void;
+}) {
   const { theme, direction } = useTheme();
   const opacity = useRef(new Animated.Value(theme.opacity.invisible)).current;
-  React.useEffect(() => {
-    Animated.timing(opacity, { toValue: theme.opacity.opaque, duration: theme.motion.duration.normal, useNativeDriver: true }).start();
-  }, [opacity, theme]);
-  const icons: Record<ToastTone, IconName> = { neutral: 'info', success: 'success', warning: 'warning', error: 'error', information: 'info' };
+  useEffect(() => {
+    const animation = Animated.timing(opacity, {
+      toValue: theme.opacity.opaque,
+      duration: theme.motion.duration.normal,
+      useNativeDriver: true,
+    });
+    animation.start();
+    return () => animation.stop();
+  }, [opacity, theme.motion.duration.normal, theme.opacity.opaque]);
+  const urgent = item.tone === 'error' || item.tone === 'warning';
   return (
     <Animated.View
-      accessibilityRole={item.tone === 'error' ? 'alert' : 'none'}
+      accessibilityRole={urgent ? 'alert' : 'none'}
+      accessibilityLiveRegion={urgent ? 'assertive' : 'polite'}
       style={[
         logicalRow(direction),
         {
@@ -102,11 +163,23 @@ const ToastItemView = memo(function ToastItemView({ item, onDismiss }: { item: T
       <Icon name={icons[item.tone ?? 'neutral']} size="md" tone="inverse" />
       <Text tone="inverse" style={{ flex: 1 }}>{item.message}</Text>
       {item.actionLabel && item.onAction ? (
-        <Pressable accessibilityRole="button" onPress={item.onAction}>
+        <Pressable
+          accessibilityRole="button"
+          hitSlop={theme.spacing.sm}
+          onPress={() => {
+            item.onAction?.();
+            onDismiss(item.id);
+          }}
+        >
           <Text tone="inverse" weight="semibold">{item.actionLabel}</Text>
         </Pressable>
       ) : null}
-      <Pressable accessibilityRole="button" accessibilityLabel="Dismiss notification" onPress={onDismiss}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={dismissLabel}
+        hitSlop={theme.spacing.md}
+        onPress={() => onDismiss(item.id)}
+      >
         <Icon name="close" size="sm" tone="inverse" />
       </Pressable>
     </Animated.View>

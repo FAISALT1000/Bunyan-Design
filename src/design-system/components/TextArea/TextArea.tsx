@@ -1,7 +1,7 @@
 import React, { forwardRef, memo, useState } from 'react';
-import { TextInput, View, type TextInputProps } from 'react-native';
+import { TextInput, View, type TextInputProps, type TextInputRef } from '../RNTheme';
 import { useTheme } from '../../hooks';
-import { logicalText, statusBorderColor, type FeedbackStatus } from '../../utilities/styles';
+import { fontFamilyFor, logicalText, statusBorderColor, type FeedbackStatus } from '../../utilities/styles';
 import { Text } from '../Text';
 
 export interface TextAreaProps extends Omit<TextInputProps, 'style' | 'multiline'> {
@@ -11,7 +11,7 @@ export interface TextAreaProps extends Omit<TextInputProps, 'style' | 'multiline
   showCounter?: boolean;
 }
 
-export const TextArea = memo(forwardRef<TextInput, TextAreaProps>(function TextArea(
+export const TextArea = memo(forwardRef<TextInputRef, TextAreaProps>(function TextArea(
   {
     status = 'default',
     minRows = 4,
@@ -23,6 +23,7 @@ export const TextArea = memo(forwardRef<TextInput, TextAreaProps>(function TextA
     onFocus,
     onBlur,
     onChangeText,
+    accessibilityState,
     ...props
   },
   ref,
@@ -31,21 +32,20 @@ export const TextArea = memo(forwardRef<TextInput, TextAreaProps>(function TextA
   const [focused, setFocused] = useState(false);
   const [internalValue, setInternalValue] = useState(defaultValue ?? '');
   const displayedValue = value ?? internalValue;
+  const counterVisible = showCounter && maxLength !== undefined;
 
   return (
     <View style={{ gap: theme.spacing.xs }}>
       <TextInput
         ref={ref}
         multiline
-        value={value}
-        defaultValue={defaultValue}
+        {...(value !== undefined ? { value } : {})}
+        {...(defaultValue !== undefined ? { defaultValue } : {})}
+        {...(maxLength !== undefined ? { maxLength } : {})}
         editable={editable}
-        maxLength={maxLength}
         textAlignVertical="top"
-        accessibilityState={{ disabled: !editable }}
+        accessibilityState={{ ...accessibilityState, disabled: !editable }}
         aria-invalid={status === 'error'}
-        placeholderTextColor={theme.color.text.tertiary}
-        selectionColor={theme.color.primary.default}
         onFocus={event => {
           setFocused(true);
           onFocus?.(event);
@@ -69,14 +69,19 @@ export const TextArea = memo(forwardRef<TextInput, TextAreaProps>(function TextA
             borderColor: focused ? theme.color.border.focus : statusBorderColor(theme, status),
             backgroundColor: editable ? theme.color.surface.primary : theme.color.disabled.background,
             color: editable ? theme.color.text.primary : theme.color.disabled.text,
-            fontFamily: direction === 'rtl' ? theme.typography.fontFamily.arabic : theme.typography.fontFamily.sans,
+            fontFamily: fontFamilyFor(theme, direction),
             fontSize: theme.typography.fontSize.md,
             lineHeight: theme.typography.lineHeight.md,
           },
         ]}
       />
-      {showCounter && maxLength ? (
-        <Text variant="caption" tone={displayedValue.length >= maxLength ? 'error' : 'tertiary'} align="end">
+      {counterVisible ? (
+        <Text
+          variant="caption"
+          tone={displayedValue.length >= maxLength ? 'error' : 'tertiary'}
+          align="end"
+          accessibilityLiveRegion="polite"
+        >
           {displayedValue.length}/{maxLength}
         </Text>
       ) : null}

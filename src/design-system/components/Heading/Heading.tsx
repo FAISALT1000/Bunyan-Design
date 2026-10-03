@@ -1,7 +1,7 @@
 import React, { forwardRef, memo } from 'react';
-import { Text as RNText, type TextProps as RNTextProps, type TextStyle } from 'react-native';
+import { RNText, type TextProps as RNTextProps, type TextRef, type TextStyle } from '../RNTheme';
 import { useTheme } from '../../hooks';
-import { logicalText } from '../../utilities/styles';
+import { fontFamilyFor, logicalText, type LogicalAlign } from '../../utilities/styles';
 import type { TextTone } from '../Text';
 
 export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
@@ -9,10 +9,10 @@ export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 export interface HeadingProps extends RNTextProps {
   level?: HeadingLevel;
   tone?: TextTone;
-  align?: 'start' | 'center' | 'end';
+  align?: LogicalAlign;
 }
 
-export const Heading = memo(forwardRef<RNText, HeadingProps>(function Heading(
+export const Heading = memo(forwardRef<TextRef, HeadingProps>(function Heading(
   { level = 2, tone = 'primary', align = 'start', style, accessibilityRole, ...props },
   ref,
 ) {
@@ -25,33 +25,31 @@ export const Heading = memo(forwardRef<RNText, HeadingProps>(function Heading(
     5: { fontSize: theme.typography.fontSize.lg, lineHeight: theme.typography.lineHeight.lg },
     6: { fontSize: theme.typography.fontSize.md, lineHeight: theme.typography.lineHeight.md },
   };
-  const toneColor = tone === 'error' ? theme.color.error.text
-    : tone === 'success' ? theme.color.success.text
-    : tone === 'inverse' ? theme.color.text.inverse
-    : tone === 'secondary' ? theme.color.text.secondary
-    : tone === 'tertiary' ? theme.color.text.tertiary
-    : tone === 'link' ? theme.color.text.link
-    : theme.color.text.primary;
-  const textAlign = align === 'center' ? 'center' : align === 'end'
-    ? (direction === 'rtl' ? 'left' : 'right')
-    : (direction === 'rtl' ? 'right' : 'left');
+  const tones: Record<TextTone, string> = {
+    primary: theme.color.text.primary,
+    secondary: theme.color.text.secondary,
+    tertiary: theme.color.text.tertiary,
+    inverse: theme.color.text.inverse,
+    link: theme.color.text.link,
+    error: theme.color.error.text,
+    success: theme.color.success.text,
+  };
 
   return (
     <RNText
       ref={ref}
       accessibilityRole={accessibilityRole ?? 'header'}
       aria-level={level}
-      allowFontScaling
       {...props}
       style={[
-        logicalText(direction),
+        logicalText(direction, align),
         levelStyles[level],
         {
-          color: toneColor,
-          fontFamily: direction === 'rtl' ? theme.typography.fontFamily.arabic : theme.typography.fontFamily.sans,
+          color: tones[tone],
+          fontFamily: fontFamilyFor(theme, direction),
           fontWeight: theme.typography.fontWeight.bold,
-          letterSpacing: theme.typography.letterSpacing.tight,
-          textAlign,
+          // Letter spacing breaks cursive joining in Arabic script.
+          letterSpacing: direction === 'rtl' ? theme.typography.letterSpacing.normal : theme.typography.letterSpacing.tight,
         },
         style,
       ]}

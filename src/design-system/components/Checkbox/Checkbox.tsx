@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, View } from '../RNTheme';
 import { useTheme } from '../../hooks';
 import { logicalRow } from '../../utilities/styles';
 import { Icon } from '../Icon';
@@ -30,10 +30,12 @@ export const Checkbox = memo(function Checkbox({
     <Pressable
       accessibilityRole="checkbox"
       accessibilityLabel={label}
-      accessibilityHint={description}
+      {...(description ? { accessibilityHint: description } : {})}
+      aria-invalid={error}
       accessibilityState={{ checked: indeterminate ? 'mixed' : checked, disabled }}
       disabled={disabled}
-      onPress={() => onChange(!checked)}
+      // From the indeterminate state a press always moves to checked.
+      onPress={() => onChange(indeterminate ? true : !checked)}
       style={({ pressed }) => [
         logicalRow(direction),
         { alignItems: 'flex-start', gap: theme.spacing.md, opacity: disabled ? theme.opacity.disabled : pressed ? theme.opacity.strong : theme.opacity.opaque },

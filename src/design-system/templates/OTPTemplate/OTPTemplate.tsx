@@ -1,14 +1,15 @@
 import React, { memo, useEffect, useRef } from 'react';
 import {
   KeyboardAvoidingView,
-  Modal,
-  Platform,
   Pressable,
+  RNModal,
   ScrollView,
+  StyleSheet,
   TextInput,
   View,
-  type TextInput as TextInputType,
-} from 'react-native';
+  type TextInputRef,
+} from '../../components/RNTheme';
+import { logicalAlignItems, logicalRow } from '../../utilities/styles';
 import { BottomSheet } from '../../components/BottomSheet';
 import { Button } from '../../components/Button';
 import { Heading } from '../../components/Heading';
@@ -75,8 +76,8 @@ const OTPContent = memo(function OTPContent({
   showHeading = true,
   showDestination = true,
 }: OTPContentProps) {
-  const { theme, direction } = useTheme();
-  const inputRef = useRef<TextInputType>(null);
+  const { theme } = useTheme();
+  const inputRef = useRef<TextInputRef>(null);
   const normalizedValue = onlyDigits(value, length);
   const complete = normalizedValue.length === length;
   const previousCompletedValue = useRef<string | undefined>(undefined);
@@ -93,8 +94,9 @@ const OTPContent = memo(function OTPContent({
     if (!complete) previousCompletedValue.current = undefined;
   }, [autoSubmit, complete, normalizedValue, onSubmit]);
 
+  const locked = disabled || loading;
   const updateValue = (next: string) => {
-    if (disabled || loading) return;
+    if (locked) return;
     onChange(onlyDigits(next, length));
   };
 
@@ -123,10 +125,15 @@ const OTPContent = memo(function OTPContent({
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`Verification code, ${normalizedValue.length} of ${length} digits entered`}
-        accessibilityState={{ disabled }}
-        onPress={() => inputRef.current?.focus()}
+        accessibilityState={{ disabled: locked }}
+        disabled={locked}
+        // With the on-screen NumPad the system keyboard must stay hidden.
+        onPress={() => {
+          if (!useNumPad) inputRef.current?.focus();
+        }}
         style={{
-          flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+          // Codes are digit sequences and always read left-to-right, even in Arabic UIs.
+          flexDirection: 'row',
           justifyContent: 'center',
           gap: theme.spacing.sm,
         }}
@@ -184,8 +191,10 @@ const OTPContent = memo(function OTPContent({
         textContentType="oneTimeCode"
         autoComplete="one-time-code"
         accessibilityLabel="Verification code input"
-        accessibilityState={{ disabled }}
-        editable={!disabled && !loading}
+        accessibilityState={{ disabled: locked }}
+        editable={!locked}
+        showSoftInputOnFocus={!useNumPad}
+        {...(useNumPad ? { accessibilityElementsHidden: true, importantForAccessibility: 'no-hide-descendants' as const } : {})}
         caretHidden
         style={{
           position: 'absolute',
@@ -206,7 +215,7 @@ const OTPContent = memo(function OTPContent({
           value={normalizedValue}
           onChange={updateValue}
           maxLength={length}
-          disabled={disabled || loading}
+          disabled={locked}
         />
       ) : null}
 
@@ -233,7 +242,7 @@ const OTPContent = memo(function OTPContent({
   );
 
   return useNumPad ? content : (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView>
       {content}
     </KeyboardAvoidingView>
   );
@@ -274,15 +283,16 @@ export const OTPTemplate = memo(function OTPTemplate({
 
   if (variant === 'overlay') {
     return (
-      <Modal
+      <RNModal
         visible={visible}
         transparent
         animationType="fade"
-        onRequestClose={canDismiss ? close : undefined}
+        onRequestClose={() => {
+          if (canDismiss) close();
+        }}
         statusBarTranslucent
       >
         <View
-          accessibilityViewIsModal
           style={{
             flex: 1,
             alignItems: 'center',
@@ -293,13 +303,13 @@ export const OTPTemplate = memo(function OTPTemplate({
         >
           {canDismiss ? (
             <Pressable
+              accessibilityRole="button"
               accessibilityLabel="Close verification overlay"
               onPress={close}
-              style={{ position: 'absolute', inset: theme.spacing.none }}
+              style={StyleSheet.absoluteFill}
             />
           ) : null}
           <ScrollView
-            keyboardShouldPersistTaps="handled"
             contentContainerStyle={{
               flexGrow: 1,
               alignItems: 'center',
@@ -308,6 +318,7 @@ export const OTPTemplate = memo(function OTPTemplate({
             style={{ width: '100%' }}
           >
             <View
+              accessibilityViewIsModal
               style={{
                 width: '100%',
                 maxWidth: theme.breakpoint.medium,
@@ -320,7 +331,7 @@ export const OTPTemplate = memo(function OTPTemplate({
               {canDismiss ? (
                 <View
                   style={{
-                    alignItems: direction === 'rtl' ? 'flex-start' : 'flex-end',
+                    alignItems: logicalAlignItems(direction, 'end'),
                     marginBottom: theme.spacing.sm,
                   }}
                 >
@@ -335,7 +346,7 @@ export const OTPTemplate = memo(function OTPTemplate({
             </View>
           </ScrollView>
         </View>
-      </Modal>
+      </RNModal>
     );
   }
 
@@ -353,7 +364,7 @@ export const OTPTemplate = memo(function OTPTemplate({
         style={{
           minHeight: theme.componentHeight.xl,
           paddingHorizontal: theme.spacing.lg,
-          flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+          ...logicalRow(direction),
           alignItems: 'center',
         }}
       >
@@ -362,7 +373,6 @@ export const OTPTemplate = memo(function OTPTemplate({
         ) : null}
       </View>
       <ScrollView
-        keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
           flexGrow: 1,
           justifyContent: 'center',

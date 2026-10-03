@@ -1,7 +1,8 @@
 import React from 'react';
-import { ScrollView, View } from 'react-native';
+
 import type { Preview } from '@storybook/react-native';
 import {
+  RNTheme,
   ThemeProvider,
   useTheme,
 } from '@bunyan/design-system';
@@ -10,14 +11,14 @@ function StorySurface({ children }: { children: React.ReactNode }) {
   const { theme } = useTheme();
 
   return (
-    <ScrollView
+    <RNTheme.ScrollView
       style={{
         flex: 1,
         backgroundColor: theme.color.background.primary,
       }}
       contentContainerStyle={{ flexGrow: 1 }}
     >
-      <View
+      <RNTheme.View
         style={{
           flex: 1,
           padding: theme.spacing.xxl,
@@ -25,8 +26,8 @@ function StorySurface({ children }: { children: React.ReactNode }) {
         }}
       >
         {children}
-      </View>
-    </ScrollView>
+      </RNTheme.View>
+    </RNTheme.ScrollView>
   );
 }
 

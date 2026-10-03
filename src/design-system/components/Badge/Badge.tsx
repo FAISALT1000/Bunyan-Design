@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { View } from 'react-native';
+import { View } from '../RNTheme';
 import { useTheme } from '../../hooks';
 import { logicalRow } from '../../utilities/styles';
 import { Text } from '../Text';
@@ -9,9 +9,10 @@ export interface BadgeProps {
   children: React.ReactNode;
   tone?: BadgeTone;
   size?: 'small' | 'medium';
+  accessibilityLabel?: string;
 }
 
-export const Badge = memo(function Badge({ children, tone = 'neutral', size = 'medium' }: BadgeProps) {
+export const Badge = memo(function Badge({ children, tone = 'neutral', size = 'medium', accessibilityLabel }: BadgeProps) {
   const { theme, direction } = useTheme();
   const toneMap = {
     neutral: { background: theme.color.neutral.subtle, text: theme.color.text.secondary },
@@ -22,7 +23,10 @@ export const Badge = memo(function Badge({ children, tone = 'neutral', size = 'm
     information: { background: theme.color.information.subtle, text: theme.color.information.text },
   }[tone];
   return (
-    <View style={[
+    <View
+      accessible={accessibilityLabel !== undefined}
+      {...(accessibilityLabel !== undefined ? { accessibilityLabel } : {})}
+      style={[
       logicalRow(direction),
       {
         alignSelf: 'flex-start',

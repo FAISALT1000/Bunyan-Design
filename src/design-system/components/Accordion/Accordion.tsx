@@ -1,5 +1,5 @@
 import React, { memo, useId, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, View } from '../RNTheme';
 import { useTheme } from '../../hooks';
 import { logicalRow } from '../../utilities/styles';
 import { Icon } from '../Icon';
@@ -50,12 +50,13 @@ export const Accordion = memo(function Accordion({
             paddingVertical: theme.spacing.md,
             opacity: disabled ? theme.opacity.disabled : pressed ? theme.opacity.strong : theme.opacity.opaque,
             borderRadius: theme.radius.sm,
-            borderWidth: theme.borderWidth.none,
           },
         ]}
       >
-        <Text weight="semibold">{title}</Text>
-        <Icon name="chevron-down" size="sm" tone="secondary" />
+        <Text weight="semibold" style={{ flex: 1 }}>{title}</Text>
+        <View style={{ transform: [{ rotate: isExpanded ? '180deg' : '0deg' }] }}>
+          <Icon name="chevron-down" size="sm" tone="secondary" />
+        </View>
       </Pressable>
       {isExpanded ? (
         <View nativeID={contentId} style={{ paddingBottom: theme.spacing.lg }}>{children}</View>

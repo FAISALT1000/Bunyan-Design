@@ -1,6 +1,7 @@
 import React, { memo, useId } from 'react';
-import { View } from 'react-native';
+import { View } from '../RNTheme';
 import { useTheme } from '../../hooks';
+import { logicalRow } from '../../utilities/styles';
 import { Text } from '../Text';
 
 export interface FormFieldRenderProps {
@@ -29,7 +30,7 @@ export const FormField = memo(function FormField({
   required = false,
   optionalLabel = 'Optional',
 }: FormFieldProps) {
-  const { theme } = useTheme();
+  const { theme, direction } = useTheme();
   const id = useId();
   const renderProps: FormFieldRenderProps = {
     inputId: `${id}-input`,
@@ -40,7 +41,7 @@ export const FormField = memo(function FormField({
 
   return (
     <View style={{ gap: theme.spacing.sm }}>
-      <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: theme.spacing.xs }}>
+      <View style={[logicalRow(direction), { alignItems: 'baseline', gap: theme.spacing.xs }]}>
         <Text nativeID={renderProps.labelId} variant="label" weight="semibold">
           {label}{required ? ' *' : ''}
         </Text>

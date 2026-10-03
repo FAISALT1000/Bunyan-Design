@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, View } from '../RNTheme';
 import { useTheme } from '../../hooks';
 import { logicalRow } from '../../utilities/styles';
 import { Icon } from '../Icon';
@@ -12,6 +12,8 @@ export interface ChipProps {
   onPress?: () => void;
   onRemove?: () => void;
   accessibilityLabel?: string;
+  removeLabel?: (label: string) => string;
+  testID?: string;
 }
 
 export const Chip = memo(function Chip({
@@ -21,45 +23,60 @@ export const Chip = memo(function Chip({
   onPress,
   onRemove,
   accessibilityLabel,
+  removeLabel = value => `Remove ${value}`,
+  testID,
 }: ChipProps) {
   const { theme, direction } = useTheme();
+  const containerStyle = {
+    ...logicalRow(direction),
+    alignItems: 'center' as const,
+    alignSelf: 'flex-start' as const,
+    minHeight: theme.componentHeight.sm,
+    borderRadius: theme.radius.pill,
+    borderWidth: theme.borderWidth.thin,
+    borderColor: selected ? theme.color.primary.default : theme.color.border.primary,
+    backgroundColor: selected ? theme.color.primary.subtle : theme.color.surface.primary,
+    opacity: disabled ? theme.opacity.disabled : theme.opacity.opaque,
+    overflow: 'hidden' as const,
+  };
+
+  // The chip and its remove control are siblings, not nested pressables: nested
+  // buttons are not reachable by screen readers and swallow each other's presses.
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? label}
-      accessibilityState={{ selected, disabled }}
-      disabled={disabled}
-      onPress={onPress}
-      style={({ pressed }) => [
-        logicalRow(direction),
-        {
-          alignItems: 'center',
-          alignSelf: 'flex-start',
-          gap: theme.spacing.sm,
+    <View testID={testID} style={containerStyle}>
+      <Pressable
+        accessibilityRole={onPress ? 'button' : 'text'}
+        accessibilityLabel={accessibilityLabel ?? label}
+        accessibilityState={{ selected, disabled }}
+        disabled={disabled || !onPress}
+        onPress={onPress}
+        style={({ pressed }) => ({
+          justifyContent: 'center',
           minHeight: theme.componentHeight.sm,
           paddingHorizontal: theme.spacing.md,
-          borderRadius: theme.radius.pill,
-          borderWidth: theme.borderWidth.thin,
-          borderColor: selected ? theme.color.primary.default : theme.color.border.primary,
-          backgroundColor: selected ? theme.color.primary.subtle : pressed ? theme.color.overlay.subtle : theme.color.surface.primary,
-          opacity: disabled ? theme.opacity.disabled : theme.opacity.opaque,
-        },
-      ]}
-    >
-      <Text variant="label" weight="medium" tone={selected ? 'link' : 'primary'}>{label}</Text>
+          backgroundColor: pressed ? theme.color.overlay.subtle : theme.color.overlay.transparent,
+        })}
+      >
+        <Text variant="label" weight="medium" tone={selected ? 'link' : 'primary'}>{label}</Text>
+      </Pressable>
       {onRemove ? (
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={`Remove ${label}`}
+          accessibilityLabel={removeLabel(label)}
+          accessibilityState={{ disabled }}
+          disabled={disabled}
           hitSlop={theme.spacing.sm}
-          onPress={event => {
-            event.stopPropagation();
-            onRemove();
-          }}
+          onPress={onRemove}
+          style={({ pressed }) => ({
+            justifyContent: 'center',
+            minHeight: theme.componentHeight.sm,
+            paddingHorizontal: theme.spacing.sm,
+            backgroundColor: pressed ? theme.color.overlay.subtle : theme.color.overlay.transparent,
+          })}
         >
           <Icon name="close" size="sm" tone="secondary" />
         </Pressable>
       ) : null}
-    </Pressable>
+    </View>
   );
 });

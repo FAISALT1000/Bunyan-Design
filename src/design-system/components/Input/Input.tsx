@@ -1,12 +1,7 @@
 import React, { forwardRef, memo, useState } from 'react';
-import {
-  TextInput,
-  View,
-  type TextInputProps,
-  type ViewStyle,
-} from 'react-native';
+import { TextInput, View, type TextInputProps, type TextInputRef, type ViewStyle } from '../RNTheme';
 import { useTheme } from '../../hooks';
-import { heightForSize, logicalRow, logicalText, statusBorderColor, type ComponentSize, type FeedbackStatus } from '../../utilities/styles';
+import { fontFamilyFor, heightForSize, logicalRow, logicalText, statusBorderColor, type ComponentSize, type FeedbackStatus } from '../../utilities/styles';
 import type { IconName } from '../Icon';
 import { Icon } from '../Icon';
 
@@ -18,7 +13,7 @@ export interface InputProps extends Omit<TextInputProps, 'style'> {
   containerStyle?: Pick<ViewStyle, 'flex' | 'width' | 'maxWidth' | 'minWidth' | 'alignSelf'>;
 }
 
-export const Input = memo(forwardRef<TextInput, InputProps>(function Input(
+export const Input = memo(forwardRef<TextInputRef, InputProps>(function Input(
   {
     size = 'medium',
     status = 'default',
@@ -61,9 +56,6 @@ export const Input = memo(forwardRef<TextInput, InputProps>(function Input(
         editable={editable}
         accessibilityState={{ ...accessibilityState, disabled }}
         aria-invalid={status === 'error'}
-        placeholderTextColor={theme.color.text.tertiary}
-        selectionColor={theme.color.primary.default}
-        cursorColor={theme.color.primary.default}
         onFocus={event => {
           setFocused(true);
           onFocus?.(event);
@@ -79,7 +71,7 @@ export const Input = memo(forwardRef<TextInput, InputProps>(function Input(
             flex: 1,
             minWidth: theme.spacing.none,
             color: disabled ? theme.color.disabled.text : theme.color.text.primary,
-            fontFamily: direction === 'rtl' ? theme.typography.fontFamily.arabic : theme.typography.fontFamily.sans,
+            fontFamily: fontFamilyFor(theme, direction),
             fontSize: theme.typography.fontSize.md,
             lineHeight: theme.typography.lineHeight.md,
             paddingVertical: theme.spacing.none,

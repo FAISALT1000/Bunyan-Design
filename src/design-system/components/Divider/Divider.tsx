@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { View } from 'react-native';
+import { View } from '../RNTheme';
 import { useTheme } from '../../hooks';
 
 export interface DividerProps {
@@ -22,10 +22,13 @@ export const Divider = memo(function Divider({
   }[inset];
   return (
     <View
-      accessibilityRole={decorative ? undefined : 'none'}
+      // Decorative dividers are hidden from assistive tech; semantic ones are separators.
+      {...(decorative
+        ? { accessible: false, accessibilityElementsHidden: true, importantForAccessibility: 'no-hide-descendants' as const }
+        : { role: 'separator' as const, 'aria-orientation': orientation })}
       style={orientation === 'horizontal'
-        ? { height: theme.borderWidth.thin, backgroundColor: theme.color.border.secondary, marginHorizontal: insetValue }
-        : { width: theme.borderWidth.thin, backgroundColor: theme.color.border.secondary, marginVertical: insetValue }}
+        ? { height: theme.borderWidth.thin, alignSelf: 'stretch', backgroundColor: theme.color.border.secondary, marginHorizontal: insetValue }
+        : { width: theme.borderWidth.thin, alignSelf: 'stretch', backgroundColor: theme.color.border.secondary, marginVertical: insetValue }}
     />
   );
 });

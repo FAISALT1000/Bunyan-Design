@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Switch as RNSwitch, View } from 'react-native';
+import { RNSwitch, View } from '../RNTheme';
 import { useTheme } from '../../hooks';
 import { logicalRow } from '../../utilities/styles';
 import { Text } from '../Text';
@@ -28,15 +28,14 @@ export const Switch = memo(function Switch({
       </View>
       <RNSwitch
         accessibilityLabel={label}
-        accessibilityHint={description}
+        {...(description ? { accessibilityHint: description } : {})}
         accessibilityRole="switch"
         accessibilityState={{ checked: value, disabled }}
         value={value}
         disabled={disabled}
         onValueChange={onValueChange}
-        trackColor={{ false: theme.color.disabled.background, true: theme.color.primary.default }}
+        // Track colours come from RNTheme; only the state-dependent thumb is set here.
         thumbColor={value ? theme.color.primary.contrast : theme.color.neutral.default}
-        ios_backgroundColor={theme.color.disabled.background}
       />
     </View>
   );

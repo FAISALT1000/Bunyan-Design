@@ -31,3 +31,7 @@ export * from './Text';
 export * from './TextArea';
 export * from './Toast';
 export * from './Tooltip';
+
+// Themed React Native primitives (the design system's only gateway to `react-native`).
+export { RNTheme } from './RNTheme';
+export * from './createThemedComponent';

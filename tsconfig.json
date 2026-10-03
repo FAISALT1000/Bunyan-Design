@@ -16,6 +16,6 @@
     "declarationMap": true,
     "outDir": "dist"
   },
-  "include": ["src", "tests", ".storybook"],
+  "include": ["src", "tests", ".rnstorybook"],
   "exclude": ["node_modules", "dist"]
 }

@@ -1,5 +1,5 @@
 import React, { forwardRef, memo } from 'react';
-import { Pressable, View, type PressableProps, type ViewProps } from 'react-native';
+import { Pressable, View, type PressableProps, type ViewProps, type ViewRef, type ViewStyle } from '../RNTheme';
 import { useTheme } from '../../hooks';
 
 export type CardVariant = 'elevated' | 'outlined' | 'filled';
@@ -11,10 +11,10 @@ interface SharedCardProps {
 }
 
 export type CardProps =
-  | (SharedCardProps & { onPress: () => void; accessibilityLabel: string } & Omit<PressableProps, 'children' | 'style' | 'onPress'>)
+  | (SharedCardProps & { onPress: NonNullable<PressableProps['onPress']>; accessibilityLabel: string } & Omit<PressableProps, 'children' | 'style' | 'onPress'>)
   | (SharedCardProps & { onPress?: never; accessibilityLabel?: string } & Omit<ViewProps, 'children' | 'style'>);
 
-export const Card = memo(forwardRef<View, CardProps>(function Card(
+export const Card = memo(forwardRef<ViewRef, CardProps>(function Card(
   { children, variant = 'outlined', padding = 'medium', onPress, accessibilityLabel, ...props },
   ref,
 ) {
@@ -25,7 +25,7 @@ export const Card = memo(forwardRef<View, CardProps>(function Card(
     medium: theme.spacing.lg,
     large: theme.spacing.xxl,
   }[padding];
-  const baseStyle = {
+  const baseStyle: ViewStyle = {
     padding: paddingValue,
     borderRadius: theme.radius.lg,
     borderWidth: variant === 'outlined' ? theme.borderWidth.thin : theme.borderWidth.none,
@@ -35,19 +35,23 @@ export const Card = memo(forwardRef<View, CardProps>(function Card(
   };
 
   if (onPress) {
+    const pressableProps = props as Omit<PressableProps, 'children' | 'style' | 'onPress'>;
     return (
       <Pressable
         ref={ref}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
+        accessibilityState={{ ...pressableProps.accessibilityState, disabled: Boolean(pressableProps.disabled) }}
+        {...pressableProps}
         onPress={onPress}
-        {...(props as PressableProps)}
         style={({ pressed }) => [
           baseStyle,
           {
-            borderWidth: baseStyle.borderWidth,
-            borderColor: baseStyle.borderColor,
-            opacity: pressed ? theme.opacity.strong : theme.opacity.opaque,
+            opacity: pressableProps.disabled
+              ? theme.opacity.disabled
+              : pressed
+              ? theme.opacity.strong
+              : theme.opacity.opaque,
           },
         ]}
       >
@@ -55,5 +59,9 @@ export const Card = memo(forwardRef<View, CardProps>(function Card(
       </Pressable>
     );
   }
-  return <View ref={ref} {...(props as ViewProps)} style={baseStyle}>{children}</View>;
+  return (
+    <View ref={ref} accessibilityLabel={accessibilityLabel} {...(props as ViewProps)} style={baseStyle}>
+      {children}
+    </View>
+  );
 }));

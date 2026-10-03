@@ -1,5 +1,5 @@
-import React, { memo, useState } from 'react';
-import { Image, View, type ImageSourcePropType } from 'react-native';
+import React, { memo, useEffect, useState } from 'react';
+import { Image, View, type ImageSourcePropType } from '../RNTheme';
 import { useTheme } from '../../hooks';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
@@ -12,7 +12,14 @@ export interface AvatarProps {
 }
 
 const initialsFor = (name: string) =>
-  name.trim().split(/\s+/).slice(0, 2).map(part => part[0]?.toLocaleUpperCase()).join('');
+  name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    // Array.from keeps surrogate pairs (emoji, some scripts) intact.
+    .map(part => Array.from(part)[0]?.toLocaleUpperCase() ?? '')
+    .join('');
 
 export const Avatar = memo(function Avatar({
   source,
@@ -22,6 +29,8 @@ export const Avatar = memo(function Avatar({
 }: AvatarProps) {
   const { theme } = useTheme();
   const [failed, setFailed] = useState(false);
+  // A new source deserves a new attempt; previously one failure was sticky forever.
+  useEffect(() => setFailed(false), [source]);
   const dimension = {
     small: theme.componentHeight.xs,
     medium: theme.componentHeight.sm,
@@ -30,7 +39,7 @@ export const Avatar = memo(function Avatar({
   }[size];
   const content = source && !failed ? (
     <Image source={source} onError={() => setFailed(true)} style={{ width: dimension, height: dimension }} />
-  ) : name ? (
+  ) : name?.trim() ? (
     <Text variant={size === 'small' ? 'caption' : 'label'} weight="semibold" tone="link">{initialsFor(name)}</Text>
   ) : (
     <Icon name="user" size={size === 'small' ? 'sm' : size === 'xlarge' ? 'xl' : 'md'} tone="secondary" />

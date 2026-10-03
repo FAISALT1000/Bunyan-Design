@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useMemo, useState } from 'react';
-import { Appearance, I18nManager, type ColorSchemeName } from 'react-native';
+import { Appearance, I18nManager, type ColorSchemeName } from '../components/RNTheme/native';
 import { themes } from '../themes/themes';
 import type { Direction, Theme, ThemeMode } from '../themes/types';
 
@@ -35,6 +35,10 @@ export interface ThemeProviderProps {
   blackForSystemDark?: boolean;
 }
 
+const RTL_LOCALE = /^(ar|arc|ckb|dv|fa|he|iw|ps|sd|ug|ur|yi)(-|_|$)/i;
+
+export const isRTLLocale = (locale: string) => RTL_LOCALE.test(locale);
+
 const resolveSystemMode = (scheme: ColorSchemeName | null, blackForSystemDark: boolean): ThemeMode =>
   scheme === 'dark' ? (blackForSystemDark ? 'black' : 'dark') : 'light';
 
@@ -56,7 +60,7 @@ export function ThemeProvider({
   }, []);
 
   const resolvedDirection: Direction =
-    direction ?? (/^(ar|fa|he|ur)(-|$)/i.test(locale) || I18nManager.isRTL ? 'rtl' : 'ltr');
+    direction ?? (isRTLLocale(locale) || I18nManager.isRTL ? 'rtl' : 'ltr');
   const mode = preference === 'system'
     ? resolveSystemMode(systemScheme, blackForSystemDark)
     : preference;
