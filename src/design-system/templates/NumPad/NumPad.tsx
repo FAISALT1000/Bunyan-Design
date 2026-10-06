@@ -76,14 +76,10 @@ export const NumPad = memo(function NumPad({
       })}
     >
       <Text
+        value={digit}
+        variant="headingLarge"
         weight="semibold"
-        style={{
-          fontSize: theme.typography.fontSize.xxl,
-          lineHeight: theme.typography.lineHeight.xxl,
-        }}
-      >
-        {digit}
-      </Text>
+      />
     </Pressable>
   );
 

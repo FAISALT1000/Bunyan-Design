@@ -1,40 +1,65 @@
-import React, { forwardRef, memo } from 'react';
-import { Linking, Pressable, type PressableProps, type View } from 'react-native';
-import { useTheme } from '../../hooks';
-import { Text } from '../Text';
+import React, { memo } from 'react';
+import { Linking } from 'react-native';
+import { warnDeprecated } from '../../utilities/deprecations';
+import { Button } from '../Button';
 
-export interface LinkProps extends Omit<PressableProps, 'children' | 'style'> {
-  children: React.ReactNode;
+interface SharedLinkProps {
+  onPress?: () => void;
   href?: string;
   external?: boolean;
+  disabled?: boolean;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
+  testID?: string;
 }
 
-export const Link = memo(forwardRef<View, LinkProps>(function Link(
-  { children, href, external = false, onPress, accessibilityLabel, ...props },
-  ref,
-) {
-  const { theme } = useTheme();
-  return (
-    <Pressable
-      ref={ref}
-      accessibilityRole="link"
-      accessibilityLabel={accessibilityLabel}
-      onPress={event => {
-        onPress?.(event);
-        if (!event.defaultPrevented && href) void Linking.openURL(href);
-      }}
-      {...props}
-      style={({ pressed }) => ({
-        alignSelf: 'flex-start',
-        borderRadius: theme.radius.sm,
-        borderWidth: theme.borderWidth.none,
-        borderColor: theme.color.border.focus,
-        opacity: pressed ? theme.opacity.strong : theme.opacity.opaque,
-      })}
-    >
-      <Text tone="link" weight="semibold">
-        {children}{external ? ' ↗' : ''}
-      </Text>
-    </Pressable>
+/**
+ * @deprecated Use `Button` with `variant="link"`.
+ */
+export type LinkProps = SharedLinkProps & (
+  | { label: string; children?: never }
+  | {
+      label?: never;
+      /**
+       * @deprecated Use the label prop.
+       */
+      children: string;
+    }
+);
+
+/**
+ * @deprecated Use `Button` with `variant="link"`. Scheduled for removal in
+ * 1.0.0.
+ */
+export const Link = memo(function Link({
+  label,
+  children,
+  href,
+  external = false,
+  disabled = false,
+  onPress,
+  accessibilityLabel,
+  accessibilityHint,
+  testID,
+}: LinkProps) {
+  const resolvedLabel = label ?? children;
+  warnDeprecated(
+    'Link is deprecated. Use <Button title="..." variant="link" />. It will be removed in 1.0.0.',
   );
-}));
+
+  return (
+    <Button
+      title={`${resolvedLabel}${external ? ' ↗' : ''}`}
+      variant="link"
+      actionType={href || external ? 'externalLink' : 'navigation'}
+      disabled={disabled}
+      onPress={() => {
+        onPress?.();
+        if (href) void Linking.openURL(href);
+      }}
+      {...(accessibilityLabel ? { accessibilityLabel } : {})}
+      {...(accessibilityHint ? { accessibilityHint } : {})}
+      {...(testID ? { testID } : {})}
+    />
+  );
+});

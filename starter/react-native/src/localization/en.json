@@ -1,0 +1,13 @@
+{
+  "common": {
+    "confirm": "Confirm",
+    "continue": "Continue"
+  },
+  "home": {
+    "title": "Home"
+  },
+  "account": {
+    "title": "Account",
+    "availableBalance": "Available balance"
+  }
+}

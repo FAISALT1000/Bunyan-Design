@@ -1,6 +1,6 @@
 import React, { memo, useId } from 'react';
-import { View } from 'react-native';
-import { useTheme } from '../../hooks';
+import { Inline } from '../../base/Inline';
+import { Stack } from '../../base/Stack';
 import { Text } from '../Text';
 
 export interface FormFieldRenderProps {
@@ -18,6 +18,7 @@ export interface FormFieldProps {
   success?: string;
   required?: boolean;
   optionalLabel?: string;
+  testID?: string;
 }
 
 export const FormField = memo(function FormField({
@@ -28,8 +29,8 @@ export const FormField = memo(function FormField({
   success,
   required = false,
   optionalLabel = 'Optional',
+  testID,
 }: FormFieldProps) {
-  const { theme } = useTheme();
   const id = useId();
   const renderProps: FormFieldRenderProps = {
     inputId: `${id}-input`,
@@ -39,20 +40,45 @@ export const FormField = memo(function FormField({
   };
 
   return (
-    <View style={{ gap: theme.spacing.sm }}>
-      <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: theme.spacing.xs }}>
-        <Text nativeID={renderProps.labelId} variant="label" weight="semibold">
-          {label}{required ? ' *' : ''}
-        </Text>
-        {!required ? <Text variant="caption" tone="tertiary">({optionalLabel})</Text> : null}
-      </View>
-      {description ? <Text nativeID={renderProps.descriptionId} variant="caption" tone="secondary">{description}</Text> : null}
+    <Stack gap="sm" testID={testID}>
+      <Inline gap="xs" alignItems="baseline">
+        <Text
+          value={`${label}${required ? ' *' : ''}`}
+          nativeID={renderProps.labelId}
+          variant="labelMedium"
+          weight="semibold"
+        />
+        {!required ? (
+          <Text value={`(${optionalLabel})`} variant="caption" tone="tertiary" />
+        ) : null}
+      </Inline>
+      {description ? (
+        <Text
+          value={description}
+          nativeID={renderProps.descriptionId}
+          variant="caption"
+          tone="secondary"
+        />
+      ) : null}
       {typeof children === 'function' ? children(renderProps) : children}
       {error ? (
-        <Text nativeID={renderProps.errorId} accessibilityRole="alert" variant="caption" tone="error">{error}</Text>
+        <Text
+          value={error}
+          nativeID={renderProps.errorId}
+          accessibilityRole="alert"
+          accessibilityLiveRegion="assertive"
+          variant="caption"
+          tone="error"
+        />
       ) : success ? (
-        <Text accessibilityRole="alert" variant="caption" tone="success">{success}</Text>
+        <Text
+          value={success}
+          accessibilityRole="alert"
+          accessibilityLiveRegion="polite"
+          variant="caption"
+          tone="success"
+        />
       ) : null}
-    </View>
+    </Stack>
   );
 });

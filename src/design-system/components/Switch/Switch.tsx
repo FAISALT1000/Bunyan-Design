@@ -1,7 +1,9 @@
 import React, { memo } from 'react';
-import { Switch as RNSwitch, View } from 'react-native';
+import { Inline } from '../../base/Inline';
+import { Stack } from '../../base/Stack';
+import { BaseSwitch } from '../../base/Switch';
 import { useTheme } from '../../hooks';
-import { logicalRow } from '../../utilities/styles';
+import { createAccessibilityState } from '../../utilities/accessibility';
 import { Text } from '../Text';
 
 export interface SwitchProps {
@@ -10,6 +12,9 @@ export interface SwitchProps {
   label: string;
   description?: string;
   disabled?: boolean;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
+  testID?: string;
 }
 
 export const Switch = memo(function Switch({
@@ -18,26 +23,41 @@ export const Switch = memo(function Switch({
   label,
   description,
   disabled = false,
+  accessibilityLabel,
+  accessibilityHint,
+  testID,
 }: SwitchProps) {
-  const { theme, direction } = useTheme();
+  const { theme } = useTheme();
+
   return (
-    <View style={[logicalRow(direction), { alignItems: 'center', justifyContent: 'space-between', gap: theme.spacing.lg }]}>
-      <View style={{ flex: 1 }}>
-        <Text variant="label" weight="medium">{label}</Text>
-        {description ? <Text variant="caption" tone="secondary">{description}</Text> : null}
-      </View>
-      <RNSwitch
-        accessibilityLabel={label}
-        accessibilityHint={description}
+    <Inline gap="lg" alignItems="center" justifyContent="space-between">
+      <Stack flex={1} gap="xxs">
+        <Text value={label} variant="labelMedium" weight="medium" />
+        {description ? (
+          <Text value={description} variant="caption" tone="secondary" />
+        ) : null}
+      </Stack>
+      <BaseSwitch
+        accessibilityLabel={accessibilityLabel ?? label}
+        accessibilityHint={accessibilityHint ?? description}
         accessibilityRole="switch"
-        accessibilityState={{ checked: value, disabled }}
+        accessibilityState={createAccessibilityState({
+          checked: value,
+          disabled,
+        })}
+        testID={testID}
         value={value}
         disabled={disabled}
         onValueChange={onValueChange}
-        trackColor={{ false: theme.color.disabled.background, true: theme.color.primary.default }}
-        thumbColor={value ? theme.color.primary.contrast : theme.color.neutral.default}
+        trackColor={{
+          false: theme.color.disabled.background,
+          true: theme.color.primary.default,
+        }}
+        thumbColor={
+          value ? theme.color.primary.contrast : theme.color.neutral.default
+        }
         ios_backgroundColor={theme.color.disabled.background}
       />
-    </View>
+    </Inline>
   );
 });

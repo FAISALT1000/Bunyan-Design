@@ -1,6 +1,12 @@
 import React, { memo, useId } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Inline } from '../../base/Inline';
+import { BasePressable } from '../../base/Pressable';
+import { ScrollContainer } from '../../base/ScrollContainer';
 import { useTheme } from '../../hooks';
+import {
+  createAccessibilityLabel,
+  createAccessibilityState,
+} from '../../utilities/accessibility';
 import { Text } from '../Text';
 
 export interface TabItem {
@@ -16,6 +22,7 @@ export interface TabsProps {
   onValueChange: (value: string) => void;
   variant?: 'line' | 'pill';
   accessibilityLabel?: string;
+  testID?: string;
 }
 
 export const Tabs = memo(function Tabs({
@@ -24,56 +31,73 @@ export const Tabs = memo(function Tabs({
   onValueChange,
   variant = 'line',
   accessibilityLabel = 'Tabs',
+  testID,
 }: TabsProps) {
-  const { theme, direction } = useTheme();
+  const { theme } = useTheme();
   const id = useId();
+
   return (
-    <ScrollView
+    <ScrollContainer
       horizontal
       showsHorizontalScrollIndicator={false}
       accessibilityRole="tablist"
       accessibilityLabel={accessibilityLabel}
-      contentContainerStyle={{
-        flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
-        gap: variant === 'pill' ? theme.spacing.sm : theme.spacing.none,
-      }}
+      testID={testID}
+      gap={variant === 'pill' ? 'sm' : 'none'}
     >
       {items.map(item => {
         const selected = item.value === value;
         return (
-          <Pressable
+          <BasePressable
             key={item.value}
             nativeID={`${id}-${item.value}-tab`}
             accessibilityRole="tab"
-            accessibilityState={{ selected, disabled: item.disabled }}
+            accessibilityLabel={createAccessibilityLabel([item.label, item.badge])}
+            accessibilityState={createAccessibilityState({
+              selected,
+              disabled: item.disabled ?? false,
+            })}
             disabled={item.disabled}
             onPress={() => onValueChange(item.value)}
-            style={({ pressed }) => ({
+            baseStyle={{
               minHeight: theme.componentHeight.md,
               minWidth: theme.componentHeight.xl,
               paddingHorizontal: theme.spacing.lg,
               alignItems: 'center',
               justifyContent: 'center',
-              borderRadius: variant === 'pill' ? theme.radius.pill : theme.radius.none,
-              borderBottomWidth: variant === 'line' && selected ? theme.borderWidth.medium : theme.borderWidth.none,
+              borderRadius: variant === 'pill'
+                ? theme.radius.pill
+                : theme.radius.none,
+              borderBottomWidth: variant === 'line' && selected
+                ? theme.borderWidth.medium
+                : theme.borderWidth.none,
               borderColor: theme.color.primary.default,
               backgroundColor: variant === 'pill' && selected
                 ? theme.color.primary.subtle
-                : pressed
-                ? theme.color.overlay.subtle
                 : theme.color.overlay.transparent,
-              opacity: item.disabled ? theme.opacity.disabled : theme.opacity.opaque,
-            })}
+            }}
+            pressedStyle={{ backgroundColor: theme.color.overlay.subtle }}
+            hoveredStyle={{ backgroundColor: theme.color.overlay.subtle }}
+            focusedStyle={{
+              borderColor: theme.color.border.focus,
+              borderWidth: theme.borderWidth.medium,
+            }}
+            disabledStyle={{ opacity: theme.opacity.disabled }}
           >
-            <View style={{ flexDirection: direction === 'rtl' ? 'row-reverse' : 'row', gap: theme.spacing.xs }}>
-              <Text variant="label" weight={selected ? 'semibold' : 'medium'} tone={selected ? 'link' : 'secondary'}>
-                {item.label}
-              </Text>
-              {item.badge ? <Text variant="caption" tone="tertiary">{item.badge}</Text> : null}
-            </View>
-          </Pressable>
+            <Inline gap="xs" alignItems="center">
+              <Text
+                value={item.label}
+                variant="labelMedium"
+                weight={selected ? 'semibold' : 'medium'}
+                tone={selected ? 'info' : 'secondary'}
+              />
+              {item.badge ? (
+                <Text value={item.badge} variant="caption" tone="tertiary" />
+              ) : null}
+            </Inline>
+          </BasePressable>
         );
       })}
-    </ScrollView>
+    </ScrollContainer>
   );
 });

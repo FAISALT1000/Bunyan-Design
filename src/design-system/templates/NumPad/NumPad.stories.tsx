@@ -13,10 +13,12 @@ function NumPadDemo({ maxLength = 8 }: { maxLength?: number }) {
   return (
     <View style={{ width: '100%', maxWidth: theme.breakpoint.medium, alignSelf: 'center', gap: theme.spacing.xxl }}>
       <View style={{ alignItems: 'center', gap: theme.spacing.sm }}>
-        <Text tone="secondary">Entered value</Text>
-        <Badge tone={value ? 'primary' : 'neutral'} size="medium">
-          {value || 'Empty'}
-        </Badge>
+        <Text value="Entered value" tone="secondary" />
+        <Badge
+          label={value || 'Empty'}
+          tone={value ? 'primary' : 'neutral'}
+          size="medium"
+        />
       </View>
       <NumPad value={value} onChange={setValue} maxLength={maxLength} />
     </View>

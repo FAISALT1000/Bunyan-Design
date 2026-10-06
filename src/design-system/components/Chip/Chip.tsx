@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
-import { Pressable } from 'react-native';
+import { Inline } from '../../base/Inline';
+import { BasePressable } from '../../base/Pressable';
 import { useTheme } from '../../hooks';
-import { logicalRow } from '../../utilities/styles';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
 
@@ -12,6 +12,8 @@ export interface ChipProps {
   onPress?: () => void;
   onRemove?: () => void;
   accessibilityLabel?: string;
+  accessibilityHint?: string;
+  testID?: string;
 }
 
 export const Chip = memo(function Chip({
@@ -21,45 +23,60 @@ export const Chip = memo(function Chip({
   onPress,
   onRemove,
   accessibilityLabel,
+  accessibilityHint,
+  testID,
 }: ChipProps) {
-  const { theme, direction } = useTheme();
+  const { theme } = useTheme();
+
   return (
-    <Pressable
+    <BasePressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityHint={accessibilityHint}
       accessibilityState={{ selected, disabled }}
+      testID={testID}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [
-        logicalRow(direction),
-        {
-          alignItems: 'center',
-          alignSelf: 'flex-start',
-          gap: theme.spacing.sm,
-          minHeight: theme.componentHeight.sm,
-          paddingHorizontal: theme.spacing.md,
-          borderRadius: theme.radius.pill,
-          borderWidth: theme.borderWidth.thin,
-          borderColor: selected ? theme.color.primary.default : theme.color.border.primary,
-          backgroundColor: selected ? theme.color.primary.subtle : pressed ? theme.color.overlay.subtle : theme.color.surface.primary,
-          opacity: disabled ? theme.opacity.disabled : theme.opacity.opaque,
-        },
-      ]}
+      baseStyle={{
+        alignSelf: 'flex-start',
+        minHeight: theme.componentHeight.sm,
+        paddingHorizontal: theme.spacing.md,
+        borderRadius: theme.radius.pill,
+        borderWidth: theme.borderWidth.thin,
+        borderColor: selected
+          ? theme.color.primary.default
+          : theme.color.border.primary,
+        backgroundColor: selected
+          ? theme.color.primary.subtle
+          : theme.color.surface.primary,
+      }}
+      pressedStyle={{ backgroundColor: theme.color.overlay.subtle }}
+      focusedStyle={{
+        borderColor: theme.color.border.focus,
+        borderWidth: theme.borderWidth.medium,
+      }}
+      disabledStyle={{ opacity: theme.opacity.disabled }}
     >
-      <Text variant="label" weight="medium" tone={selected ? 'link' : 'primary'}>{label}</Text>
-      {onRemove ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Remove ${label}`}
-          hitSlop={theme.spacing.sm}
-          onPress={event => {
-            event.stopPropagation();
-            onRemove();
-          }}
-        >
-          <Icon name="close" size="sm" tone="secondary" />
-        </Pressable>
-      ) : null}
-    </Pressable>
+      <Inline gap="sm" alignItems="center">
+        <Text
+          value={label}
+          variant="labelMedium"
+          weight="medium"
+          tone={selected ? 'info' : disabled ? 'disabled' : 'primary'}
+        />
+        {onRemove ? (
+          <BasePressable
+            accessibilityRole="button"
+            accessibilityLabel={`Remove ${label}`}
+            onPress={onRemove}
+            stopPropagation
+            minTouchTarget={false}
+            baseStyle={{ padding: theme.spacing.sm }}
+          >
+            <Icon name="close" size="sm" tone="secondary" />
+          </BasePressable>
+        ) : null}
+      </Inline>
+    </BasePressable>
   );
 });
