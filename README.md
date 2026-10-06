@@ -143,6 +143,22 @@ direction differs from the native `I18nManager` direction. React Native already
 mirrors layout and swaps `left`/`right` text alignment in native RTL, so
 mirroring again would render RTL apps left-to-right.
 
+### Forms
+
+```tsx
+<Form
+  initialValues={{ direction: '0', period: {} }}
+  validationSchema={Yup.object({ period: Yup.mixed().dateRange(true, true) })}
+  onSubmit={applyFilter}
+  fields={[
+    isRajhi && { type: 'ChipsGroup', name: 'direction', data: [{ text: { localeKey: 'tx.all' }, value: '0' }] },
+    { type: 'DateRangePicker', name: 'period', fromLabel: { localeKey: 'common.from' }, maximumDate: new Date(), showHijriToggle: true },
+  ]}
+/>
+```
+
+Formik + Yup under the hood, texts accept `{ localeKey }` (pass `translate` to `ThemeProvider`), and projects can register their own field types. Full guide: [docs/FORMS.md](docs/FORMS.md).
+
 ### Responsive layout & your own tokens
 
 ```tsx

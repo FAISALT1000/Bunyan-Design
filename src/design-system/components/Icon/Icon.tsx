@@ -3,9 +3,9 @@ import Svg, { Circle, Line, Path, Polyline, Rect } from 'react-native-svg';
 import { useTheme } from '../../hooks';
 
 export type IconName =
-  | 'alert-circle' | 'backspace' | 'calendar' | 'check' | 'chevron-down' | 'chevron-left'
+  | 'alert-circle' | 'arrow-down' | 'arrow-down-left' | 'arrow-up' | 'arrow-up-right' | 'backspace' | 'calendar' | 'check' | 'chevron-down' | 'chevron-left'
   | 'chevron-right' | 'close' | 'eye' | 'eye-off' | 'info' | 'search'
-  | 'success' | 'warning' | 'error' | 'user';
+  | 'success' | 'warning' | 'error' | 'user' | 'filter' | 'upload' | 'file' | 'plus' | 'minus' | 'trash' | 'image';
 export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
 export type IconTone = 'primary' | 'secondary' | 'tertiary' | 'inverse' | 'success' | 'warning' | 'error' | 'information';
 
@@ -25,6 +25,17 @@ export interface IconProps {
 
 const paths: Record<IconName, React.ReactNode> = {
   'alert-circle': <><Circle cx="12" cy="12" r="9" /><Line x1="12" y1="7" x2="12" y2="13" /><Line x1="12" y1="17" x2="12.01" y2="17" /></>,
+  'arrow-down': <><Line x1="12" y1="5" x2="12" y2="19" /><Polyline points="6 13 12 19 18 13" /></>,
+  'arrow-down-left': <><Line x1="17" y1="7" x2="7" y2="17" /><Polyline points="7 9 7 17 15 17" /></>,
+  'arrow-up': <><Line x1="12" y1="19" x2="12" y2="5" /><Polyline points="6 11 12 5 18 11" /></>,
+  'arrow-up-right': <><Line x1="7" y1="17" x2="17" y2="7" /><Polyline points="9 7 17 7 17 15" /></>,
+  filter: <Path d="M4 5h16l-6 7.5V19l-4-2v-4.5L4 5z" />,
+  upload: <><Path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3" /><Polyline points="7 9 12 4 17 9" /><Line x1="12" y1="4" x2="12" y2="16" /></>,
+  file: <><Path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z" /><Polyline points="14 3 14 8 19 8" /></>,
+  plus: <><Line x1="12" y1="5" x2="12" y2="19" /><Line x1="5" y1="12" x2="19" y2="12" /></>,
+  minus: <Line x1="5" y1="12" x2="19" y2="12" />,
+  trash: <><Polyline points="4 7 20 7" /><Path d="M9 7V4h6v3" /><Path d="M6 7l1 13h10l1-13" /></>,
+  image: <><Rect x="3" y="4" width="18" height="16" rx="2" /><Circle cx="9" cy="10" r="2" /><Polyline points="21 16 15 11 5 20" /></>,
   backspace: <><Path d="M21 6H9l-6 6 6 6h12V6z" /><Line x1="12" y1="9" x2="17" y2="15" /><Line x1="17" y1="9" x2="12" y2="15" /></>,
   calendar: <><Rect x="3" y="5" width="18" height="16" rx="2" /><Line x1="8" y1="3" x2="8" y2="7" /><Line x1="16" y1="3" x2="16" y2="7" /><Line x1="3" y1="10" x2="21" y2="10" /></>,
   check: <Polyline points="5 12 10 17 19 7" />,

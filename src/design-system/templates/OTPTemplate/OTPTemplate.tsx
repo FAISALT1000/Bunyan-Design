@@ -5,9 +5,7 @@ import {
   RNModal,
   ScrollView,
   StyleSheet,
-  TextInput,
   View,
-  type TextInputRef,
 } from '../../components/RNTheme';
 import { logicalAlignItems, logicalRow } from '../../utilities/styles';
 import { BottomSheet } from '../../components/BottomSheet';
@@ -17,7 +15,7 @@ import { IconButton } from '../../components/IconButton';
 import { Link } from '../../components/Link';
 import { Text } from '../../components/Text';
 import { useTheme } from '../../hooks';
-import { NumPad } from '../NumPad';
+import { OTPInput } from '../../components/OTPInput';
 
 export type OTPTemplateVariant = 'bottomSheet' | 'overlay' | 'fullScreen';
 
@@ -77,7 +75,6 @@ const OTPContent = memo(function OTPContent({
   showDestination = true,
 }: OTPContentProps) {
   const { theme } = useTheme();
-  const inputRef = useRef<TextInputRef>(null);
   const normalizedValue = onlyDigits(value, length);
   const complete = normalizedValue.length === length;
   const previousCompletedValue = useRef<string | undefined>(undefined);
@@ -122,102 +119,16 @@ const OTPContent = memo(function OTPContent({
         <Text tone="secondary" align="center">{destination}</Text>
       ) : null}
 
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`Verification code, ${normalizedValue.length} of ${length} digits entered`}
-        accessibilityState={{ disabled: locked }}
-        disabled={locked}
-        // With the on-screen NumPad the system keyboard must stay hidden.
-        onPress={() => {
-          if (!useNumPad) inputRef.current?.focus();
-        }}
-        style={{
-          // Codes are digit sequences and always read left-to-right, even in Arabic UIs.
-          flexDirection: 'row',
-          justifyContent: 'center',
-          gap: theme.spacing.sm,
-        }}
-      >
-        {Array.from({ length }, (_, index) => {
-          const digit = normalizedValue[index];
-          const active = index === normalizedValue.length && !complete;
-          return (
-            <View
-              key={index}
-              accessible
-              accessibilityLabel={digit ? `Digit ${index + 1} entered` : `Digit ${index + 1} empty`}
-              style={{
-                width: theme.componentHeight.lg,
-                height: theme.componentHeight.xl,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: theme.radius.md,
-                borderWidth: active || error
-                  ? theme.borderWidth.medium
-                  : theme.borderWidth.thin,
-                borderColor: error
-                  ? theme.color.border.error
-                  : active
-                  ? theme.color.border.focus
-                  : digit
-                  ? theme.color.primary.default
-                  : theme.color.border.primary,
-                backgroundColor: digit
-                  ? theme.color.primary.subtle
-                  : theme.color.surface.primary,
-              }}
-            >
-              <Text
-                weight="bold"
-                style={{
-                  fontSize: theme.typography.fontSize.xl,
-                  lineHeight: theme.typography.lineHeight.xl,
-                }}
-              >
-                {digit ? (secure ? '•' : digit) : ''}
-              </Text>
-            </View>
-          );
-        })}
-      </Pressable>
-
-      <TextInput
-        ref={inputRef}
+      <OTPInput
         value={normalizedValue}
-        onChangeText={updateValue}
-        maxLength={length}
-        keyboardType="number-pad"
-        inputMode="numeric"
-        textContentType="oneTimeCode"
-        autoComplete="one-time-code"
-        accessibilityLabel="Verification code input"
-        accessibilityState={{ disabled: locked }}
-        editable={!locked}
-        showSoftInputOnFocus={!useNumPad}
-        {...(useNumPad ? { accessibilityElementsHidden: true, importantForAccessibility: 'no-hide-descendants' as const } : {})}
-        caretHidden
-        style={{
-          position: 'absolute',
-          width: theme.spacing.xs,
-          height: theme.spacing.xs,
-          opacity: theme.opacity.invisible,
-        }}
+        onChange={updateValue}
+        length={length}
+        secure={secure}
+        disabled={locked}
+        useNumPad={useNumPad}
+        error={Boolean(error)}
+        {...(error ? { errorText: error } : {})}
       />
-
-      {error ? (
-        <Text accessibilityRole="alert" variant="bodySmall" tone="error" align="center">
-          {error}
-        </Text>
-      ) : null}
-
-      {useNumPad ? (
-        <NumPad
-          value={normalizedValue}
-          onChange={updateValue}
-          maxLength={length}
-          disabled={locked}
-        />
-      ) : null}
 
       <View style={{ gap: theme.spacing.md }}>
         <Button

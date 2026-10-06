@@ -19,6 +19,8 @@ export interface FormFieldProps {
   success?: string;
   required?: boolean;
   optionalLabel?: string;
+  /** Show `(Optional)` next to non-required labels. Default `true`. */
+  showOptional?: boolean;
 }
 
 export const FormField = memo(function FormField({
@@ -29,6 +31,7 @@ export const FormField = memo(function FormField({
   success,
   required = false,
   optionalLabel = 'Optional',
+  showOptional = true,
 }: FormFieldProps) {
   const { theme, direction } = useTheme();
   const id = useId();
@@ -45,7 +48,7 @@ export const FormField = memo(function FormField({
         <Text nativeID={renderProps.labelId} variant="label" weight="semibold">
           {label}{required ? ' *' : ''}
         </Text>
-        {!required ? <Text variant="caption" tone="tertiary">({optionalLabel})</Text> : null}
+        {!required && showOptional ? <Text variant="caption" tone="tertiary">({optionalLabel})</Text> : null}
       </View>
       {description ? <Text nativeID={renderProps.descriptionId} variant="caption" tone="secondary">{description}</Text> : null}
       {typeof children === 'function' ? children(renderProps) : children}

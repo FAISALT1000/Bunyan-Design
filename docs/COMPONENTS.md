@@ -132,6 +132,16 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Do/don’t: Show one actionable error; do not encode required state only with an asterisk.
 - Edge cases: Localize `optionalLabel` and all feedback strings.
 
+
+## Form
+
+- Purpose: Whole form from a `fields` array — Formik state, Yup validation, Bunyan controls with labels, errors, theme, RTL and accessibility. See [FORMS.md](FORMS.md).
+- Props: `FormProps<Values>`; `initialValues`, `onSubmit`, `validationSchema`, `fields`, `formProps` (Formik config), `submitButton`, `resetButton`, `spacing`, `showOptional`, `fieldTypes`, `children`, `renderFooter`.
+- Variants/sizes/states: Field types `Input`/`TextInput`, `PasswordInput`, `SearchInput`, `TextArea`, `Select`/`Picker`, `DatePicker`, `DateRangePicker`, `Checkbox`, `Switch`/`Toggle`, `RadioGroup`, `ChipsGroup`, `CheckboxGroup`, `RadioImageGroup`, `BoxGroup`, `SwatchGroup`, `Slider`, `AmountInput`, `AmountWithCurrencyInput`, `PhoneWithCountryInput`, `AmountField`, `FileInput`, `OTP`, `RepeatedControls`, display-only `Progress` and `ActionText`, React elements, and custom registered types; pristine, touched, invalid, submitting.
+- Accessibility: Each control gets its label as accessible name; errors use alert semantics; submit shows busy state while submitting.
+- Example: `<Form initialValues={{ email: '' }} validationSchema={schema} onSubmit={save} fields={[{ type: 'Input', name: 'email', label: { localeKey: 'common.email' } }]} />`.
+- Do/don’t: Keep rules in `validationSchema` and texts as locale keys; do not render one Form inside another.
+- Edge cases: Falsy `fields` entries are skipped; `visibleWhen` hides fields based on values; Yup messages can be locale keys; needs `formik` (and `yup` for schemas) installed.
 ## Checkbox
 
 - Purpose: Selects zero or more independent options.
@@ -152,6 +162,16 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Do/don’t: Present radios as a labelled group; do not offer only one radio.
 - Edge cases: Re-pressing the selected radio is a no-op; product code owns arrow-key group navigation on web.
 
+
+## RadioGroup
+
+- Purpose: A labelled set of radios with one selected value.
+- Props: `RadioGroupProps<V>`; `options` (`label`, `value`, `description`, `disabled`), `value`, `onChange`, `layout`, `disabled`, `accessibilityLabel`.
+- Variants/sizes/states: Column or row; selected, disabled.
+- Accessibility: Container uses the radiogroup role; labels accept locale keys.
+- Example: `<RadioGroup value={plan} onChange={setPlan} options={[{ label: 'Basic', value: 'basic' }, { label: 'Pro', value: 'pro' }]} />`.
+- Do/don’t: Offer at least two options.
+- Edge cases: Values can be strings or numbers.
 ## Switch
 
 - Purpose: Immediately toggles a setting.
@@ -182,6 +202,16 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Do/don’t: Pass a locale and valid bounds; do not parse display text manually.
 - Edge cases: Label uses the Gregorian calendar by default (ar-SA would otherwise show Hijri); override with `formatOptions`. Value is clamped to min/max on confirm.
 
+
+## DateRangePicker
+
+- Purpose: From/to date selection with an optional Gregorian/Hijri display toggle.
+- Props: `DateRangePickerProps`; `value` (`{ from, to }`), `onChange`, `fromLabel`, `toLabel`, placeholders, `minimumDate`, `maximumDate`, `showHijriToggle`, `calendar` / `defaultCalendar` / `onCalendarChange`, `layout`, `locale`, `disabled`, `status`, `clearable`.
+- Variants/sizes/states: Row or column; empty, partial, complete; Gregorian or Hijri display; error; disabled.
+- Accessibility: Each side is a labelled DatePicker; the calendar toggle is a ChipsGroup.
+- Example: `<DateRangePicker value={range} onChange={setRange} maximumDate={new Date()} showHijriToggle />`.
+- Do/don’t: Validate with `Yup.mixed().dateRange()` or `validateDateRange()`.
+- Edge cases: Each side is bounded by the other, so `from` ≤ `to`; Hijri changes display only — values stay `Date`s and the native picker grid stays Gregorian.
 ## Badge
 
 - Purpose: Displays compact read-only status or metadata.
@@ -202,6 +232,16 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Do/don’t: Use concise nouns; do not nest arbitrary controls inside a chip.
 - Edge cases: Removing a selected filter should update focus predictably.
 
+
+## ChipsGroup
+
+- Purpose: Single- or multi-select set of chips (filters, segments, tags).
+- Props: `ChipsGroupProps<V>`; `data` (`text`, `value`, `leftIcon`, `disabled`), `value`, `onChange`, `multiple`, `max`, `scrollable`, `disabled`, `accessibilityLabel`.
+- Variants/sizes/states: Single, multiple, wrapping or horizontally scrolling; selected and disabled chips.
+- Accessibility: Each chip announces its selected state; texts accept locale keys.
+- Example: `<ChipsGroup value={dir} onChange={setDir} data={[{ text: 'All', value: '0' }, { text: 'In', value: '1', leftIcon: 'arrow-down-left' }]} />`.
+- Do/don’t: Use for 2–8 short options; use Select for long lists.
+- Edge cases: Single mode ignores re-pressing the selected chip; multiple mode stops at `max`.
 ## Avatar
 
 - Purpose: Identifies a person or entity with image, initials, or fallback icon.
@@ -362,3 +402,84 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Example: `<ErrorState title="Unable to load" onRetry={reload} />`.
 - Do/don’t: Explain recovery; do not expose raw server messages.
 - Edge cases: Disable or debounce retry in product code while a retry is running.
+
+## Input specialisations: AmountInput, AmountWithCurrencyInput, PhoneInput
+
+- Purpose: Money and phone entry built on Input.
+- Props: `AmountInputProps` (`value`, `onChangeValue`, `currency`, `decimals`, `allowNegative`, `groupSeparator`); `AmountWithCurrencyInputProps` (`value: { amount, currency }`, `onChange`, `currencies`); `PhoneInputProps` (`value: { country, number }`, `onChange`, `countries`, `defaultCountry`, `showFlag`). `Input` also gained `leading` and `textDirection`.
+- Variants/sizes/states: All Input sizes and statuses; currency / country pickers open a searchable sheet.
+- Accessibility: Pickers are labelled buttons announcing the current value; amounts, phones and codes are typed left-to-right inside Arabic UIs.
+- Example: `<AmountInput value={amount} onChangeValue={setAmount} currency="SAR" />` · `<PhoneInput value={phone} onChange={setPhone} />`.
+- Do/don’t: Keep amounts as numbers in state; format only for display (`formatAmount`). Do not store the grouped text.
+- Edge cases: Arabic-Indic digits are converted; leading zeros and extra decimals are dropped; `toE164()` builds `+966…`; `isValidPhone()` checks national-number length.
+
+## FileInput
+
+- Purpose: Upload box with the list of picked files.
+- Props: `FileInputProps`; `value`, `onChange`, `pickFile` (or `setDefaultFilePicker`), `multiple`, `maxFiles`, `maxSize`, `onReject`, `title`, `hint`, `removeLabel`, `disabled`, `status`.
+- Variants/sizes/states: Empty, busy (picking), with files, error, disabled.
+- Accessibility: Upload area is a labelled button with the hint; each file has a labelled remove button.
+- Example: `<FileInput value={files} onChange={setFiles} multiple maxSize={5e6} hint="PDF or JPG, up to 5 MB" />`.
+- Do/don’t: Provide the platform picker once with `setDefaultFilePicker`; Bunyan ships no native module.
+- Edge cases: Oversized files and files over `maxFiles` go to `onReject` with a reason.
+
+## AmountField
+
+- Purpose: Large centred amount for transfer and payment screens.
+- Props: `AmountFieldProps`; `value`, `onChangeValue`, `currency`, `decimals`, `label`, `hint`, `errorText`, `quickAmounts`, `useNumPad`, `disabled`.
+- Variants/sizes/states: Keyboard or NumPad (with decimal key); quick-amount chips; error.
+- Accessibility: The amount input is labelled with label and currency; errors use alert semantics.
+- Example: `<AmountField value={amount} onChangeValue={setAmount} currency="SAR" quickAmounts={[100, 500, 1000]} hint="Available 12,480.00 SAR" />`.
+- Do/don’t: Show the available balance or limits in `hint`.
+- Edge cases: Same sanitising as AmountInput (Arabic digits, decimals limit).
+
+## OTPInput
+
+- Purpose: One-time-code slots usable anywhere (also used by OTPTemplate and the `OTP` form field).
+- Props: `OTPInputProps`; `value`, `onChange`, `onComplete`, `length`, `secure`, `error`, `errorText`, `disabled`, `useNumPad`, `autoFocus`.
+- Variants/sizes/states: Keyboard or NumPad; secure; error; disabled.
+- Accessibility: Slot row announces progress; hidden native input supports paste and SMS autofill.
+- Example: `<OTPInput value={code} onChange={setCode} length={6} onComplete={verify} />`.
+- Do/don’t: Keep verification logic outside.
+- Edge cases: `onComplete` fires once per completed code.
+
+## Slider
+
+- Purpose: Choose a number in a range.
+- Props: `SliderProps`; `value`, `onChange`, `onChangeEnd`, `min`, `max`, `step`, `label`, `showValue`, `formatValue`, `showLimits`, `disabled`.
+- Variants/sizes/states: With/without value and limits; disabled.
+- Accessibility: Adjustable role with increment/decrement actions and a value text.
+- Example: `<Slider label="Installments" min={3} max={24} step={3} value={n} onChange={setN} formatValue={v => `${v} months`} />`.
+- Do/don’t: Prefer an input for exact values over large ranges.
+- Edge cases: Dependency-free (PanResponder); mirrors in RTL.
+
+## ProgressBar
+
+- Purpose: Determinate progress (uploads, completion, steps).
+- Props: `ProgressBarProps`; `value` (0–1, or current with `total`), `label`, `showValue`, `formatValue`, `tone`, `size`.
+- Variants/sizes/states: Primary, success, warning, error; three sizes.
+- Accessibility: Progressbar role with min/max/now values.
+- Example: `<ProgressBar label="Profile" value={3} total={5} />`.
+- Do/don’t: Use Spinner/Skeleton for unknown durations.
+- Edge cases: Value is clamped to 0–100%.
+
+## ActionText
+
+- Purpose: A sentence with an inline link ("Don't have an account? Sign up").
+- Props: `ActionTextProps`; `text`, `actionText`, `onPress`, `trailingText`, `variant`, `align`, `disabled`.
+- Variants/sizes/states: Any Text variant; disabled.
+- Accessibility: The action is a nested text with the link role.
+- Example: `<ActionText text="Forgot your password?" actionText="Reset it" onPress={reset} />`.
+- Do/don’t: Keep the action short and descriptive.
+- Edge cases: Wraps naturally across lines and in RTL.
+
+## CheckboxGroup, RadioImageGroup, BoxGroup, SwatchGroup
+
+- Purpose: Choice groups — several checkboxes, picture cards, icon boxes and colour swatches.
+- Props: `CheckboxGroupProps` (`options`, `value[]`, `onChange`, `selectAllLabel`, `max`, `layout`); `RadioImageGroupProps` (`options` with `image`, `value`, `onChange`, `columns`, `imageAspectRatio`); `BoxGroupProps` (`options` with `icon`, single or `multiple`, `max`, `columns`); `SwatchGroupProps` (`options` colours, `value`, `onChange`, `size`).
+- Variants/sizes/states: Single/multiple; selected; disabled options; responsive columns.
+- Accessibility: Radio/checkbox roles with checked state; swatches are labelled with their name or value; select-all shows the mixed state.
+- Example: `<BoxGroup value={type} onChange={setType} options={[{ value: 'personal', title: 'Personal', icon: 'user' }]} />`.
+- Do/don’t: Give swatches a `label` (colour names) for screen readers.
+- Edge cases: Grids use `List` (equal-width cells, padded last row); swatch check mark picks black or white for contrast.
+

@@ -21,6 +21,27 @@ import {
   IconButton,
   Input,
   Link,
+  ActionText,
+  AmountField,
+  AmountInput,
+  AmountWithCurrencyInput,
+  BoxGroup,
+  CheckboxGroup,
+  ChipsGroup,
+  FileInput,
+  OTPInput,
+  PhoneInput,
+  ProgressBar,
+  RadioImageGroup,
+  Slider,
+  SwatchGroup,
+  type AmountWithCurrency,
+  type PhoneValue,
+  type PickedFile,
+  DateRangePicker,
+  type DateRange,
+  Form,
+  RadioGroup,
   List,
   ListItem,
   Modal,
@@ -420,6 +441,92 @@ function ListDemo() {
 export const ListComponent: Story = {
   name: 'List',
   render: () => <ListDemo />,
+};
+
+function FormDemo() {
+  return (
+    <Form
+      initialValues={{ direction: '0', period: {} as DateRange, plan: 'basic', email: '' }}
+      onSubmit={values => console.log(values)}
+      submitButton={{ text: 'Apply' }}
+      resetButton={{ text: 'Reset' }}
+      fields={[
+        {
+          type: 'ChipsGroup',
+          name: 'direction',
+          label: 'Transactions',
+          data: [
+            { text: 'All', value: '0' },
+            { text: 'Incoming', value: '1', leftIcon: 'arrow-down-left' },
+            { text: 'Outgoing', value: '2', leftIcon: 'arrow-up-right' },
+          ],
+        },
+        { type: 'DateRangePicker', name: 'period', label: 'Period', maximumDate: new Date(), showHijriToggle: true },
+        { type: 'RadioGroup', name: 'plan', label: 'Plan', layout: 'row', options: [{ label: 'Basic', value: 'basic' }, { label: 'Pro', value: 'pro' }] },
+        { type: 'Input', name: 'email', label: 'Email for the report', keyboardType: 'email-address', visibleWhen: values => values.plan === 'pro' },
+      ]}
+    />
+  );
+}
+
+function SelectionGroupsDemo() {
+  const [chip, setChip] = useState('0');
+  const [tags, setTags] = useState<string[]>(['hr']);
+  const [radio, setRadio] = useState('monthly');
+  const [range, setRange] = useState<DateRange>({});
+  return (
+    <StoryStack>
+      <ChipsGroup value={chip} onChange={setChip} data={[{ text: 'All', value: '0' }, { text: 'In', value: '1', leftIcon: 'arrow-down-left' }, { text: 'Out', value: '2', leftIcon: 'arrow-up-right' }]} />
+      <ChipsGroup multiple value={tags} onChange={setTags} data={[{ text: 'Finance', value: 'finance' }, { text: 'HR', value: 'hr' }, { text: 'Legal', value: 'legal' }]} />
+      <RadioGroup value={radio} onChange={setRadio} options={[{ label: 'Monthly', value: 'monthly' }, { label: 'Yearly', value: 'yearly', description: 'Save 20%' }]} />
+      <DateRangePicker value={range} onChange={setRange} maximumDate={new Date()} showHijriToggle />
+    </StoryStack>
+  );
+}
+
+function InputsDemo() {
+  const [amount, setAmount] = useState<number | null>(1250);
+  const [money, setMoney] = useState<AmountWithCurrency>({ amount: 100, currency: 'SAR' });
+  const [phone, setPhone] = useState<PhoneValue>({ country: 'SA', number: '' });
+  const [files, setFiles] = useState<PickedFile[]>([]);
+  const [code, setCode] = useState('');
+  const [level, setLevel] = useState(6);
+  const [products, setProducts] = useState<string[]>(['card']);
+  const [card, setCard] = useState('personal');
+  const [color, setColor] = useState('#2563EB');
+  return (
+    <StoryStack>
+      <AmountInput value={amount} onChangeValue={setAmount} currency="SAR" />
+      <AmountWithCurrencyInput value={money} onChange={setMoney} currencies={['SAR', 'USD', 'EUR']} />
+      <PhoneInput value={phone} onChange={setPhone} />
+      <FileInput value={files} onChange={setFiles} multiple hint="PDF or JPG, up to 5 MB"
+        pickFile={async () => ({ uri: 'file://demo.pdf', name: `document-${files.length + 1}.pdf`, size: 240000, type: 'application/pdf' })} />
+      <AmountField value={amount} onChangeValue={setAmount} currency="SAR" quickAmounts={[100, 500, 1000]} hint="Available 12,480.00 SAR" />
+      <OTPInput value={code} onChange={setCode} length={6} />
+      <Slider label="Installments" value={level} onChange={setLevel} min={3} max={24} step={3} showLimits />
+      <ProgressBar label="Profile completion" value={3} total={5} />
+      <CheckboxGroup selectAllLabel="All products" value={products} onChange={setProducts} options={[{ label: 'Cards', value: 'card' }, { label: 'Loans', value: 'loan' }]} />
+      <BoxGroup value={card} onChange={setCard} options={[{ value: 'personal', title: 'Personal', icon: 'user' }, { value: 'business', title: 'Business', icon: 'file' }]} />
+      <RadioImageGroup value={card} onChange={setCard} options={[{ value: 'personal', title: 'Ocean', image: { uri: 'https://picsum.photos/seed/a/320/240' } }, { value: 'business', title: 'Oasis', image: { uri: 'https://picsum.photos/seed/b/320/240' } }]} />
+      <SwatchGroup value={color} onChange={setColor} options={['#2563EB', '#0F766E', '#F59E0B', '#0F172A']} />
+      <ActionText text="Didn't get the code?" actionText="Resend" onPress={() => setCode('')} />
+    </StoryStack>
+  );
+}
+
+export const InputsComponent: Story = {
+  name: 'Amount · Phone · File · OTP · Slider · Groups',
+  render: () => <InputsDemo />,
+};
+
+export const FormComponent: Story = {
+  name: 'Form',
+  render: () => <FormDemo />,
+};
+
+export const SelectionGroupsComponent: Story = {
+  name: 'ChipsGroup · RadioGroup · DateRangePicker',
+  render: () => <SelectionGroupsDemo />,
 };
 
 export const AccordionComponent: Story = {

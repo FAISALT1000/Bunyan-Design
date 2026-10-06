@@ -11,6 +11,13 @@ export interface InputProps extends Omit<TextInputProps, 'style'> {
   leadingIcon?: IconName;
   trailing?: React.ReactNode;
   containerStyle?: Pick<ViewStyle, 'flex' | 'width' | 'maxWidth' | 'minWidth' | 'alignSelf'>;
+  /** Content before the text (after `leadingIcon`), e.g. a country-code picker. */
+  leading?: React.ReactNode;
+  /**
+   * Direction of the typed text. Use `'ltr'` for phone numbers, IBANs, emails and
+   * amounts so they read correctly inside an Arabic UI. Default: the UI direction.
+   */
+  textDirection?: 'ltr' | 'rtl';
 }
 
 export const Input = memo(forwardRef<TextInputRef, InputProps>(function Input(
@@ -18,7 +25,9 @@ export const Input = memo(forwardRef<TextInputRef, InputProps>(function Input(
     size = 'medium',
     status = 'default',
     leadingIcon,
+    leading,
     trailing,
+    textDirection,
     editable = true,
     containerStyle,
     onFocus,
@@ -51,6 +60,7 @@ export const Input = memo(forwardRef<TextInputRef, InputProps>(function Input(
       ]}
     >
       {leadingIcon ? <Icon name={leadingIcon} size="md" tone="secondary" /> : null}
+      {leading}
       <TextInput
         ref={ref}
         editable={editable}
@@ -67,6 +77,7 @@ export const Input = memo(forwardRef<TextInputRef, InputProps>(function Input(
         {...props}
         style={[
           logicalText(direction),
+          textDirection ? { writingDirection: textDirection } : null,
           {
             flex: 1,
             minWidth: theme.spacing.none,

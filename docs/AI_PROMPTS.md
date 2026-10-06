@@ -30,6 +30,7 @@ You are working with **Bunyan** (`@bunyan/design-system`), a strongly typed Reac
 - Disclosure/navigation: `Accordion`, `Tabs` (line|pill), `Tooltip`.
 - Overlays: `Modal` (primary/secondary actions), `BottomSheet`.
 - Templates: `NumPad`, `OTPTemplate` (bottomSheet|overlay|fullScreen).
+- Forms: `<Form initialValues validationSchema onSubmit fields formProps submitButton resetButton>` (Formik + Yup). Field `type`s: Input/TextInput, PasswordInput, SearchInput, TextArea, Select/Picker, DatePicker, DateRangePicker, Checkbox, Switch/Toggle, RadioGroup, ChipsGroup, CheckboxGroup, RadioImageGroup, BoxGroup, SwatchGroup, Slider, AmountInput, AmountWithCurrencyInput, PhoneWithCountryInput, AmountField, FileInput, OTP, RepeatedControls, Progress, ActionText, plus React elements and custom types via `registerFormFieldType`. Falsy entries are skipped (`cond && {...}`); `visibleWhen(values)` hides fields; texts accept `{ localeKey }` (ThemeProvider `translate`); Yup messages may be locale keys; `addBunyanYupMethods(Yup)` adds `Yup.mixed().dateRange(requireFrom, requireTo)`.
 - Theming: `RNTheme.*` themed primitives, `createThemedComponent(Component, { displayName, baseStyle, defaultProps })`.
 - Responsive: `useResponsive()` → `{ breakpoint, up, down, between, is, select, resolve, s, vs, ms, mvs, isPortrait, isLandscape }`; `useBreakpoint()`, `useResponsiveValue()`, `makeStyles()`, static `s/vs/ms/mvs`, `getResponsive(size)`, `createResponsive(config)`; own tokens via `createTheme` / `createThemes`.
 
@@ -60,21 +61,22 @@ Requirements:
 Return the full `.tsx` file plus a short note on which components you used and why.
 ```
 
-### B2. Build a validated form
+### B2. Build a form with <Form>
 
 ```text
-Create a `{FormName}` form with Bunyan.
+Build `{FormName}` with Bunyan's declarative `<Form>`.
 
-Fields: {field: type, required?, validation rule} …
-Submit: calls `{submitFn}` and shows a success Toast; on failure show an Alert above the form.
+Fields: {name: type, required?, rules} …
+Submit: `{submitFn}`; show a success Toast after it resolves and an Alert on failure.
 
 Rules:
-- Wrap every control in `FormField` and connect ids with `accessibilityLabelledBy` / `aria-describedby` via the render prop.
-- Use `status="error"` on the control and `error` on FormField for messages; validate on blur and on submit.
-- Use `Select` for fixed lists (searchable when > 7 options), `DatePicker` for dates, `PasswordInput` for secrets.
-- The submit Button shows `loading` while submitting and is not the only way to learn about errors.
+- One `<Form>` with `initialValues`, a Yup `validationSchema` (messages as locale keys) and a `fields` array — no hand-wired inputs.
+- Pick field types from the catalogue (TextInput, Picker, AmountInput, PhoneWithCountryInput, DateRangePicker, ChipsGroup, CheckboxGroup, FileInput, OTP, RepeatedControls…). Use `cond && {...}` for conditional fields known up front and `visibleWhen` for fields that depend on other values.
+- All labels/placeholders as `{ localeKey }`.
+- Use `formProps={{ enableReinitialize: true }}` when `initialValues` come from saved state.
+- If a field type is missing, write it with `registerFormFieldType` (typed via `FormFieldTypes` augmentation) instead of rendering raw inputs.
 
-Return the component and its validation helper.
+Return the screen, the schema and the locale keys you introduced.
 ```
 
 ### B3. Build an OTP / PIN verification flow
@@ -159,13 +161,29 @@ Follow the project checklist exactly:
 8. `npm run verify` must pass (typecheck + jest, including the react-native import-boundary test).
 ```
 
-### E2. Create a themed primitive with createThemedComponent
+### E2. Add a custom Form field type
+
+```text
+Add a `{TypeName}` field type for Bunyan's `<Form>`.
+
+Value shape: {value type}
+Props: {extra config props}
+
+1. Build the control as a normal component first (`components/{TypeName}/`), following the add-a-component checklist.
+2. Augment the types: `declare module '@bunyan/design-system' { interface FormFieldTypes { {TypeName}: {props} } }`.
+3. Register it once: `registerFormFieldType('{TypeName}', ({ field, value, setValue, setTouched, invalid, disabled, error, t, form }) => ...)`; pass `{ wrap: false }` only if the control renders its own label and error.
+4. Map `invalid` to the control's error status, call `setTouched` on blur/selection, translate texts with `t`.
+5. Add a typecheck test (field accepted, wrong props rejected) and a runtime test with Formik + Yup.
+6. Document it in docs/FORMS.md (value shape + props).
+```
+
+### E3. Create a themed primitive with createThemedComponent
 
 ```text
 Create `{Name}` using `createThemedComponent(RNTheme.{View|Pressable|...}, { displayName: '{Name}', baseStyle: ({ theme, direction }) => ({...}), defaultProps: ({ theme }) => ({...}) })`. Base style must use tokens only. Show usage with `themeStyle` and an explicit `style` override, and add a test asserting the theme style in dark mode (`renderWithTheme(ui, { initialPreference: 'dark' })`).
 ```
 
-### E3. Apply a brand's own tokens
+### E4. Apply a brand's own tokens
 
 ```text
 Apply the `{Brand}` design tokens to Bunyan without forking it.
@@ -179,7 +197,7 @@ Tokens: {paste colours, font families, spacing, radii, breakpoints, Figma frame 
 5. Show one screen before/after using only tokens (no raw values).
 ```
 
-### E4. Make a screen responsive
+### E5. Make a screen responsive
 
 ```text
 Make `{ScreenName}` work on phones, tablets and web/desktop with Bunyan's responsive API.
@@ -190,7 +208,7 @@ Make `{ScreenName}` work on phones, tablets and web/desktop with Bunyan's respon
 Return the updated file and a table of what changes at each breakpoint.
 ```
 
-### E5. Add or change a design token / semantic colour
+### E6. Add or change a design token / semantic colour
 
 ```text
 Add the semantic colour `{group}.{name}` (purpose: {purpose}).
@@ -200,19 +218,19 @@ Add the semantic colour `{group}.{name}` (purpose: {purpose}).
 - Update `tests/tokens.test.ts` if the contract changes.
 ```
 
-### E6. Add an icon
+### E7. Add an icon
 
 ```text
 Add the `{icon-name}` icon to `components/Icon/Icon.tsx`: extend the `IconName` union, add 24×24 stroke-only SVG children using `react-native-svg` primitives (round caps/joins, no fills), and add it to `DIRECTIONAL_ICONS` if its meaning depends on reading direction. Update the Icon story and the docs list.
 ```
 
-### E7. Write tests for a component
+### E8. Write tests for a component
 
 ```text
 Write `@testing-library/react-native` tests for `{Component}` using `renderWithTheme` from `tests/test-utils`. Cover: role and accessible name, each interactive callback, disabled/loading blocking interaction, controlled vs uncontrolled behaviour, RTL (`locale: 'ar-SA'`) styles, and dark-mode rendering. Prefer behaviour assertions over snapshots. Use `act` + fake timers for anything time-based.
 ```
 
-### E8. Review a change against Bunyan rules
+### E9. Review a change against Bunyan rules
 
 ```text
 Review this diff as a Bunyan maintainer:
@@ -222,13 +240,13 @@ Review this diff as a Bunyan maintainer:
 Check and report (file:line, severity, fix): direct `react-native` imports; raw colours/spacing; missing a11y roles/labels/states; RTL mistakes (hard-coded `row-reverse`, `left`/`right`); un-localisable strings; `exactOptionalPropertyTypes` violations; missing story/test/docs; behaviour regressions. Finish with a merge recommendation.
 ```
 
-### E9. Audit the design system for bugs
+### E10. Audit the design system for bugs
 
 ```text
 Audit `src/design-system` for bugs. For each component consider: stale state when props change, timers/animations/promises not cleaned up on unmount, controlled vs uncontrolled mismatches, nested pressables, double RTL mirroring, accessibility state errors, and theme values that are invisible in dark/black mode. Output a table (component, bug, reproduction, fix) and then the patches with tests.
 ```
 
-### E10. Package and release
+### E11. Package and release
 
 ```text
 Prepare release `{version}`: bump `package.json`, run `npm run verify`, then `npm run pack` (runs `npm i && npm pack`; `prepack` cleans and rebuilds `dist/`). Inspect the tarball file list (`tar tzf bunyan-design-system-{version}.tgz`) to confirm `dist/`, `src/`, `docs/` and `README.md` are present and no tests or stories leak into `dist/`. Write release notes grouped as Added / Fixed / Changed.

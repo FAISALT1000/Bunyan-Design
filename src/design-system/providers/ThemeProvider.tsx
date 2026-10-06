@@ -2,6 +2,7 @@ import React, { createContext, useEffect, useMemo, useState } from 'react';
 import { Appearance, I18nManager, type ColorSchemeName } from '../components/RNTheme/native';
 import { themes } from '../themes/themes';
 import type { Direction, Theme, ThemeMode } from '../themes/types';
+import { defaultTranslate, type TranslateFn } from '../i18n/text';
 
 export type ThemePreference = ThemeMode | 'system';
 
@@ -13,6 +14,8 @@ export interface ThemeContextValue {
   direction: Direction;
   isRTL: boolean;
   locale: string;
+  /** Translate function used for `{ localeKey }` texts. Identity when not configured. */
+  translate: TranslateFn;
 }
 
 const defaultContext: ThemeContextValue = {
@@ -23,6 +26,7 @@ const defaultContext: ThemeContextValue = {
   direction: 'ltr',
   isRTL: false,
   locale: 'en',
+  translate: defaultTranslate,
 };
 
 export const ThemeContext = createContext<ThemeContextValue>(defaultContext);
@@ -38,6 +42,11 @@ export interface ThemeProviderProps {
    * Bunyan's defaults. Memoise the object (or define it at module level).
    */
   themes?: Partial<Record<ThemeMode, Theme>>;
+  /**
+   * Translate function for `{ localeKey }` texts across Bunyan (Form labels,
+   * ChipsGroup items, error messages…). E.g. `translate={i18n.t}`. Keep it stable.
+   */
+  translate?: TranslateFn;
 }
 
 const RTL_LOCALE = /^(ar|arc|ckb|dv|fa|he|iw|ps|sd|ug|ur|yi)(-|_|$)/i;
@@ -54,6 +63,7 @@ export function ThemeProvider({
   direction,
   blackForSystemDark = false,
   themes: customThemes,
+  translate = defaultTranslate,
 }: ThemeProviderProps) {
   const [preference, setPreference] = useState<ThemePreference>(initialPreference);
   const [systemScheme, setSystemScheme] = useState<ColorSchemeName | null>(
@@ -80,8 +90,9 @@ export function ThemeProvider({
       direction: resolvedDirection,
       isRTL: resolvedDirection === 'rtl',
       locale,
+      translate,
     }),
-    [customThemes, locale, mode, preference, resolvedDirection],
+    [customThemes, locale, mode, preference, resolvedDirection, translate],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

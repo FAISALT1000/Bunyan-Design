@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { Pressable, View } from '../RNTheme';
 import { useTheme } from '../../hooks';
 import { logicalRow } from '../../utilities/styles';
-import { Icon } from '../Icon';
+import { Icon, type IconName } from '../Icon';
 import { Text } from '../Text';
 
 export interface ChipProps {
@@ -13,6 +13,8 @@ export interface ChipProps {
   onRemove?: () => void;
   accessibilityLabel?: string;
   removeLabel?: (label: string) => string;
+  /** Icon before the label. */
+  leadingIcon?: IconName;
   testID?: string;
 }
 
@@ -24,6 +26,7 @@ export const Chip = memo(function Chip({
   onRemove,
   accessibilityLabel,
   removeLabel = value => `Remove ${value}`,
+  leadingIcon,
   testID,
 }: ChipProps) {
   const { theme, direction } = useTheme();
@@ -51,12 +54,15 @@ export const Chip = memo(function Chip({
         disabled={disabled || !onPress}
         onPress={onPress}
         style={({ pressed }) => ({
-          justifyContent: 'center',
+          ...logicalRow(direction),
+          alignItems: 'center',
+          gap: theme.spacing.xs,
           minHeight: theme.componentHeight.sm,
           paddingHorizontal: theme.spacing.md,
           backgroundColor: pressed ? theme.color.overlay.subtle : theme.color.overlay.transparent,
         })}
       >
+        {leadingIcon ? <Icon name={leadingIcon} size="sm" tone={selected ? 'information' : 'secondary'} color={selected ? theme.color.text.link : theme.color.text.secondary} /> : null}
         <Text variant="label" weight="medium" tone={selected ? 'link' : 'primary'}>{label}</Text>
       </Pressable>
       {onRemove ? (
