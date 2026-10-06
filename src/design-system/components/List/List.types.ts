@@ -3,7 +3,8 @@ import type { StyleProp, ViewStyle } from '../RNTheme';
 import type { CardVariant } from '../Card';
 import type { EmptyStateProps } from '../EmptyState';
 import type { SkeletonProps } from '../Skeleton';
-import type { Theme } from '../../themes/types';
+import type { Theme, ThemeBreakpoint } from '../../themes/types';
+import type { Responsive } from '../../responsive/createResponsive';
 
 export type ListFlexDirection = 'row' | 'column' | 'row-reverse' | 'column-reverse';
 export type ListFlexWrap = 'wrap' | 'nowrap' | 'wrap-reverse';
@@ -48,15 +49,18 @@ interface ListBaseProps<T> {
   flexDirection?: ListFlexDirection;
   /** Wrapping of items along the main axis (e.g. a cloud of Chips). Default `'nowrap'`. */
   flexWrap?: ListFlexWrap;
-  /** Grid columns. Items are placed in equal-width cells, `columns` per row. Default `1`. */
-  columns?: number;
-  /** Gap between items/rows. Default `'md'`. */
-  spacing?: ListSpacing;
+  /**
+   * Grid columns. Items are placed in equal-width cells, `columns` per row. Default `1`.
+   * Responsive: `columns={{ compact: 1, medium: 2, expanded: 3 }}`.
+   */
+  columns?: Responsive<ThemeBreakpoint, number>;
+  /** Gap between items/rows: points, a spacing token (`'md'`), or per breakpoint. Default `'md'`. */
+  spacing?: Responsive<ThemeBreakpoint, ListSpacing>;
 
   /** Draw a Divider between rows. */
   withDivider?: boolean;
   /** Gap on each side of a divider. Default: same as `spacing`. */
-  dividerSpacing?: ListSpacing;
+  dividerSpacing?: Responsive<ThemeBreakpoint, ListSpacing>;
   dividerStyle?: StyleProp<ViewStyle>;
 
   /** Wrap the whole list in a Card of this variant. */

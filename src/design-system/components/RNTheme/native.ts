@@ -11,11 +11,13 @@ export {
   ActivityIndicator,
   Animated,
   Appearance,
+  Dimensions,
   I18nManager,
   Image,
   KeyboardAvoidingView,
   Linking,
   Modal,
+  PixelRatio,
   Platform,
   Pressable,
   ScrollView,
@@ -24,6 +26,7 @@ export {
   Text,
   TextInput,
   View,
+  useWindowDimensions,
 } from 'react-native';
 
 export type {
@@ -37,6 +40,7 @@ export type {
   ModalProps,
   PressableProps,
   PressableStateCallbackType,
+  ScaledSize,
   ScrollViewProps,
   StyleProp,
   SwitchProps,

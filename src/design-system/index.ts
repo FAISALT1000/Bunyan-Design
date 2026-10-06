@@ -5,3 +5,4 @@ export * from './templates';
 export * from './themes';
 export * from './tokens';
 export * from './utilities/styles';
+export * from './responsive';

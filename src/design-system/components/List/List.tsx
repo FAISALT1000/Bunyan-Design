@@ -1,6 +1,7 @@
 import React, { memo, useMemo } from 'react';
 import { View } from '../RNTheme';
 import { useTheme } from '../../hooks';
+import { useResponsive } from '../../responsive';
 import type { Theme } from '../../themes/types';
 import { EmptyState } from '../EmptyState';
 import { Skeleton } from '../Skeleton';
@@ -64,9 +65,10 @@ function ListInner<T extends object, D = T>(props: ListProps<T, D>) {
     testID,
   } = props;
   const { theme } = useTheme();
-  const columns = Math.max(1, Math.floor(columnsProp));
-  const spacing = resolveSpacing(theme, spacingProp, theme.spacing.md);
-  const dividerSpacing = resolveSpacing(theme, dividerSpacingProp, spacing);
+  const responsive = useResponsive();
+  const columns = Math.max(1, Math.floor(responsive.resolve(columnsProp) ?? 1));
+  const spacing = resolveSpacing(theme, responsive.resolve(spacingProp), theme.spacing.md);
+  const dividerSpacing = resolveSpacing(theme, responsive.resolve(dividerSpacingProp), spacing);
   const horizontal = flexDirection === 'row' || flexDirection === 'row-reverse';
   // With dividers, the gap sits on both sides of each divider.
   const gap = withDivider ? dividerSpacing : spacing;

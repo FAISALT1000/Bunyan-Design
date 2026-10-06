@@ -33,6 +33,11 @@ export interface ThemeProviderProps {
   locale?: string;
   direction?: Direction;
   blackForSystemDark?: boolean;
+  /**
+   * Your own themes (e.g. from `createThemes`). Modes you leave out fall back to
+   * Bunyan's defaults. Memoise the object (or define it at module level).
+   */
+  themes?: Partial<Record<ThemeMode, Theme>>;
 }
 
 const RTL_LOCALE = /^(ar|arc|ckb|dv|fa|he|iw|ps|sd|ug|ur|yi)(-|_|$)/i;
@@ -48,6 +53,7 @@ export function ThemeProvider({
   locale = 'en',
   direction,
   blackForSystemDark = false,
+  themes: customThemes,
 }: ThemeProviderProps) {
   const [preference, setPreference] = useState<ThemePreference>(initialPreference);
   const [systemScheme, setSystemScheme] = useState<ColorSchemeName | null>(
@@ -67,7 +73,7 @@ export function ThemeProvider({
 
   const value = useMemo<ThemeContextValue>(
     () => ({
-      theme: themes[mode],
+      theme: customThemes?.[mode] ?? themes[mode],
       mode,
       preference,
       setPreference,
@@ -75,7 +81,7 @@ export function ThemeProvider({
       isRTL: resolvedDirection === 'rtl',
       locale,
     }),
-    [locale, mode, preference, resolvedDirection],
+    [customThemes, locale, mode, preference, resolvedDirection],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

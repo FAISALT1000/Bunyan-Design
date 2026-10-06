@@ -143,6 +143,16 @@ direction differs from the native `I18nManager` direction. React Native already
 mirrors layout and swaps `left`/`right` text alignment in native RTL, so
 mirroring again would render RTL apps left-to-right.
 
+### Responsive layout & your own tokens
+
+```tsx
+const r = useResponsive();            // r.breakpoint, r.up('medium'), r.select({ compact: 1, medium: 2 }), r.ms(18)
+const useStyles = makeStyles((theme, r) => ({ title: { fontSize: r.ms(theme.typography.fontSize.xl) } }));
+<List Component={Card} data={items} columns={{ compact: 1, medium: 2, expanded: 4 }} />
+```
+
+Bring your own tokens with `createThemes({ shared, light, dark })` + `<ThemeProvider themes={...}>`, and your own breakpoint names / design canvas with `createResponsive({ breakpoints, guidelineWidth })`. Plain JavaScript, no native module, updates on rotation and window resize. Full guide: [docs/RESPONSIVE.md](docs/RESPONSIVE.md).
+
 ## 6. Base component implementation
 
 `Text`, `Heading`, `Icon`, `Button`, and `Input` are the base primitives. Higher-level components compose them instead of recreating typography, icons, interaction states, or form chrome.

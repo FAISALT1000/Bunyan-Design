@@ -16,6 +16,8 @@ You are working with **Bunyan** (`@bunyan/design-system`), a strongly typed Reac
 6. Accessibility: every icon-only control has an `accessibilityLabel`; every input sits inside a `FormField` (or has a label); never use colour alone to convey state; keep touch targets ≥ 44 pt.
 7. Use semantic props (`variant`, `tone`, `size`, `status`) instead of style overrides. The only public style escape hatch is `containerStyle` on `Input` (layout only).
 8. All user-facing strings must be passable as props so they can be localised (labels like `clearLabel`, `confirmLabel`, `closeLabel`, `dismissLabel`, `retryLabel`).
+9. Responsive: keep token sizes fixed and change layout per breakpoint with `useResponsive()` (`r.up('medium')`, `r.select({ compact, medium, expanded })`) or breakpoint maps on `List` (`columns={{ compact: 1, medium: 2 }}`). Use `r.ms()` only for fonts/radii that should grow a little; never scale everything. Use `makeStyles((theme, r) => ({...}))` for styles that depend on theme and size.
+10. Brand tokens come from `createThemes({ shared, light, dark })` passed to `<ThemeProvider themes={...}>`; custom breakpoint names / design canvas come from the app's own `createResponsive({...})` module — import responsive helpers from there if the project has one.
 
 ## Building blocks
 - Providers/hooks: `ThemeProvider`, `useTheme()` → `{ theme, mode, preference, setPreference, direction, isRTL, locale }`; `ToastProvider`, `useToast()` → `{ showToast, dismissToast, dismissAll }`.
@@ -29,6 +31,7 @@ You are working with **Bunyan** (`@bunyan/design-system`), a strongly typed Reac
 - Overlays: `Modal` (primary/secondary actions), `BottomSheet`.
 - Templates: `NumPad`, `OTPTemplate` (bottomSheet|overlay|fullScreen).
 - Theming: `RNTheme.*` themed primitives, `createThemedComponent(Component, { displayName, baseStyle, defaultProps })`.
+- Responsive: `useResponsive()` → `{ breakpoint, up, down, between, is, select, resolve, s, vs, ms, mvs, isPortrait, isLandscape }`; `useBreakpoint()`, `useResponsiveValue()`, `makeStyles()`, static `s/vs/ms/mvs`, `getResponsive(size)`, `createResponsive(config)`; own tokens via `createTheme` / `createThemes`.
 
 ## How to answer
 - Output complete, compiling TypeScript (`.tsx`) with typed props and no `any`.
@@ -162,7 +165,32 @@ Follow the project checklist exactly:
 Create `{Name}` using `createThemedComponent(RNTheme.{View|Pressable|...}, { displayName: '{Name}', baseStyle: ({ theme, direction }) => ({...}), defaultProps: ({ theme }) => ({...}) })`. Base style must use tokens only. Show usage with `themeStyle` and an explicit `style` override, and add a test asserting the theme style in dark mode (`renderWithTheme(ui, { initialPreference: 'dark' })`).
 ```
 
-### E3. Add or change a design token / semantic colour
+### E3. Apply a brand's own tokens
+
+```text
+Apply the `{Brand}` design tokens to Bunyan without forking it.
+
+Tokens: {paste colours, font families, spacing, radii, breakpoints, Figma frame size}
+
+1. Create `src/theme/brand.ts` with `createThemes({ shared, light, dark, black })` — shared for typography/spacing/radius/breakpoints, per mode for colours. Only override what differs.
+2. Pass it to `<ThemeProvider themes={brandThemes}>` at the app root (module-level constant).
+3. If the brand uses different breakpoint names or a different design canvas, create `src/theme/responsive.ts` with `createResponsive({ breakpoints, guidelineWidth, guidelineHeight })` and export `useResponsive`, `makeStyles`, `s`, `ms` from it.
+4. Check contrast (WCAG AA) of the new colours on their surfaces in every mode and list the ratios.
+5. Show one screen before/after using only tokens (no raw values).
+```
+
+### E4. Make a screen responsive
+
+```text
+Make `{ScreenName}` work on phones, tablets and web/desktop with Bunyan's responsive API.
+- Layout changes per breakpoint: use `useResponsive()` (`r.up('medium')`, `r.select({...})`) and `List` breakpoint maps for columns/spacing; cap content width on wide screens.
+- Only use `r.ms()` for headline sizes/illustrations that should grow slightly; keep body text and spacing tokens unscaled.
+- Put size-dependent styles in `makeStyles((theme, r) => ({...}))`.
+- Verify rotation and split-screen (the hook re-renders) and that touch targets stay ≥ 44 pt.
+Return the updated file and a table of what changes at each breakpoint.
+```
+
+### E5. Add or change a design token / semantic colour
 
 ```text
 Add the semantic colour `{group}.{name}` (purpose: {purpose}).
@@ -172,19 +200,19 @@ Add the semantic colour `{group}.{name}` (purpose: {purpose}).
 - Update `tests/tokens.test.ts` if the contract changes.
 ```
 
-### E4. Add an icon
+### E6. Add an icon
 
 ```text
 Add the `{icon-name}` icon to `components/Icon/Icon.tsx`: extend the `IconName` union, add 24×24 stroke-only SVG children using `react-native-svg` primitives (round caps/joins, no fills), and add it to `DIRECTIONAL_ICONS` if its meaning depends on reading direction. Update the Icon story and the docs list.
 ```
 
-### E5. Write tests for a component
+### E7. Write tests for a component
 
 ```text
 Write `@testing-library/react-native` tests for `{Component}` using `renderWithTheme` from `tests/test-utils`. Cover: role and accessible name, each interactive callback, disabled/loading blocking interaction, controlled vs uncontrolled behaviour, RTL (`locale: 'ar-SA'`) styles, and dark-mode rendering. Prefer behaviour assertions over snapshots. Use `act` + fake timers for anything time-based.
 ```
 
-### E6. Review a change against Bunyan rules
+### E8. Review a change against Bunyan rules
 
 ```text
 Review this diff as a Bunyan maintainer:
@@ -194,13 +222,13 @@ Review this diff as a Bunyan maintainer:
 Check and report (file:line, severity, fix): direct `react-native` imports; raw colours/spacing; missing a11y roles/labels/states; RTL mistakes (hard-coded `row-reverse`, `left`/`right`); un-localisable strings; `exactOptionalPropertyTypes` violations; missing story/test/docs; behaviour regressions. Finish with a merge recommendation.
 ```
 
-### E7. Audit the design system for bugs
+### E9. Audit the design system for bugs
 
 ```text
 Audit `src/design-system` for bugs. For each component consider: stale state when props change, timers/animations/promises not cleaned up on unmount, controlled vs uncontrolled mismatches, nested pressables, double RTL mirroring, accessibility state errors, and theme values that are invisible in dark/black mode. Output a table (component, bug, reproduction, fix) and then the patches with tests.
 ```
 
-### E8. Package and release
+### E10. Package and release
 
 ```text
 Prepare release `{version}`: bump `package.json`, run `npm run verify`, then `npm run pack` (runs `npm i && npm pack`; `prepack` cleans and rebuilds `dist/`). Inspect the tarball file list (`tar tzf bunyan-design-system-{version}.tgz`) to confirm `dist/`, `src/`, `docs/` and `README.md` are present and no tests or stories leak into `dist/`. Write release notes grouped as Added / Fixed / Changed.
