@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { Appearance, I18nManager, type ColorSchemeName } from 'react-native';
+import { Appearance, I18nManager, type ColorSchemeName } from '../components/RNTheme/native';
 import {
   getDesignSystemPlatform,
   resolvePlatformTokens,

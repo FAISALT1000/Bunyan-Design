@@ -1,5 +1,6 @@
-import React, { createContext, memo, useCallback, useContext, useMemo, useRef, useState } from 'react';
-import { Animated, Pressable, View } from 'react-native';
+import React, { createContext, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Pressable, View } from '../RNTheme';
+import { Animated } from '../RNTheme/native';
 import { useTheme } from '../../hooks';
 import { logicalRow } from '../../utilities/styles';
 import { Icon, type IconName } from '../Icon';
@@ -18,7 +19,7 @@ interface ToastItem extends ToastOptions {
   id: number;
 }
 
-interface ToastContextValue {
+export interface ToastContextValue {
   showToast: (options: ToastOptions) => number;
   dismissToast: (id: number) => void;
 }
@@ -45,11 +46,29 @@ export function ToastProvider({ children, maxVisible = 3 }: ToastProviderProps) 
 
   const showToast = useCallback((options: ToastOptions) => {
     const id = ++nextId.current;
-    setItems(current => [...current.slice(-(maxVisible - 1)), { ...options, id }]);
+    setItems(current => {
+      // `slice(-0)` would keep everything, so compute the kept count explicitly.
+      const keep = Math.max(0, maxVisible - 1);
+      const evicted = current.slice(0, Math.max(0, current.length - keep));
+      evicted.forEach(item => {
+        const timer = timers.current.get(item.id);
+        if (timer) clearTimeout(timer);
+        timers.current.delete(item.id);
+      });
+      return [...current.slice(current.length - Math.min(keep, current.length)), { ...options, id }];
+    });
     const duration = options.duration ?? 5000;
     if (duration > 0) timers.current.set(id, setTimeout(() => dismissToast(id), duration));
     return id;
   }, [dismissToast, maxVisible]);
+
+  useEffect(() => {
+    const pending = timers.current;
+    return () => {
+      pending.forEach(clearTimeout);
+      pending.clear();
+    };
+  }, []);
 
   const contextValue = useMemo(() => ({ showToast, dismissToast }), [dismissToast, showToast]);
   return (

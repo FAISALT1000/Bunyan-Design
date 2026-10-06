@@ -1,4 +1,4 @@
-import type { ViewStyle } from 'react-native';
+import type { ViewStyle } from '../components/RNTheme/native';
 
 export type DesignSystemPlatform = 'ios' | 'android' | 'web' | 'default';
 

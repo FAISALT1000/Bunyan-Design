@@ -1,5 +1,6 @@
 import React, { forwardRef, memo, useState } from 'react';
-import { TextInput, View, type TextInputProps } from 'react-native';
+import { View } from '../RNTheme';
+import { TextInput, type TextInputProps } from '../RNTheme/native';
 import { useTheme } from '../../hooks';
 import { logicalText, statusBorderColor, type FeedbackStatus } from '../../utilities/styles';
 import { Text } from '../Text';

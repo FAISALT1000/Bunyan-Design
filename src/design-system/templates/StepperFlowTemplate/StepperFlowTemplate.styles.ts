@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from '../../components/RNTheme/native';
 import type { Direction, Theme } from '../../themes';
 
 export const createStepperFlowTemplateStyles = (theme: Theme, direction: Direction) =>

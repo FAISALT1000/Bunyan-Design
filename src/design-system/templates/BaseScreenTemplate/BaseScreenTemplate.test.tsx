@@ -1,5 +1,5 @@
 import React from 'react';
-import { KeyboardAvoidingView } from 'react-native';
+import { KeyboardAvoidingView } from '../../components/RNTheme/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { fireEvent, screen } from '@testing-library/react-native';
 import { Text } from '../../components/Text';

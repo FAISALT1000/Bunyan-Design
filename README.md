@@ -41,6 +41,21 @@ light/dark/black configuration, English/Arabic starter resources, controlled
 locale and theme preference, and optional Wix React Native Navigation files.
 See [docs/SETUP.md](docs/SETUP.md#generated-setup).
 
+## Forms, validation, lists, and responsive layout
+
+- [docs/FORMS.md](docs/FORMS.md): declarative `<Form fields={[...]}>` on Formik,
+  with Yup shipped inside Bunyan (`import { Yup } from '@bunyan/design-system'`)
+  and extra rules such as `mobileNumber()`, `email('gmail')`, `password()`,
+  `minMax()`, `noEmojis()`, and `onlyArabicAlphabetic()`.
+- `List<T>`: renders any component per data item (`Component`, `data`,
+  `formatItem`, `shareProps`, columns, dividers, loading and empty states).
+- [docs/RESPONSIVE.md](docs/RESPONSIVE.md): `useResponsive()`, breakpoint maps,
+  `s/vs/ms` scaling, and `createTheme`/`createThemes` for each project's own tokens.
+- [docs/AI_PROMPTS.md](docs/AI_PROMPTS.md): prompts that teach AI assistants to
+  build screens with Bunyan.
+- `RNTheme`: the only module that imports `react-native`; all other code uses
+  its themed primitives or `createThemedComponent`.
+
 ## Troubleshooting and upgrading
 
 Use [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) for Metro, duplicate

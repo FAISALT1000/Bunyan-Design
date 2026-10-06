@@ -1,4 +1,4 @@
-import React, { forwardRef, memo } from 'react';
+import React, { forwardRef, memo, useState } from 'react';
 import type { BaseInputHandle } from '../../base/Input';
 import { warnDeprecated } from '../../utilities/deprecations';
 import {
@@ -29,7 +29,7 @@ export const SearchInput = memo(forwardRef<
 >(function SearchInput(
   {
     label,
-    value = '',
+    value,
     onChangeText = () => undefined,
     accessibilityLabel,
     placeholder,
@@ -42,13 +42,17 @@ export const SearchInput = memo(forwardRef<
   warnDeprecated(
     'SearchInput is deprecated. Use <InputField type="search" ... />. It will be removed in 1.0.0.',
   );
+  // Uncontrolled when `value` is omitted, so the clear button still works.
+  const [innerValue, setInnerValue] = useState('');
+  const currentValue = value ?? innerValue;
   return (
     <InputField
       ref={ref}
       type="search"
       label={label ?? accessibilityLabel ?? placeholder ?? 'Search'}
-      value={value}
+      value={currentValue}
       onChangeText={nextValue => {
+        if (value === undefined) setInnerValue(nextValue);
         onChangeText(nextValue);
         if (!nextValue) onClear?.();
       }}

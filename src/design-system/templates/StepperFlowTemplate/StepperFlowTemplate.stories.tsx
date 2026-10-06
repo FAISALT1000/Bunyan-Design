@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { View } from '../../components/RNTheme';
 import type { Meta, StoryObj } from '@storybook/react-native';
 import { InputField } from '../../components/InputField';
 import { Text } from '../../components/Text';

@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from '../RNTheme';
+import { ActivityIndicator } from '../RNTheme/native';
 import { useTheme } from '../../hooks';
 import { Text } from '../Text';
 

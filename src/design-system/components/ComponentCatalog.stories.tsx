@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { View } from './RNTheme';
 import type { Meta, StoryObj } from '@storybook/react-native';
 import {
   Accordion,

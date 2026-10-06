@@ -1,4 +1,4 @@
-import type { AccessibilityState } from 'react-native';
+import type { AccessibilityState } from '../components/RNTheme/native';
 
 export interface ComponentAccessibilityState {
   disabled?: boolean;

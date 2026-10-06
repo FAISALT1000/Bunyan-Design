@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from '../../components/RNTheme/native';
 import type { Theme } from '../../themes';
 
 export const createFormScreenTemplateStyles = (theme: Theme) =>

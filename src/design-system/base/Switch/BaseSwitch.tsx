@@ -1,8 +1,5 @@
 import React, { forwardRef, memo } from 'react';
-import {
-  Switch as NativeSwitch,
-  type SwitchProps as NativeSwitchProps,
-} from 'react-native';
+import { Switch as NativeSwitch, type SwitchProps as NativeSwitchProps } from '../../components/RNTheme/native';
 
 export interface BaseSwitchProps extends Omit<NativeSwitchProps, 'style'> {
   accessibilityLabel: string;

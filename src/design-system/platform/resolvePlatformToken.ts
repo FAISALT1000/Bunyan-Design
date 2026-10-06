@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import { Platform } from '../components/RNTheme/native';
 import { platformTokens } from './platform.tokens';
 import type {
   DesignSystemPlatform,

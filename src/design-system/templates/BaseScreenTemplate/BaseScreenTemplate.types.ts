@@ -1,8 +1,5 @@
 import type React from 'react';
-import type {
-  KeyboardAvoidingViewProps,
-  RefreshControlProps,
-} from 'react-native';
+import type { KeyboardAvoidingViewProps, RefreshControlProps } from '../../components/RNTheme/native';
 import type {
   HeaderConfiguration,
   ScreenState,

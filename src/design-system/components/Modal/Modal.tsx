@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useRef } from 'react';
-import { Platform } from 'react-native';
+import { Platform } from '../RNTheme/native';
 import { BaseModal } from '../../base/Modal';
 import {
   BasePressable,

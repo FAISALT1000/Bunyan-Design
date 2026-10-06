@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Linking } from 'react-native';
+import { Linking } from '../RNTheme/native';
 import { warnDeprecated } from '../../utilities/deprecations';
 import { Button } from '../Button';
 
@@ -55,7 +55,7 @@ export const Link = memo(function Link({
       disabled={disabled}
       onPress={() => {
         onPress?.();
-        if (href) void Linking.openURL(href);
+        if (href) Linking.openURL(href).catch(() => undefined);
       }}
       {...(accessibilityLabel ? { accessibilityLabel } : {})}
       {...(accessibilityHint ? { accessibilityHint } : {})}

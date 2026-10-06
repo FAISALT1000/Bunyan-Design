@@ -1,5 +1,6 @@
 import React, { memo, useMemo } from 'react';
-import { RefreshControl, View } from 'react-native';
+import { View } from '../../components/RNTheme';
+import { RefreshControl } from '../../components/RNTheme/native';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
 import { Heading } from '../../components/Heading';

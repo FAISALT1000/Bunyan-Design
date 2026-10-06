@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from '../../components/RNTheme/native';
 import type { Direction, Theme } from '../../themes';
 import type { TemplateBackground, TemplatePadding } from '../types';
 import { backgroundFor, paddingFor } from '../utilities';

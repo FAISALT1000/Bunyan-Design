@@ -1,0 +1,68 @@
+/**
+ * The single boundary between Bunyan and `react-native`.
+ *
+ * This is the ONLY file in the design system allowed to import from
+ * `react-native`. Every other module consumes React Native through
+ * `RNTheme` (themed primitives) or this module (non-visual APIs and types),
+ * which keeps platform access auditable and lets us theme primitives centrally.
+ */
+export {
+  AccessibilityInfo,
+  ActivityIndicator,
+  Animated,
+  Appearance,
+  AppState,
+  Dimensions,
+  Easing,
+  FlatList,
+  I18nManager,
+  Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Linking,
+  Modal,
+  PanResponder,
+  PixelRatio,
+  Platform,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+
+export type {
+  AccessibilityProps,
+  AccessibilityRole,
+  AccessibilityState,
+  ActivityIndicatorProps,
+  AppStateStatus,
+  ColorSchemeName,
+  GestureResponderEvent,
+  ImageProps,
+  ImageSourcePropType,
+  ImageStyle,
+  KeyboardAvoidingViewProps,
+  KeyboardEvent,
+  LayoutChangeEvent,
+  ModalProps,
+  PanResponderGestureState,
+  PressableProps,
+  PressableStateCallbackType,
+  RefreshControlProps,
+  ScaledSize,
+  ScrollViewProps,
+  StatusBarStyle,
+  StyleProp,
+  SwitchProps,
+  TextInputProps,
+  TextProps,
+  TextStyle,
+  ViewProps,
+  ViewStyle,
+} from 'react-native';

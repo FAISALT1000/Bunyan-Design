@@ -1,5 +1,5 @@
 import type React from 'react';
-import type { StatusBarStyle } from 'react-native';
+import type { StatusBarStyle } from '../components/RNTheme/native';
 import type { BadgeTone } from '../components/Badge';
 import type { IconName } from '../components/Icon';
 import type { TabItem } from '../components/Tabs';

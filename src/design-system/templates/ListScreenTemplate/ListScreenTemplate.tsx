@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { FlatList, RefreshControl, View } from 'react-native';
+import { View } from '../../components/RNTheme';
+import { FlatList, RefreshControl } from '../../components/RNTheme/native';
 import { Button } from '../../components/Button';
 import { Divider } from '../../components/Divider';
 import { EmptyState } from '../../components/EmptyState';

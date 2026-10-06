@@ -1,10 +1,6 @@
 import React, { forwardRef, memo } from 'react';
-import {
-  View,
-  type AccessibilityProps,
-  type ViewProps,
-  type ViewStyle,
-} from 'react-native';
+import { View } from '../../components/RNTheme';
+import { type AccessibilityProps, type View as NativeView, type ViewProps, type ViewStyle } from '../../components/RNTheme/native';
 import { useTheme } from '../../hooks';
 
 export type SpacingToken = keyof ReturnType<typeof useTheme>['theme']['spacing'];
@@ -48,7 +44,7 @@ export interface BoxProps extends AccessibilityProps {
   internalStyle?: ViewStyle | readonly (ViewStyle | undefined)[];
 }
 
-export const Box = memo(forwardRef<View, BoxProps>(function Box(
+export const Box = memo(forwardRef<NativeView, BoxProps>(function Box(
   {
     children,
     flex,

@@ -5,7 +5,9 @@ import { useTheme } from '../../hooks';
 export type IconName =
   | 'alert-circle' | 'backspace' | 'calendar' | 'check' | 'chevron-down' | 'chevron-left'
   | 'chevron-right' | 'chevron-end' | 'close' | 'eye' | 'eye-off' | 'info' | 'search'
-  | 'settings' | 'success' | 'transfer' | 'trash' | 'warning' | 'error' | 'user';
+  | 'settings' | 'success' | 'transfer' | 'trash' | 'warning' | 'error' | 'user'
+  | 'arrow-down' | 'arrow-down-left' | 'arrow-up' | 'arrow-up-right' | 'file' | 'filter'
+  | 'image' | 'minus' | 'plus' | 'upload';
 export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
 export type IconTone = 'primary' | 'secondary' | 'tertiary' | 'inverse' | 'success' | 'warning' | 'error' | 'information';
 
@@ -39,6 +41,16 @@ const paths: Record<IconName, React.ReactNode> = {
   trash: <><Polyline points="3 6 5 6 21 6" /><Path d="M8 6V4h8v2M19 6l-1 15H6L5 6" /><Line x1="10" y1="11" x2="10" y2="17" /><Line x1="14" y1="11" x2="14" y2="17" /></>,
   warning: <><Path d="M12 3L2.5 20h19L12 3z" /><Line x1="12" y1="9" x2="12" y2="14" /><Line x1="12" y1="17" x2="12.01" y2="17" /></>,
   error: <><Circle cx="12" cy="12" r="9" /><Line x1="8.5" y1="8.5" x2="15.5" y2="15.5" /><Line x1="15.5" y1="8.5" x2="8.5" y2="15.5" /></>,
+  'arrow-down': <><Line x1="12" y1="5" x2="12" y2="19" /><Polyline points="6 13 12 19 18 13" /></>,
+  'arrow-down-left': <><Line x1="17" y1="7" x2="7" y2="17" /><Polyline points="7 9 7 17 15 17" /></>,
+  'arrow-up': <><Line x1="12" y1="19" x2="12" y2="5" /><Polyline points="6 11 12 5 18 11" /></>,
+  'arrow-up-right': <><Line x1="7" y1="17" x2="17" y2="7" /><Polyline points="9 7 17 7 17 15" /></>,
+  file: <><Path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z" /><Polyline points="14 3 14 8 19 8" /></>,
+  filter: <Path d="M4 5h16l-6 7.5V19l-4-2v-4.5L4 5z" />,
+  image: <><Rect x="3" y="4" width="18" height="16" rx="2" /><Circle cx="9" cy="10" r="2" /><Polyline points="21 16 15 11 5 20" /></>,
+  minus: <Line x1="5" y1="12" x2="19" y2="12" />,
+  plus: <><Line x1="12" y1="5" x2="12" y2="19" /><Line x1="5" y1="12" x2="19" y2="12" /></>,
+  upload: <><Path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3" /><Polyline points="7 9 12 4 17 9" /><Line x1="12" y1="4" x2="12" y2="16" /></>,
   user: <><Circle cx="12" cy="8" r="4" /><Path d="M4 21c.5-5 3-7 8-7s7.5 2 8 7" /></>,
 };
 

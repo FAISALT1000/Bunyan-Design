@@ -1,5 +1,5 @@
 import React, { memo, useMemo } from 'react';
-import { View } from 'react-native';
+import { View } from '../../components/RNTheme';
 import { Text } from '../../components/Text';
 import { useTheme } from '../../hooks';
 import { EmptyStateTemplate } from '../EmptyStateTemplate';

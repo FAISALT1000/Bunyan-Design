@@ -1,8 +1,5 @@
 import React, { memo } from 'react';
-import {
-  Modal as NativeModal,
-  type ModalProps as NativeModalProps,
-} from 'react-native';
+import { Modal as NativeModal, type ModalProps as NativeModalProps } from '../../components/RNTheme/native';
 
 export interface BaseModalProps extends Omit<
   NativeModalProps,

@@ -18,6 +18,8 @@ export interface FormFieldProps {
   success?: string;
   required?: boolean;
   optionalLabel?: string;
+  /** Show the "(Optional)" hint next to fields that are not required. Default `true`. */
+  showOptional?: boolean;
   testID?: string;
 }
 
@@ -29,6 +31,7 @@ export const FormField = memo(function FormField({
   success,
   required = false,
   optionalLabel = 'Optional',
+  showOptional = true,
   testID,
 }: FormFieldProps) {
   const id = useId();
@@ -48,7 +51,7 @@ export const FormField = memo(function FormField({
           variant="labelMedium"
           weight="semibold"
         />
-        {!required ? (
+        {!required && showOptional ? (
           <Text value={`(${optionalLabel})`} variant="caption" tone="tertiary" />
         ) : null}
       </Inline>

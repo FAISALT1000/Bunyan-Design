@@ -1,10 +1,5 @@
 import React, { forwardRef, memo } from 'react';
-import {
-  ScrollView,
-  type ScrollViewProps,
-  type StyleProp,
-  type ViewStyle,
-} from 'react-native';
+import { ScrollView, type ScrollViewProps, type StyleProp, type ViewStyle } from '../../components/RNTheme/native';
 import { useTheme } from '../../hooks';
 import type { SpacingToken } from '../Box';
 

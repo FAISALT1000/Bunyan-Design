@@ -1,14 +1,6 @@
 import React, { memo, useEffect, useRef } from 'react';
-import {
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  TextInput,
-  View,
-  type TextInput as TextInputType,
-} from 'react-native';
+import { Pressable, View } from '../../components/RNTheme';
+import { KeyboardAvoidingView, Modal, Platform, ScrollView, TextInput, type TextInput as TextInputType } from '../../components/RNTheme/native';
 import { BottomSheet } from '../../components/BottomSheet';
 import { Button } from '../../components/Button';
 import { Heading } from '../../components/Heading';

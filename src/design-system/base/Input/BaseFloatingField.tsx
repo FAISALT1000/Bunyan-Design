@@ -4,11 +4,7 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-import {
-  Animated,
-  Easing,
-  type ViewStyle,
-} from 'react-native';
+import { Animated, Easing, type ViewStyle } from '../../components/RNTheme/native';
 import { useTheme } from '../../hooks';
 
 export type BaseFloatingFieldVariant = 'outlined' | 'filled' | 'underlined';

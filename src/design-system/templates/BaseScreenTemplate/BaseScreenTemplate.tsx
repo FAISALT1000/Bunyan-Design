@@ -1,11 +1,6 @@
 import React, { memo, useMemo } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StatusBar,
-  View,
-} from 'react-native';
+import { View } from '../../components/RNTheme';
+import { KeyboardAvoidingView, Platform, ScrollView, StatusBar } from '../../components/RNTheme/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Heading } from '../../components/Heading';
 import { IconButton } from '../../components/IconButton';

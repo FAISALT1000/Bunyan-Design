@@ -1,5 +1,6 @@
 import React, { memo, useMemo, useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Pressable, View } from '../RNTheme';
+import { ScrollView } from '../RNTheme/native';
 import { useTheme } from '../../hooks';
 import { heightForSize, logicalRow, statusBorderColor, type ComponentSize, type FeedbackStatus } from '../../utilities/styles';
 import { BottomSheet } from '../BottomSheet';

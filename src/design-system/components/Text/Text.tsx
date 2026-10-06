@@ -1,9 +1,5 @@
 import React, { forwardRef, memo } from 'react';
-import {
-  Text as NativeText,
-  type AccessibilityRole,
-  type TextStyle,
-} from 'react-native';
+import { Text as NativeText, type AccessibilityRole, type StyleProp, type TextStyle } from '../RNTheme/native';
 import { useTheme } from '../../hooks';
 import {
   resolveLocalizedText,
@@ -37,6 +33,11 @@ export interface BaseTextProps {
    * Internal composition escape hatch for semantic components.
    */
   internalColor?: string;
+  /**
+   * Internal composition escape hatch for semantic components (font size of
+   * large numeric displays, forced LTR runs…). Applied last.
+   */
+  internalStyle?: StyleProp<TextStyle>;
 }
 
 export type TextProps = BaseTextProps & (
@@ -114,6 +115,7 @@ export const Text = memo(forwardRef<
     weight = 'regular',
     decoration = 'none',
     internalColor,
+    internalStyle,
     ...props
   },
   ref,
@@ -176,6 +178,7 @@ export const Text = memo(forwardRef<
           textAlign,
           textDecorationLine: decoration,
         },
+        internalStyle,
       ]}
     >
       {resolvedText}

@@ -1,9 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-  Keyboard,
-  Platform,
-  type KeyboardEvent,
-} from 'react-native';
+import { Keyboard, Platform, type KeyboardEvent } from '../components/RNTheme/native';
 
 export interface KeyboardState {
   isVisible: boolean;

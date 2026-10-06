@@ -1,13 +1,5 @@
 import React, { forwardRef, memo, useState } from 'react';
-import {
-  Pressable as RNPressable,
-  StyleSheet,
-  type GestureResponderEvent,
-  type PressableProps as RNPressableProps,
-  type StyleProp,
-  type View,
-  type ViewStyle,
-} from 'react-native';
+import { Pressable as RNPressable, StyleSheet, type GestureResponderEvent, type PressableProps as RNPressableProps, type StyleProp, type View, type ViewStyle } from '../../components/RNTheme/native';
 import { useTheme } from '../../hooks';
 import type { InteractionFeedback } from '../../platform';
 

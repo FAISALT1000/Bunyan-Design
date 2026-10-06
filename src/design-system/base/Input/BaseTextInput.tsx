@@ -1,10 +1,5 @@
 import React, { forwardRef, memo } from 'react';
-import {
-  TextInput,
-  type StyleProp,
-  type TextInputProps,
-  type TextStyle,
-} from 'react-native';
+import { TextInput, type StyleProp, type TextInputProps, type TextStyle } from '../../components/RNTheme/native';
 import { useTheme } from '../../hooks';
 import { logicalText } from '../../utilities/styles';
 

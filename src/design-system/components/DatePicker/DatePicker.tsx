@@ -1,5 +1,6 @@
 import React, { memo, useState } from 'react';
-import { Platform, View } from 'react-native';
+import { View } from '../RNTheme';
+import { Platform } from '../RNTheme/native';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useTheme } from '../../hooks';
 import type { FeedbackStatus } from '../../utilities/styles';
@@ -18,6 +19,14 @@ export interface DatePickerProps {
   status?: FeedbackStatus;
   accessibilityLabel?: string;
   clearable?: boolean;
+  /** Sheet title. Defaults to `placeholder`. */
+  title?: string;
+  /** Accessibility label of the clear button. Default `'Clear date'`. */
+  clearLabel?: string;
+  /** Text of the iOS confirm button. Default `'Confirm'`. */
+  confirmLabel?: string;
+  /** Overrides of the displayed date format (`calendar`, `month`…). */
+  formatOptions?: Intl.DateTimeFormatOptions;
 }
 
 export const DatePicker = memo(function DatePicker({
@@ -31,12 +40,16 @@ export const DatePicker = memo(function DatePicker({
   status = 'default',
   accessibilityLabel = 'Date',
   clearable = true,
+  title,
+  clearLabel = 'Clear date',
+  confirmLabel = 'Confirm',
+  formatOptions,
 }: DatePickerProps) {
   const { theme, locale: themeLocale } = useTheme();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(value ?? new Date());
   const resolvedLocale = locale ?? themeLocale;
-  const formatted = value ? new Intl.DateTimeFormat(resolvedLocale, { year: 'numeric', month: 'short', day: 'numeric' }).format(value) : '';
+  const formatted = value ? new Intl.DateTimeFormat(resolvedLocale, { year: 'numeric', month: 'short', day: 'numeric', ...formatOptions }).format(value) : '';
   const handleNativeChange = (event: DateTimePickerEvent, next?: Date) => {
     if (Platform.OS === 'android') {
       setOpen(false);
@@ -69,7 +82,7 @@ export const DatePicker = memo(function DatePicker({
         {...(clearable && value
           ? {
               rightIcon: 'close' as const,
-              rightIconAccessibilityLabel: 'Clear date',
+              rightIconAccessibilityLabel: clearLabel,
               onRightIconPress: () => onChange(undefined),
             }
           : {})}
@@ -84,7 +97,7 @@ export const DatePicker = memo(function DatePicker({
           onChange={handleNativeChange}
         />
       ) : (
-        <BottomSheet visible={open} onClose={() => setOpen(false)} title={placeholder}>
+        <BottomSheet visible={open} onClose={() => setOpen(false)} title={title ?? placeholder}>
           <View style={{ gap: theme.spacing.lg, alignItems: 'stretch' }}>
             <DateTimePicker
               value={draft}
@@ -96,7 +109,7 @@ export const DatePicker = memo(function DatePicker({
               onChange={handleNativeChange}
             />
             <Button
-              title="Confirm"
+              title={confirmLabel}
               fullWidth
               onPress={() => {
                 onChange(draft);

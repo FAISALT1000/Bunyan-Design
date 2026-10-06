@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AccessibilityInfo, Platform } from 'react-native';
+import { AccessibilityInfo, Platform } from '../components/RNTheme/native';
 
 export interface AccessibilityState {
   screenReaderEnabled: boolean;

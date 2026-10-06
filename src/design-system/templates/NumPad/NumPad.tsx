@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, View } from '../../components/RNTheme';
 import { useTheme } from '../../hooks';
 import { Icon } from '../../components/Icon';
 import { Text } from '../../components/Text';
@@ -37,7 +37,8 @@ export const NumPad = memo(function NumPad({
 }: NumPadProps) {
   const { theme } = useTheme();
   const canAddDigit = maxLength === undefined || value.length < maxLength;
-  const canDelete = value.length > 0 || Boolean(onDelete);
+  // Uncontrolled usage (onDelete without onChange/value) can always delete.
+  const canDelete = value.length > 0 || (onChange === undefined && Boolean(onDelete));
 
   const pressDigit = (digit: string) => {
     if (disabled || !canAddDigit) return;
@@ -87,6 +88,7 @@ export const NumPad = memo(function NumPad({
     <View
       testID={testID}
       accessibilityLabel={accessibilityLabel}
+      // Keypads keep 1-2-3 left-to-right in every locale, like phone dialers.
       style={{ gap: theme.spacing.md }}
     >
       {rows.map((row, index) => (

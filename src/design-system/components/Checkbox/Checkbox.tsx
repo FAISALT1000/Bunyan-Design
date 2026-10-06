@@ -46,7 +46,7 @@ export const Checkbox = memo(function Checkbox({
       }}
       testID={testID}
       disabled={disabled}
-      onPress={() => onChange(!checked)}
+      onPress={() => onChange(indeterminate ? true : !checked)}
       baseStyle={{ alignSelf: 'stretch' }}
       pressedStyle={{ opacity: theme.opacity.strong }}
       focusedStyle={{

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View } from '../RNTheme';
 import type { Meta, StoryObj } from '@storybook/react-native';
 import { ThemeProvider } from '../../providers';
 import { Button, type ButtonProps } from './Button';

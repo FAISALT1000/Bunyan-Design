@@ -1,9 +1,6 @@
 import React, { forwardRef, memo, useState } from 'react';
-import {
-  TextInput,
-  View,
-  type TextInputProps,
-} from 'react-native';
+import { View } from '../../components/RNTheme';
+import { TextInput, type TextInputProps } from '../../components/RNTheme/native';
 import { useTheme } from '../../hooks';
 import {
   heightForSize,
@@ -21,7 +18,11 @@ export interface BaseInputProps extends Omit<TextInputProps, 'style'> {
   size?: ComponentSize;
   status?: FeedbackStatus;
   leftIcon?: IconName;
+  /** Content before the text (after `leftIcon`), e.g. a country-code picker. */
+  leading?: React.ReactNode;
   trailing?: React.ReactNode;
+  /** Forces the typed text direction, e.g. `'ltr'` for phone numbers and amounts in Arabic UI. */
+  textDirection?: 'ltr' | 'rtl';
 }
 
 export const BaseInput = memo(forwardRef<BaseInputHandle, BaseInputProps>(
@@ -30,7 +31,9 @@ export const BaseInput = memo(forwardRef<BaseInputHandle, BaseInputProps>(
       size = 'medium',
       status = 'default',
       leftIcon,
+      leading,
       trailing,
+      textDirection,
       editable = true,
       onFocus,
       onBlur,
@@ -71,6 +74,7 @@ export const BaseInput = memo(forwardRef<BaseInputHandle, BaseInputProps>(
         {leftIcon ? (
           <Icon name={leftIcon} size="md" tone="secondary" />
         ) : null}
+        {leading}
         <TextInput
           ref={ref}
           editable={editable}
@@ -89,7 +93,7 @@ export const BaseInput = memo(forwardRef<BaseInputHandle, BaseInputProps>(
           }}
           {...props}
           style={[
-            logicalText(direction),
+            logicalText(textDirection ?? direction),
             {
               flex: 1,
               minWidth: theme.spacing.none,

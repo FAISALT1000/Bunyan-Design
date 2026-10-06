@@ -1,5 +1,5 @@
 import React, { cloneElement, memo, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, View } from '../RNTheme';
 import { useTheme } from '../../hooks';
 import { Text } from '../Text';
 

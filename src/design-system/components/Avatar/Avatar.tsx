@@ -1,5 +1,6 @@
 import React, { memo, useState } from 'react';
-import { Image, View, type ImageSourcePropType } from 'react-native';
+import { Image, View } from '../RNTheme';
+import { type ImageSourcePropType } from '../RNTheme/native';
 import { useTheme } from '../../hooks';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
