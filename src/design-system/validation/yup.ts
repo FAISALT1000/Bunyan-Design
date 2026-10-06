@@ -16,7 +16,7 @@
 import * as Yup from 'yup';
 import { isValidPhone, type PhoneValue } from '../components/PhoneInput/countries';
 import type { TextValue } from '../i18n/text';
-import { getValidationMessage, type ValidationMessage, type ValidationMessageKey } from './messages';
+import { getValidationMessage, type ValidationMessageText, type ValidationMessageKey } from './messages';
 import {
   ageOn,
   hasEmoji,
@@ -47,7 +47,7 @@ const isTextObject = (value: unknown): value is Exclude<TextValue, string> =>
   typeof value === 'object' && value !== null && typeof (value as { localeKey?: unknown }).localeKey === 'string';
 
 /** Locale-key messages receive the rule params (min, max…) for interpolation by the app's translate function. */
-const toYupMessage = (message: ValidationMessage | RuleMessage): YupMessage =>
+const toYupMessage = (message: ValidationMessageText | RuleMessage): YupMessage =>
   isTextObject(message)
     ? (params: Record<string, unknown>) => {
         // Keep only the rule's own params (min, max, domain…), not Yup internals.
@@ -242,7 +242,7 @@ Yup.addMethod(Yup.mixed, 'dateRange', function dateRange(this: Yup.MixedSchema, 
       const to = range?.to;
       const key = requireFrom && !from ? 'fromRequired' : requireTo && !to ? 'toRequired' : from && to && from > to ? 'order' : undefined;
       if (!key) return true;
-      return this.createError({ message: toYupMessage(text[key] as ValidationMessage) as never, path: this.path });
+      return this.createError({ message: toYupMessage(text[key] as ValidationMessageText) as never, path: this.path });
     },
   });
 });

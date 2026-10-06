@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-
 import {
   ChipsGroup,
   DateRangePicker,
+  DesignSystemLocalizationProvider,
   Form,
   RadioGroup,
   ThemeProvider,
@@ -25,13 +26,31 @@ const dictionary: Record<string, string> = {
   'tx.out': 'صادر',
   'errors.required': 'هذا الحقل مطلوب',
 };
-const translate = (key: string) => dictionary[key] ?? key;
+const nest = (flat: Record<string, string>) => {
+  const out: Record<string, any> = {};
+  for (const [key, value] of Object.entries(flat)) {
+    const parts = key.split('.');
+    let node = out;
+    parts.slice(0, -1).forEach(part => { node = node[part] ??= {}; });
+    node[parts[parts.length - 1]!] = value;
+  }
+  return out;
+};
+
+/** Theme + i18n-js localization (Arabic) like an app would set it up. */
+const Localized = ({ children, extra = {} }: { children: React.ReactNode; extra?: Record<string, string> }) => (
+  <ThemeProvider>
+    <DesignSystemLocalizationProvider<"en" | "ar"> locale="ar" rtlLocales={[]} translations={{ en: {}, ar: nest({ ...dictionary, ...extra }) }}>
+      {children}
+    </DesignSystemLocalizationProvider>
+  </ThemeProvider>
+);
 
 describe('translation', () => {
   it('resolves plain text, keys, params and fallbacks', () => {
     expect(resolveText('Hi')).toBe('Hi');
-    expect(resolveText({ localeKey: 'common.from' }, translate)).toBe('من');
-    expect(resolveText({ localeKey: 'missing.key', fallback: 'Fallback' }, translate)).toBe('Fallback');
+    expect(resolveText({ localeKey: 'common.from' }, key => dictionary[key] ?? key)).toBe('من');
+    expect(resolveText({ localeKey: 'missing.key', fallback: 'Fallback' }, key => dictionary[key] ?? key)).toBe('Fallback');
     expect(resolveText({ localeKey: 'x', params: { n: 2 } }, (k, p) => `${k}:${String(p?.n)}`)).toBe('x:2');
   });
 });
@@ -62,9 +81,9 @@ describe('ChipsGroup / RadioGroup', () => {
   it('renders a radiogroup with translated labels', () => {
     const onChange = jest.fn();
     render(
-      <ThemeProvider translate={translate}>
+      <Localized>
         <RadioGroup accessibilityLabel="Direction" value="0" onChange={onChange} options={[{ label: { localeKey: 'tx.all' }, value: '0' }, { label: { localeKey: 'tx.in' }, value: '1' }]} />
-      </ThemeProvider>,
+      </Localized>,
     );
     fireEvent.press(screen.getByRole('radio', { name: 'وارد' }));
     expect(onChange).toHaveBeenCalledWith('1');
@@ -86,10 +105,10 @@ describe('DateRangePicker', () => {
     renderWithTheme(
       <DateRangePicker value={{ from: new Date(2026, 9, 3) }} onChange={jest.fn()} showHijriToggle onCalendarChange={onCalendarChange} />,
     );
-    expect(screen.getByText(/2026/)).toBeTruthy();
+    expect(screen.getByDisplayValue(/2026/)).toBeTruthy();
     fireEvent.press(screen.getByRole('button', { name: 'Hijri' }));
     expect(onCalendarChange).toHaveBeenCalledWith('islamic-umalqura');
-    expect(screen.getByText(/1448/)).toBeTruthy();
+    expect(screen.getByDisplayValue(/1448/)).toBeTruthy();
   });
 });
 
@@ -117,9 +136,9 @@ describe('Form', () => {
 
   it('renders the fields array (skipping falsy entries) with translations', () => {
     render(
-      <ThemeProvider translate={translate}>
+      <Localized>
         <Form initialValues={{ transactionInOrOut: '0', transactionDate: {} as DateRange }} onSubmit={jest.fn()} fields={fields(false)} submitButton={{ text: { localeKey: 'common.apply' } }} />
-      </ThemeProvider>,
+      </Localized>,
     );
     expect(screen.queryByRole('button', { name: 'الكل' })).toBeNull();
     expect(screen.getByText('من')).toBeTruthy();
@@ -129,14 +148,14 @@ describe('Form', () => {
   it('validates with Yup on submit, shows translated errors, then submits values', async () => {
     const onSubmit = jest.fn();
     render(
-      <ThemeProvider translate={translate}>
+      <Localized>
         <Form
           initialValues={{ transactionInOrOut: '0', transactionDate: {} as DateRange }}
           validationSchema={Yup.object({ transactionDate: Yup.mixed().dateRange(true, false, { fromRequired: 'errors.required' }) })}
           onSubmit={onSubmit}
           fields={fields(true)}
         />
-      </ThemeProvider>,
+      </Localized>,
     );
     await act(async () => {
       fireEvent.press(screen.getByRole('button', { name: 'Submit' }));
@@ -201,21 +220,42 @@ describe('Form shows Bunyan rule messages', () => {
 
   it('translates locale-key messages with their params', async () => {
     setValidationMessages({ minMax: { localeKey: 'errors.length' } });
-    const translateWithParams = (key: string, params?: Record<string, unknown>) =>
-      key === 'errors.length' ? `يجب أن يكون بين ${String(params?.min)} و ${String(params?.max)} حروف` : key;
     render(
-      <ThemeProvider translate={translateWithParams}>
+      <Localized extra={{ 'errors.length': 'يجب أن يكون بين %{min} و %{max} حروف' }}>
         <Form
           initialValues={{ name: 'a' }}
           onSubmit={jest.fn()}
           validationSchema={Yup.object({ name: Yup.string().minMax(2, 4) })}
           fields={[{ type: 'Input', name: 'name', label: 'Name' }]}
         />
-      </ThemeProvider>,
+      </Localized>,
     );
     await act(async () => {
       fireEvent.press(screen.getByRole('button', { name: 'Submit' }));
     });
     expect(await screen.findByText('يجب أن يكون بين 2 و 4 حروف')).toBeTruthy();
+  });
+});
+
+describe('Form InputField type', () => {
+  it('renders a floating-label InputField with its own label and error', async () => {
+    const onSubmit = jest.fn();
+    renderWithTheme(
+      <Form
+        initialValues={{ email: '' }}
+        onSubmit={onSubmit}
+        validationSchema={Yup.object({ email: Yup.string().required('Email is required') })}
+        fields={[{ type: 'InputField', name: 'email', label: 'Email', inputType: 'email', required: true }]}
+      />,
+    );
+    await act(async () => {
+      fireEvent.press(screen.getByRole('button', { name: 'Submit' }));
+    });
+    expect(await screen.findByText('Email is required')).toBeTruthy();
+    fireEvent.changeText(screen.getByLabelText(/Email/), 'a@b.co');
+    await act(async () => {
+      fireEvent.press(screen.getByRole('button', { name: 'Submit' }));
+    });
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith({ email: 'a@b.co' }, expect.anything()));
   });
 });

@@ -1,21 +1,13 @@
 import React, { memo, useEffect, useRef } from 'react';
-import {
-  KeyboardAvoidingView,
-  Pressable,
-  RNModal,
-  ScrollView,
-  StyleSheet,
-  View,
-} from '../../components/RNTheme';
-import { logicalAlignItems, logicalRow } from '../../utilities/styles';
+import { Pressable, View } from '../../components/RNTheme';
+import { KeyboardAvoidingView, Modal, Platform, ScrollView, TextInput, type TextInput as TextInputType } from '../../components/RNTheme/native';
 import { BottomSheet } from '../../components/BottomSheet';
 import { Button } from '../../components/Button';
 import { Heading } from '../../components/Heading';
 import { IconButton } from '../../components/IconButton';
-import { Link } from '../../components/Link';
 import { Text } from '../../components/Text';
 import { useTheme } from '../../hooks';
-import { OTPInput } from '../../components/OTPInput';
+import { NumPad } from '../NumPad';
 
 export type OTPTemplateVariant = 'bottomSheet' | 'overlay' | 'fullScreen';
 
@@ -74,7 +66,8 @@ const OTPContent = memo(function OTPContent({
   showHeading = true,
   showDestination = true,
 }: OTPContentProps) {
-  const { theme } = useTheme();
+  const { theme, direction } = useTheme();
+  const inputRef = useRef<TextInputType>(null);
   const normalizedValue = onlyDigits(value, length);
   const complete = normalizedValue.length === length;
   const previousCompletedValue = useRef<string | undefined>(undefined);
@@ -91,9 +84,8 @@ const OTPContent = memo(function OTPContent({
     if (!complete) previousCompletedValue.current = undefined;
   }, [autoSubmit, complete, normalizedValue, onSubmit]);
 
-  const locked = disabled || loading;
   const updateValue = (next: string) => {
-    if (locked) return;
+    if (disabled || loading) return;
     onChange(onlyDigits(next, length));
   };
 
@@ -109,45 +101,125 @@ const OTPContent = memo(function OTPContent({
     >
       {showHeading ? (
         <View style={{ gap: theme.spacing.sm }}>
-          <Heading level={3} align="center">{title}</Heading>
-          <Text tone="secondary" align="center">
-            {description}
-            {showDestination && destination ? ` ${destination}` : ''}
-          </Text>
+          <Heading title={title} level={3} align="center" />
+          <Text
+            value={`${description}${showDestination && destination ? ` ${destination}` : ''}`}
+            tone="secondary"
+            align="center"
+          />
         </View>
       ) : showDestination && destination ? (
-        <Text tone="secondary" align="center">{destination}</Text>
+        <Text value={destination} tone="secondary" align="center" />
       ) : null}
 
-      <OTPInput
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`Verification code, ${normalizedValue.length} of ${length} digits entered`}
+        accessibilityState={{ disabled }}
+        onPress={() => inputRef.current?.focus()}
+        style={{
+          flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+          justifyContent: 'center',
+          gap: theme.spacing.sm,
+        }}
+      >
+        {Array.from({ length }, (_, index) => {
+          const digit = normalizedValue[index];
+          const active = index === normalizedValue.length && !complete;
+          return (
+            <View
+              key={index}
+              accessible
+              accessibilityLabel={digit ? `Digit ${index + 1} entered` : `Digit ${index + 1} empty`}
+              style={{
+                width: theme.componentHeight.lg,
+                height: theme.componentHeight.xl,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: theme.radius.md,
+                borderWidth: active || error
+                  ? theme.borderWidth.medium
+                  : theme.borderWidth.thin,
+                borderColor: error
+                  ? theme.color.border.error
+                  : active
+                  ? theme.color.border.focus
+                  : digit
+                  ? theme.color.primary.default
+                  : theme.color.border.primary,
+                backgroundColor: digit
+                  ? theme.color.primary.subtle
+                  : theme.color.surface.primary,
+              }}
+            >
+              <Text
+                value={digit ? (secure ? '•' : digit) : ''}
+                variant="headingMedium"
+                weight="bold"
+              />
+            </View>
+          );
+        })}
+      </Pressable>
+
+      <TextInput
+        ref={inputRef}
         value={normalizedValue}
-        onChange={updateValue}
-        length={length}
-        secure={secure}
-        disabled={locked}
-        useNumPad={useNumPad}
-        error={Boolean(error)}
-        {...(error ? { errorText: error } : {})}
+        onChangeText={updateValue}
+        maxLength={length}
+        keyboardType="number-pad"
+        inputMode="numeric"
+        textContentType="oneTimeCode"
+        autoComplete="one-time-code"
+        accessibilityLabel="Verification code input"
+        accessibilityState={{ disabled }}
+        editable={!disabled && !loading}
+        caretHidden
+        style={{
+          position: 'absolute',
+          width: theme.spacing.xs,
+          height: theme.spacing.xs,
+          opacity: theme.opacity.invisible,
+        }}
       />
+
+      {error ? (
+        <Text
+          value={error}
+          accessibilityRole="alert"
+          variant="bodySmall"
+          tone="error"
+          align="center"
+        />
+      ) : null}
+
+      {useNumPad ? (
+        <NumPad
+          value={normalizedValue}
+          onChange={updateValue}
+          maxLength={length}
+          disabled={disabled || loading}
+        />
+      ) : null}
 
       <View style={{ gap: theme.spacing.md }}>
         <Button
+          title={submitLabel}
           fullWidth
           loading={loading}
           disabled={disabled || !complete}
           onPress={() => onSubmit(normalizedValue)}
-        >
-          {submitLabel}
-        </Button>
+        />
         {onResend ? (
           <View style={{ alignItems: 'center' }}>
             {resendDisabled ? (
-              <Text variant="label" tone="tertiary">{resendLabel}</Text>
+              <Text value={resendLabel} variant="labelMedium" tone="tertiary" />
             ) : (
-              // Link aligns itself to flex-start; the wrapper shrink-wraps it so it stays centred.
-              <View>
-                <Link onPress={onResend}>{resendLabel}</Link>
-              </View>
+              <Button
+                title={resendLabel}
+                variant="link"
+                onPress={onResend}
+              />
             )}
           </View>
         ) : null}
@@ -156,7 +228,7 @@ const OTPContent = memo(function OTPContent({
   );
 
   return useNumPad ? content : (
-    <KeyboardAvoidingView>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       {content}
     </KeyboardAvoidingView>
   );
@@ -197,16 +269,15 @@ export const OTPTemplate = memo(function OTPTemplate({
 
   if (variant === 'overlay') {
     return (
-      <RNModal
+      <Modal
         visible={visible}
         transparent
         animationType="fade"
-        onRequestClose={() => {
-          if (canDismiss) close();
-        }}
+        onRequestClose={canDismiss ? close : undefined}
         statusBarTranslucent
       >
         <View
+          accessibilityViewIsModal
           style={{
             flex: 1,
             alignItems: 'center',
@@ -217,13 +288,13 @@ export const OTPTemplate = memo(function OTPTemplate({
         >
           {canDismiss ? (
             <Pressable
-              accessibilityRole="button"
               accessibilityLabel="Close verification overlay"
               onPress={close}
-              style={StyleSheet.absoluteFill}
+              style={{ position: 'absolute', inset: theme.spacing.none }}
             />
           ) : null}
           <ScrollView
+            keyboardShouldPersistTaps="handled"
             contentContainerStyle={{
               flexGrow: 1,
               alignItems: 'center',
@@ -232,7 +303,6 @@ export const OTPTemplate = memo(function OTPTemplate({
             style={{ width: '100%' }}
           >
             <View
-              accessibilityViewIsModal
               style={{
                 width: '100%',
                 maxWidth: theme.breakpoint.medium,
@@ -245,7 +315,7 @@ export const OTPTemplate = memo(function OTPTemplate({
               {canDismiss ? (
                 <View
                   style={{
-                    alignItems: logicalAlignItems(direction, 'end'),
+                    alignItems: direction === 'rtl' ? 'flex-start' : 'flex-end',
                     marginBottom: theme.spacing.sm,
                   }}
                 >
@@ -260,7 +330,7 @@ export const OTPTemplate = memo(function OTPTemplate({
             </View>
           </ScrollView>
         </View>
-      </RNModal>
+      </Modal>
     );
   }
 
@@ -278,7 +348,7 @@ export const OTPTemplate = memo(function OTPTemplate({
         style={{
           minHeight: theme.componentHeight.xl,
           paddingHorizontal: theme.spacing.lg,
-          ...logicalRow(direction),
+          flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
           alignItems: 'center',
         }}
       >
@@ -287,6 +357,7 @@ export const OTPTemplate = memo(function OTPTemplate({
         ) : null}
       </View>
       <ScrollView
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
           flexGrow: 1,
           justifyContent: 'center',

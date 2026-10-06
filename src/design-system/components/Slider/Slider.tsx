@@ -101,8 +101,8 @@ export const Slider = memo(function Slider({
     <View testID={testID} style={{ gap: theme.spacing.xs, opacity: disabled ? theme.opacity.disabled : theme.opacity.opaque }}>
       {labelText || showValue ? (
         <View style={[logicalRow(direction), { justifyContent: 'space-between' }]}>
-          {labelText ? <Text variant="label" weight="medium">{labelText}</Text> : <View />}
-          {showValue ? <Text variant="label" weight="semibold" tone="link">{formatValue(value)}</Text> : null}
+          {labelText ? <Text variant="labelMedium" weight="medium" value={labelText} /> : <View />}
+          {showValue ? <Text variant="labelMedium" weight="semibold" internalColor={theme.color.text.link} value={formatValue(value)} /> : null}
         </View>
       ) : null}
       <View
@@ -144,8 +144,8 @@ export const Slider = memo(function Slider({
       </View>
       {showLimits ? (
         <View style={[logicalRow(direction), { justifyContent: 'space-between' }]}>
-          <Text variant="caption" tone="tertiary">{formatValue(min)}</Text>
-          <Text variant="caption" tone="tertiary">{formatValue(max)}</Text>
+          <Text variant="caption" tone="tertiary" value={formatValue(min)} />
+          <Text variant="caption" tone="tertiary" value={formatValue(max)} />
         </View>
       ) : null}
     </View>

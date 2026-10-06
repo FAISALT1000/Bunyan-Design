@@ -1,7 +1,11 @@
 import React, { memo } from 'react';
-import { KeyboardAvoidingView, Pressable, RNModal, ScrollView, StyleSheet, View } from '../RNTheme';
+import { Box } from '../../base/Box';
+import { Inline } from '../../base/Inline';
+import { BaseModal } from '../../base/Modal';
+import { BasePressable } from '../../base/Pressable';
+import { ScrollContainer } from '../../base/ScrollContainer';
+import { Stack } from '../../base/Stack';
 import { useTheme } from '../../hooks';
-import { logicalRow } from '../../utilities/styles';
 import { Heading } from '../Heading';
 import { IconButton } from '../IconButton';
 import { Text } from '../Text';
@@ -13,7 +17,8 @@ export interface BottomSheetProps {
   description?: string;
   children: React.ReactNode;
   dismissible?: boolean;
-  closeLabel?: string;
+  closeAccessibilityLabel?: string;
+  accessibilityLabel?: string;
   testID?: string;
 }
 
@@ -24,58 +29,78 @@ export const BottomSheet = memo(function BottomSheet({
   description,
   children,
   dismissible = true,
-  closeLabel = 'Close bottom sheet',
+  closeAccessibilityLabel = 'Close bottom sheet',
+  accessibilityLabel,
   testID,
 }: BottomSheetProps) {
-  const { theme, direction } = useTheme();
+  const { theme } = useTheme();
+
   return (
-    <RNModal
+    <BaseModal
       transparent
       visible={visible}
       animationType="slide"
-      // Android back button: always handled so it never closes a non-dismissible sheet by default.
-      onRequestClose={() => {
-        if (dismissible) onClose();
-      }}
+      onRequestClose={dismissible ? onClose : undefined}
       statusBarTranslucent
     >
-      {/* Lifts the sheet above the keyboard (e.g. searchable Select). */}
-      <KeyboardAvoidingView style={{ flex: 1 }}>
-        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: theme.color.overlay.scrim }}>
-          {dismissible ? (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={closeLabel}
-              onPress={onClose}
-              style={StyleSheet.absoluteFill}
-            />
-          ) : null}
-          <View
-            testID={testID}
-            accessibilityViewIsModal
-            style={{
-              maxHeight: '90%',
-              padding: theme.spacing.xxl,
-              gap: theme.spacing.lg,
-              borderTopLeftRadius: theme.radius.xl,
-              borderTopRightRadius: theme.radius.xl,
-              backgroundColor: theme.color.surface.elevated,
-              ...theme.shadow.lg,
-            }}
+      <Box
+        flex={1}
+        justifyContent="flex-end"
+        internalStyle={{ backgroundColor: theme.color.overlay.scrim }}
+      >
+        {dismissible ? (
+          <BasePressable
+            accessible={false}
+            importantForAccessibility="no-hide-descendants"
+            minTouchTarget={false}
+            onPress={onClose}
+            baseStyle={{ flex: 1 }}
           >
-            <View style={{ alignSelf: 'center', width: theme.componentHeight.xl, height: theme.borderWidth.thick, borderRadius: theme.radius.pill, backgroundColor: theme.color.border.primary }} />
-            <View style={[logicalRow(direction), { alignItems: 'flex-start', gap: theme.spacing.md }]}>
-              <View style={{ flex: 1 }}>
-                <Heading level={4}>{title}</Heading>
-                {description ? <Text tone="secondary">{description}</Text> : null}
-              </View>
-              {dismissible ? <IconButton icon="close" accessibilityLabel={closeLabel} onPress={onClose} /> : null}
-            </View>
-            {/* flexShrink lets long content scroll inside the 90% sheet instead of overflowing it. */}
-            <ScrollView style={{ flexShrink: 1 }}>{children}</ScrollView>
-          </View>
-        </View>
-      </KeyboardAvoidingView>
-    </RNModal>
+            <Box flex={1} />
+          </BasePressable>
+        ) : null}
+        <Box
+          accessibilityViewIsModal
+          accessibilityLabel={accessibilityLabel ?? title}
+          testID={testID}
+          maxHeight="90%"
+          padding="xxl"
+          internalStyle={[
+            {
+              borderTopStartRadius: theme.radius.xl,
+              borderTopEndRadius: theme.radius.xl,
+              backgroundColor: theme.color.surface.elevated,
+            },
+            theme.shadow.lg,
+          ]}
+        >
+          <Stack gap="lg">
+            <Box
+              alignSelf="center"
+              width={theme.componentHeight.xl}
+              height={theme.borderWidth.thick}
+              radius="pill"
+              internalStyle={{ backgroundColor: theme.color.border.primary }}
+            />
+            <Inline gap="md" alignItems="flex-start">
+              <Stack flex={1} gap="xs">
+                <Heading title={title} level={4} />
+                {description ? <Text value={description} tone="secondary" /> : null}
+              </Stack>
+              {dismissible ? (
+                <IconButton
+                  icon="close"
+                  accessibilityLabel={closeAccessibilityLabel}
+                  onPress={onClose}
+                />
+              ) : null}
+            </Inline>
+            <ScrollContainer keyboardShouldPersistTaps="handled">
+              {children}
+            </ScrollContainer>
+          </Stack>
+        </Box>
+      </Box>
+    </BaseModal>
   );
 });

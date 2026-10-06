@@ -1,13 +1,12 @@
 import React, { forwardRef, memo } from 'react';
-import type { TextInputRef } from '../RNTheme';
 import { useTheme } from '../../hooks';
 import { useText, type TextValue } from '../../i18n';
 import { normalizeDigits } from '../../utilities/numbers';
 import { InlinePicker } from '../InlinePicker';
-import { Input, type InputProps } from '../Input';
+import { BaseInput, type BaseInputHandle, type BaseInputProps } from '../../base/Input';
 import { DEFAULT_PHONE_COUNTRIES, flagEmoji, type PhoneCountry, type PhoneValue } from './countries';
 
-export interface PhoneInputProps extends Omit<InputProps, 'value' | 'defaultValue' | 'onChangeText' | 'onChange' | 'keyboardType' | 'leading'> {
+export interface PhoneInputProps extends Omit<BaseInputProps, 'value' | 'defaultValue' | 'onChangeText' | 'onChange' | 'keyboardType' | 'leading'> {
   value?: PhoneValue | null;
   onChange?: (value: PhoneValue) => void;
   countries?: readonly PhoneCountry[];
@@ -24,7 +23,7 @@ export interface PhoneInputProps extends Omit<InputProps, 'value' | 'defaultValu
  * Phone number with a searchable country-code picker inside the field.
  * Accepts Arabic-Indic digits and drops a leading 0 (`0512…` → `512…`).
  */
-export const PhoneInput = memo(forwardRef<TextInputRef, PhoneInputProps>(function PhoneInput(
+export const PhoneInput = memo(forwardRef<BaseInputHandle, PhoneInputProps>(function PhoneInput(
   {
     value,
     onChange,
@@ -46,7 +45,7 @@ export const PhoneInput = memo(forwardRef<TextInputRef, PhoneInputProps>(functio
   const maxLength = Math.max(...(countries.find(item => item.code === country)?.lengths ?? [15]));
 
   return (
-    <Input
+    <BaseInput
       ref={ref}
       keyboardType="phone-pad"
       inputMode="tel"

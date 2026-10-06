@@ -1,7 +1,12 @@
 import React, { memo, useId } from 'react';
-import { Pressable, ScrollView, View } from '../RNTheme';
+import { Inline } from '../../base/Inline';
+import { BasePressable } from '../../base/Pressable';
+import { ScrollContainer } from '../../base/ScrollContainer';
 import { useTheme } from '../../hooks';
-import { logicalRow } from '../../utilities/styles';
+import {
+  createAccessibilityLabel,
+  createAccessibilityState,
+} from '../../utilities/accessibility';
 import { Text } from '../Text';
 
 export interface TabItem {
@@ -9,7 +14,6 @@ export interface TabItem {
   label: string;
   disabled?: boolean;
   badge?: string;
-  accessibilityLabel?: string;
 }
 
 export interface TabsProps {
@@ -29,63 +33,71 @@ export const Tabs = memo(function Tabs({
   accessibilityLabel = 'Tabs',
   testID,
 }: TabsProps) {
-  const { theme, direction } = useTheme();
+  const { theme } = useTheme();
   const id = useId();
+
   return (
-    <ScrollView
-      testID={testID}
+    <ScrollContainer
       horizontal
       showsHorizontalScrollIndicator={false}
       accessibilityRole="tablist"
       accessibilityLabel={accessibilityLabel}
-      contentContainerStyle={[
-        logicalRow(direction),
-        { gap: variant === 'pill' ? theme.spacing.sm : theme.spacing.none },
-      ]}
+      testID={testID}
+      gap={variant === 'pill' ? 'sm' : 'none'}
     >
-      {items.map((item, index) => {
+      {items.map(item => {
         const selected = item.value === value;
-        const disabled = Boolean(item.disabled);
         return (
-          <Pressable
+          <BasePressable
             key={item.value}
             nativeID={`${id}-${item.value}-tab`}
             accessibilityRole="tab"
-            accessibilityLabel={item.accessibilityLabel ?? (item.badge ? `${item.label}, ${item.badge}` : item.label)}
-            accessibilityHint={`${index + 1} of ${items.length}`}
-            accessibilityState={{ selected, disabled }}
-            disabled={disabled}
-            onPress={() => {
-              // Selecting the active tab again should not re-fire change handlers.
-              if (!selected) onValueChange(item.value);
-            }}
-            style={({ pressed }) => ({
+            accessibilityLabel={createAccessibilityLabel([item.label, item.badge])}
+            accessibilityState={createAccessibilityState({
+              selected,
+              disabled: item.disabled ?? false,
+            })}
+            disabled={item.disabled}
+            onPress={() => onValueChange(item.value)}
+            baseStyle={{
               minHeight: theme.componentHeight.md,
               minWidth: theme.componentHeight.xl,
               paddingHorizontal: theme.spacing.lg,
               alignItems: 'center',
               justifyContent: 'center',
-              borderRadius: variant === 'pill' ? theme.radius.pill : theme.radius.none,
-              borderBottomWidth: variant === 'line' ? theme.borderWidth.medium : theme.borderWidth.none,
-              // Keep the border width constant so the label doesn't jump on selection.
-              borderBottomColor: variant === 'line' && selected ? theme.color.primary.default : theme.color.overlay.transparent,
+              borderRadius: variant === 'pill'
+                ? theme.radius.pill
+                : theme.radius.none,
+              borderBottomWidth: variant === 'line' && selected
+                ? theme.borderWidth.medium
+                : theme.borderWidth.none,
+              borderColor: theme.color.primary.default,
               backgroundColor: variant === 'pill' && selected
                 ? theme.color.primary.subtle
-                : pressed
-                ? theme.color.overlay.subtle
                 : theme.color.overlay.transparent,
-              opacity: disabled ? theme.opacity.disabled : theme.opacity.opaque,
-            })}
+            }}
+            pressedStyle={{ backgroundColor: theme.color.overlay.subtle }}
+            hoveredStyle={{ backgroundColor: theme.color.overlay.subtle }}
+            focusedStyle={{
+              borderColor: theme.color.border.focus,
+              borderWidth: theme.borderWidth.medium,
+            }}
+            disabledStyle={{ opacity: theme.opacity.disabled }}
           >
-            <View style={[logicalRow(direction), { alignItems: 'center', gap: theme.spacing.xs }]}>
-              <Text variant="label" weight={selected ? 'semibold' : 'medium'} tone={selected ? 'link' : 'secondary'}>
-                {item.label}
-              </Text>
-              {item.badge ? <Text variant="caption" tone="tertiary">{item.badge}</Text> : null}
-            </View>
-          </Pressable>
+            <Inline gap="xs" alignItems="center">
+              <Text
+                value={item.label}
+                variant="labelMedium"
+                weight={selected ? 'semibold' : 'medium'}
+                tone={selected ? 'info' : 'secondary'}
+              />
+              {item.badge ? (
+                <Text value={item.badge} variant="caption" tone="tertiary" />
+              ) : null}
+            </Inline>
+          </BasePressable>
         );
       })}
-    </ScrollView>
+    </ScrollContainer>
   );
 });

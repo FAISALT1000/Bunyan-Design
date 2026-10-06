@@ -1,61 +1,65 @@
-import React, { forwardRef, memo, useImperativeHandle, useRef, useState } from 'react';
-import type { TextInputRef } from '../RNTheme';
-import { IconButton } from '../IconButton';
-import { Input, type InputProps } from '../Input';
+import React, { forwardRef, memo, useState } from 'react';
+import type { BaseInputHandle } from '../../base/Input';
+import { warnDeprecated } from '../../utilities/deprecations';
+import {
+  InputField,
+  type SearchInputFieldProps,
+} from '../InputField';
 
-export interface SearchInputProps extends Omit<InputProps, 'leadingIcon' | 'trailing'> {
+/**
+ * @deprecated Use `InputField` with `type="search"`.
+ */
+export type SearchInputProps = Omit<
+  SearchInputFieldProps,
+  'type' | 'label' | 'value' | 'onChangeText'
+> & {
+  label?: string;
+  value?: string;
+  onChangeText?: (value: string) => void;
   clearLabel?: string;
   onClear?: () => void;
-}
+};
 
-export const SearchInput = memo(forwardRef<TextInputRef, SearchInputProps>(function SearchInput(
+/**
+ * @deprecated Use `InputField` with `type="search"`.
+ */
+export const SearchInput = memo(forwardRef<
+  BaseInputHandle,
+  SearchInputProps
+>(function SearchInput(
   {
+    label,
     value,
-    defaultValue,
-    clearLabel = 'Clear search',
+    onChangeText = () => undefined,
+    accessibilityLabel,
+    placeholder,
+    clearLabel,
     onClear,
-    onChangeText,
-    returnKeyType = 'search',
-    editable = true,
     ...props
   },
   ref,
 ) {
-  const inputRef = useRef<TextInputRef>(null);
-  useImperativeHandle(ref, () => inputRef.current as TextInputRef, []);
-  // Track uncontrolled text too, so the clear button also works without `value`.
-  const [internalValue, setInternalValue] = useState(defaultValue ?? '');
-  const isControlled = value !== undefined;
-  const currentValue = isControlled ? value : internalValue;
-
-  const clear = () => {
-    if (!isControlled) {
-      setInternalValue('');
-      inputRef.current?.clear();
-    }
-    onChangeText?.('');
-    onClear?.();
-    inputRef.current?.focus();
-  };
-
+  warnDeprecated(
+    'SearchInput is deprecated. Use <InputField type="search" ... />. It will be removed in 1.0.0.',
+  );
+  // Uncontrolled when `value` is omitted, so the clear button still works.
+  const [innerValue, setInnerValue] = useState('');
+  const currentValue = value ?? innerValue;
   return (
-    <Input
-      ref={inputRef}
-      {...(isControlled ? { value } : {})}
-      {...(defaultValue !== undefined ? { defaultValue } : {})}
-      leadingIcon="search"
-      returnKeyType={returnKeyType}
-      accessibilityRole="search"
-      autoCorrect={false}
-      editable={editable}
-      onChangeText={text => {
-        if (!isControlled) setInternalValue(text);
-        onChangeText?.(text);
+    <InputField
+      ref={ref}
+      type="search"
+      label={label ?? accessibilityLabel ?? placeholder ?? 'Search'}
+      value={currentValue}
+      onChangeText={nextValue => {
+        if (value === undefined) setInnerValue(nextValue);
+        onChangeText(nextValue);
+        if (!nextValue) onClear?.();
       }}
+      {...(accessibilityLabel ? { accessibilityLabel } : {})}
+      {...(placeholder ? { placeholder } : {})}
+      {...(clearLabel ? { clearAccessibilityLabel: clearLabel } : {})}
       {...props}
-      trailing={currentValue && editable ? (
-        <IconButton icon="close" size="small" accessibilityLabel={clearLabel} onPress={clear} />
-      ) : null}
     />
   );
 }));

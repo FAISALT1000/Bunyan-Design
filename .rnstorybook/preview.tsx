@@ -1,23 +1,26 @@
 import React from 'react';
-import { RNTheme } from '../src';
+import { ScrollView, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { Preview } from '@storybook/react-native';
 import { ThemeProvider, useTheme } from '../src';
 
 function StorySurface({ children }: { children: React.ReactNode }) {
   const { theme } = useTheme();
   return (
-    <RNTheme.ScrollView style={{ flex: 1, backgroundColor: theme.color.background.primary }}>
-      <RNTheme.View style={{ padding: theme.spacing.xxl, gap: theme.spacing.lg }}>{children}</RNTheme.View>
-    </RNTheme.ScrollView>
+    <ScrollView style={{ flex: 1, backgroundColor: theme.color.background.primary }}>
+      <View style={{ padding: theme.spacing.xxl, gap: theme.spacing.lg }}>{children}</View>
+    </ScrollView>
   );
 }
 
 const preview: Preview = {
   decorators: [
     Story => (
-      <ThemeProvider>
-        <StorySurface><Story /></StorySurface>
-      </ThemeProvider>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <StorySurface><Story /></StorySurface>
+        </ThemeProvider>
+      </SafeAreaProvider>
     ),
   ],
   parameters: {

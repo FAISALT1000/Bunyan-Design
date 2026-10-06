@@ -24,8 +24,8 @@ function OTPDemo({
     <View style={{ flex: 1, minHeight: 640 }}>
       {!visible ? (
         <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1, gap: theme.spacing.md }}>
-          <Text tone="secondary">{message || 'Verification closed'}</Text>
-          <Button onPress={() => setVisible(true)}>Open OTP</Button>
+          <Text value={message || 'Verification closed'} tone="secondary" />
+          <Button title="Open OTP" onPress={() => setVisible(true)} />
         </View>
       ) : null}
       <OTPTemplate

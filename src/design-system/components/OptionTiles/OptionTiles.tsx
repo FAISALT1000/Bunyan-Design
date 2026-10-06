@@ -87,8 +87,8 @@ function OptionTileView({ option, selectedValues, onToggle, variant, role, image
           </View>
         ) : null}
         <View style={{ flex: variant === 'image' ? 1 : undefined, gap: theme.spacing.xxs }}>
-          <Text variant="label" weight="semibold" tone={isSelected ? 'link' : 'primary'}>{title}</Text>
-          {description ? <Text variant="caption" tone="secondary">{description}</Text> : null}
+          <Text variant="labelMedium" weight="semibold" internalColor={isSelected ? theme.color.text.link : theme.color.text.primary} value={title} />
+          {description ? <Text variant="caption" tone="secondary" value={description} /> : null}
         </View>
       </View>
       {variant === 'box' && isSelected ? (

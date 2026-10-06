@@ -50,13 +50,13 @@ export const defaultValidationMessages = {
 };
 
 export type ValidationMessageKey = keyof typeof defaultValidationMessages;
-export type ValidationMessage = string | Exclude<TextValue, string>;
+export type ValidationMessageText = string | Exclude<TextValue, string>;
 
-let current: Record<ValidationMessageKey, ValidationMessage> = { ...defaultValidationMessages };
+let current: Record<ValidationMessageKey, ValidationMessageText> = { ...defaultValidationMessages };
 
 /** Override default messages app-wide (merge). Call once at start-up, before schemas are created. */
-export const setValidationMessages = (messages: Partial<Record<ValidationMessageKey, ValidationMessage>>) => {
+export const setValidationMessages = (messages: Partial<Record<ValidationMessageKey, ValidationMessageText>>) => {
   current = { ...current, ...messages };
 };
 
-export const getValidationMessage = (key: ValidationMessageKey): ValidationMessage => current[key];
+export const getValidationMessage = (key: ValidationMessageKey): ValidationMessageText => current[key];

@@ -1,7 +1,6 @@
 import React, { memo, useId } from 'react';
-import { View } from '../RNTheme';
-import { useTheme } from '../../hooks';
-import { logicalRow } from '../../utilities/styles';
+import { Inline } from '../../base/Inline';
+import { Stack } from '../../base/Stack';
 import { Text } from '../Text';
 
 export interface FormFieldRenderProps {
@@ -19,8 +18,9 @@ export interface FormFieldProps {
   success?: string;
   required?: boolean;
   optionalLabel?: string;
-  /** Show `(Optional)` next to non-required labels. Default `true`. */
+  /** Show the "(Optional)" hint next to fields that are not required. Default `true`. */
   showOptional?: boolean;
+  testID?: string;
 }
 
 export const FormField = memo(function FormField({
@@ -32,8 +32,8 @@ export const FormField = memo(function FormField({
   required = false,
   optionalLabel = 'Optional',
   showOptional = true,
+  testID,
 }: FormFieldProps) {
-  const { theme, direction } = useTheme();
   const id = useId();
   const renderProps: FormFieldRenderProps = {
     inputId: `${id}-input`,
@@ -43,20 +43,45 @@ export const FormField = memo(function FormField({
   };
 
   return (
-    <View style={{ gap: theme.spacing.sm }}>
-      <View style={[logicalRow(direction), { alignItems: 'baseline', gap: theme.spacing.xs }]}>
-        <Text nativeID={renderProps.labelId} variant="label" weight="semibold">
-          {label}{required ? ' *' : ''}
-        </Text>
-        {!required && showOptional ? <Text variant="caption" tone="tertiary">({optionalLabel})</Text> : null}
-      </View>
-      {description ? <Text nativeID={renderProps.descriptionId} variant="caption" tone="secondary">{description}</Text> : null}
+    <Stack gap="sm" testID={testID}>
+      <Inline gap="xs" alignItems="baseline">
+        <Text
+          value={`${label}${required ? ' *' : ''}`}
+          nativeID={renderProps.labelId}
+          variant="labelMedium"
+          weight="semibold"
+        />
+        {!required && showOptional ? (
+          <Text value={`(${optionalLabel})`} variant="caption" tone="tertiary" />
+        ) : null}
+      </Inline>
+      {description ? (
+        <Text
+          value={description}
+          nativeID={renderProps.descriptionId}
+          variant="caption"
+          tone="secondary"
+        />
+      ) : null}
       {typeof children === 'function' ? children(renderProps) : children}
       {error ? (
-        <Text nativeID={renderProps.errorId} accessibilityRole="alert" variant="caption" tone="error">{error}</Text>
+        <Text
+          value={error}
+          nativeID={renderProps.errorId}
+          accessibilityRole="alert"
+          accessibilityLiveRegion="assertive"
+          variant="caption"
+          tone="error"
+        />
       ) : success ? (
-        <Text accessibilityRole="alert" variant="caption" tone="success">{success}</Text>
+        <Text
+          value={success}
+          accessibilityRole="alert"
+          accessibilityLiveRegion="polite"
+          variant="caption"
+          tone="success"
+        />
       ) : null}
-    </View>
+    </Stack>
   );
 });

@@ -88,7 +88,7 @@ export const DateRangePicker = memo(function DateRangePicker({
     const max = isFrom ? earlier(maximumDate, to) : maximumDate;
     return (
       <View style={{ flex: layout === 'row' ? 1 : undefined, gap: theme.spacing.xs }}>
-        <Text variant="caption" tone="secondary">{label}</Text>
+        <Text variant="caption" tone="secondary" value={label} />
         <DatePicker
           {...(isFrom ? (from ? { value: from } : {}) : (to ? { value: to } : {}))}
           onChange={date => onChange({ from, to, [which]: date })}

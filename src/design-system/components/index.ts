@@ -28,6 +28,8 @@ export * from './Icon';
 export * from './IconButton';
 export * from './InlinePicker';
 export * from './Input';
+export * from './InputField';
+export * from './Line';
 export * from './Link';
 export * from './List';
 export * from './ListItem';
@@ -51,5 +53,6 @@ export * from './Text';
 export * from './TextArea';
 export * from './Toast';
 export * from './Tooltip';
+
 // Themed React Native primitives (the design system's only gateway to `react-native`).
 export { RNTheme } from './RNTheme';

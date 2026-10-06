@@ -71,7 +71,7 @@ export const InlinePicker = memo(function InlinePicker({
           { alignItems: 'center', gap: theme.spacing.xxs, paddingVertical: theme.spacing.xs, opacity: pressed ? theme.opacity.strong : theme.opacity.opaque },
         ]}
       >
-        <Text weight="semibold" style={{ writingDirection: 'ltr' }}>{current?.short ?? value}</Text>
+        <Text weight="semibold" internalStyle={{ writingDirection: 'ltr' }} value={current?.short ?? value} />
         <Icon name="chevron-down" size="xs" tone="secondary" />
       </Pressable>
       <BottomSheet visible={open} onClose={close} title={title}>
@@ -87,7 +87,7 @@ export const InlinePicker = memo(function InlinePicker({
               ...(option.description ? { description: option.description } : {}),
               selected: option.value === value,
               showChevron: false,
-              trailing: <Text tone="secondary" style={{ writingDirection: 'ltr' }}>{option.short}</Text>,
+              trailing: <Text tone="secondary" internalStyle={{ writingDirection: 'ltr' }} value={option.short} />,
               onPress: () => {
                 if (option.value !== value) onChange(option.value);
                 close();

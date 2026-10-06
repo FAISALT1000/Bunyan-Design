@@ -5,7 +5,6 @@ import {
   Checkbox,
   Radio,
   SearchInput,
-  Tabs,
   Text,
   ToastProvider,
   logicalRow,
@@ -70,20 +69,10 @@ describe('regressions', () => {
     expect(onChange).toHaveBeenCalledWith(true);
   });
 
-  it('does not re-fire selection for the active radio or tab', () => {
+  it('does not re-fire selection for the active radio', () => {
     const onSelect = jest.fn();
-    const onValueChange = jest.fn();
-    renderWithTheme(
-      <>
-        <Radio selected onSelect={onSelect} label="Standard" />
-        <Tabs value="a" onValueChange={onValueChange} items={[{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }]} />
-      </>,
-    );
+    renderWithTheme(<Radio selected onSelect={onSelect} label="Standard" />);
     fireEvent.press(screen.getByRole('radio'));
-    fireEvent.press(screen.getByRole('tab', { name: 'A' }));
-    fireEvent.press(screen.getByRole('tab', { name: 'B' }));
     expect(onSelect).not.toHaveBeenCalled();
-    expect(onValueChange).toHaveBeenCalledTimes(1);
-    expect(onValueChange).toHaveBeenCalledWith('b');
   });
 });

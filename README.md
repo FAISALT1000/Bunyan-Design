@@ -2,14 +2,81 @@
 
 A strongly typed React Native design system for iOS, Android, and web. Bunyan supports light, dark, and true-black themes; English and Arabic; LTR and RTL layouts; WCAG 2.2 AA-oriented interaction patterns; and controlled component customization through semantic variants.
 
+## Quick start
+
+```bash
+npm install @bunyan/design-system
+npm install @react-native-community/datetimepicker react-native-safe-area-context react-native-svg
+npx @bunyan/design-system setup
+cd ios && pod install && cd ..
+npm run validate:design-system
+```
+
+```tsx
+export default function App() {
+  return (
+    <DesignSystemSetup locale="en" themePreference="system">
+      <ApplicationRoot />
+    </DesignSystemSetup>
+  );
+}
+```
+
+Use `--navigation=rnn` with the setup generator for Wix React Native
+Navigation. The complete installation, native, provider, adapter, navigation,
+Metro, TypeScript, and testing guide is in [docs/SETUP.md](docs/SETUP.md).
+
+## Installation and peer dependencies
+
+The package supports npm, Yarn, pnpm, local `.tgz` archives, and local paths.
+React and React Native stay owned by the consuming application. The actual
+required peers and optional integrations are listed in
+[docs/SETUP.md](docs/SETUP.md#dependencies).
+
+## Native, provider, theme, localization, RTL, and adapter setup
+
+The generated `DesignSystemSetup` composes safe area, application adapters,
+localization, and theme providers in the required order. It includes typed
+light/dark/black configuration, English/Arabic starter resources, controlled
+locale and theme preference, and optional Wix React Native Navigation files.
+See [docs/SETUP.md](docs/SETUP.md#generated-setup).
+
+## Forms, validation, lists, and responsive layout
+
+- [docs/FORMS.md](docs/FORMS.md): declarative `<Form fields={[...]}>` on Formik,
+  with Yup shipped inside Bunyan (`import { Yup } from '@bunyan/design-system'`)
+  and extra rules such as `mobileNumber()`, `email('gmail')`, `password()`,
+  `minMax()`, `noEmojis()`, and `onlyArabicAlphabetic()`.
+- `List<T>`: renders any component per data item (`Component`, `data`,
+  `formatItem`, `shareProps`, columns, dividers, loading and empty states).
+- [docs/RESPONSIVE.md](docs/RESPONSIVE.md): `useResponsive()`, breakpoint maps,
+  `s/vs/ms` scaling, and `createTheme`/`createThemes` for each project's own tokens.
+- [docs/AI_PROMPTS.md](docs/AI_PROMPTS.md): prompts that teach AI assistants to
+  build screens with Bunyan.
+- `RNTheme`: the only module that imports `react-native`; all other code uses
+  its themed primitives or `createThemedComponent`.
+
+## Troubleshooting and upgrading
+
+Use [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) for Metro, duplicate
+React, native module, icon, font, RTL, theme, navigation, and local archive
+issues. Use [docs/UPGRADING.md](docs/UPGRADING.md) for version verification,
+deprecated APIs, cache refresh, and native dependency changes.
+
 ## 1. Architecture overview
 
-The system has four dependency directions:
+The system has six dependency directions:
 
 1. Primitive tokens contain raw values and never import components.
 2. Themes map primitives to semantic roles such as `color.text.secondary`.
 3. Utilities resolve direction, size, and state from the active theme.
 4. Components consume semantic tokens through `useTheme`.
+5. Templates compose components into reusable screen structures without owning
+   product data or business logic.
+6. Hooks expose reusable behavior, while adapters isolate navigation and
+   project-selected native libraries from the design-system package.
+7. Localization receives project-owned resources through a provider; the
+   package never imports application translation files.
 
 Components never depend on product screens. Product code may compose components, but should not reach into component internals. This keeps visual changes centralized and makes theme, RTL, and accessibility behavior consistent.
 
@@ -73,13 +140,22 @@ function ThemeSettings() {
 src/
   design-system/
     components/
-      RNTheme/                 # themed RN primitives; native.ts is the only react-native import
-      createThemedComponent/   # factory used by RNTheme (and available to apps)
       Button/
         Button.tsx
         Button.stories.tsx
         index.ts
+    templates/
+      BaseScreenTemplate/
+        BaseScreenTemplate.tsx
+        BaseScreenTemplate.types.ts
+        BaseScreenTemplate.styles.ts
+        BaseScreenTemplate.test.tsx
+        BaseScreenTemplate.stories.tsx
+        index.ts
     hooks/
+    navigation/
+    application/
+    adapters/
     providers/
     themes/
     tokens/
@@ -91,131 +167,104 @@ tests/
 docs/
 ```
 
-## 5. RNTheme: the React Native boundary
-
-Design-system code never imports from `react-native` directly. All primitives come
-from `src/design-system/components/RNTheme`, and
-`components/RNTheme/native.ts` is the **only** file allowed to import
-`react-native` (a test enforces this).
-
-```tsx
-// inside a component
-import { Pressable, View, type ViewRef } from '../RNTheme';
-```
-
-Every primitive is built with `createThemedComponent`, so it reads the active theme
-and accepts an optional `themeStyle` resolver:
-
-| Primitive | Theme defaults |
-| --- | --- |
-| `View`, `Pressable`, `Image`, `RNModal` | none (layout-neutral), `themeStyle` + ref forwarding |
-| `RNText` | text colour, direction-aware font family, `writingDirection`, font scaling capped at 2x |
-| `TextInput` | text/placeholder/selection/cursor colours, font family |
-| `ScrollView` | indicator style per mode, `keyboardShouldPersistTaps="handled"` |
-| `ActivityIndicator` | primary colour |
-| `RNSwitch` | track colours |
-| `KeyboardAvoidingView` | `behavior="padding"` on iOS |
-
-Non-visual APIs (`Animated`, `Platform`, `Linking`, `StyleSheet`, `I18nManager`,
-`AccessibilityInfo`, `Appearance`) and common types are re-exported from the same module.
-
-App code can use the namespace export:
-
-```tsx
-import { RNTheme, createThemedComponent } from '@bunyan/design-system';
-
-<RNTheme.View themeStyle={({ theme }) => ({ padding: theme.spacing.lg })} />;
-
-const Surface = createThemedComponent(RNTheme.View, {
-  displayName: 'Surface',
-  baseStyle: ({ theme }) => ({ backgroundColor: theme.color.surface.primary }),
-});
-```
-
-Style layers merge as `baseStyle` → `themeStyle` → `style` (explicit `style` wins).
-Pressable-style `(state) => style` functions keep working. Explicit `undefined`
-props never erase a theme default.
-
-### RTL
-
-`logicalRow`, `logicalText` and `logicalAlignItems` mirror only when the provider
-direction differs from the native `I18nManager` direction. React Native already
-mirrors layout and swaps `left`/`right` text alignment in native RTL, so
-mirroring again would render RTL apps left-to-right.
-
-### Forms
-
-```tsx
-<Form
-  initialValues={{ direction: '0', period: {} }}
-  validationSchema={Yup.object({ period: Yup.mixed().dateRange(true, true) })}
-  onSubmit={applyFilter}
-  fields={[
-    isRajhi && { type: 'ChipsGroup', name: 'direction', data: [{ text: { localeKey: 'tx.all' }, value: '0' }] },
-    { type: 'DateRangePicker', name: 'period', fromLabel: { localeKey: 'common.from' }, maximumDate: new Date(), showHijriToggle: true },
-  ]}
-/>
-```
-
-Formik + Yup under the hood. Yup ships inside Bunyan with extra rules — `mobileNumber()`, `password()`, `email('gmail')`, `minMax()`, `noEmojis()`, `noSpecialChar()`, `onlyEnglishAlphabetic()`, `onlyArabicAlphabetic()`, `onlyENAndARAlphabetic()`, `saudiNationalId()`, `iban()`, `sameAs()`… — via `import { Form, Yup } from '@bunyan/design-system'`; apps don't install `yup`. Texts accept `{ localeKey }` (pass `translate` to `ThemeProvider`), and projects can register their own field types. Full guide: [docs/FORMS.md](docs/FORMS.md).
-
-### Responsive layout & your own tokens
-
-```tsx
-const r = useResponsive();            // r.breakpoint, r.up('medium'), r.select({ compact: 1, medium: 2 }), r.ms(18)
-const useStyles = makeStyles((theme, r) => ({ title: { fontSize: r.ms(theme.typography.fontSize.xl) } }));
-<List Component={Card} data={items} columns={{ compact: 1, medium: 2, expanded: 4 }} />
-```
-
-Bring your own tokens with `createThemes({ shared, light, dark })` + `<ThemeProvider themes={...}>`, and your own breakpoint names / design canvas with `createResponsive({ breakpoints, guidelineWidth })`. Plain JavaScript, no native module, updates on rotation and window resize. Full guide: [docs/RESPONSIVE.md](docs/RESPONSIVE.md).
-
-## 6. Base component implementation
+## 5. Base component implementation
 
 `Text`, `Heading`, `Icon`, `Button`, and `Input` are the base primitives. Higher-level components compose them instead of recreating typography, icons, interaction states, or form chrome.
 
 ```tsx
 <Button
+  title="Continue"
   variant="primary"
   size="large"
   loading={false}
   disabled={false}
   fullWidth
-  trailingIcon="chevron-right"
->
-  Continue
-</Button>
+  rightIcon="chevron-right"
+/>
 ```
 
-## 7. Components
+## 6. Components
 
 All component contracts and guidance are in [docs/COMPONENTS.md](docs/COMPONENTS.md).
 
-A full illustrated reference (every component and variant in light, dark and Arabic RTL, plus tokens, hooks and utilities) is in [docs/Bunyan-Design-System-Reference.pdf](docs/Bunyan-Design-System-Reference.pdf). Ready-made prompts for AI assistants are in [docs/AI_PROMPTS.md](docs/AI_PROMPTS.md).
+Localization setup, fallbacks, RTL behavior, and project-owned typed keys are
+documented in [docs/LOCALIZATION.md](docs/LOCALIZATION.md).
 
-## 8. Tests
+## Template layer
+
+The template layer provides typed, safe-area-aware screen structures for forms,
+lists, details, confirmations, results, authentication, dashboards, stepped
+flows, empty/error states, and bottom actions. Templates use only Bunyan
+components and semantic tokens; applications supply content and callbacks.
+
+```tsx
+<ResultScreenTemplate
+  status={{ type: 'success' }}
+  title="Transfer completed"
+  referenceNumber="TRX-123456"
+  primaryAction={{ label: 'Done', onPress: handleDone }}
+/>
+```
+
+Architecture, contracts, examples, accessibility behavior, RTL guidance, and
+do/don't rules are in [docs/TEMPLATES.md](docs/TEMPLATES.md).
+
+## Hooks and application adapters
+
+Bunyan includes portable hooks for application state, keyboard, safe areas,
+debouncing, previous values, toggles, disclosure, asynchronous actions,
+accessibility, and RTL. Network status, clipboard, haptics, and permissions use
+dependency-injected application adapters.
+
+Navigation is framework-neutral at the hook boundary and includes a structural
+adapter for Wix React Native Navigation. Consuming projects own all screen names,
+screen props, IDs, options, registration, and root layouts.
+
+```ts
+const adapter = createReactNativeNavigationAdapter<
+  AppScreenParams,
+  AppLayout,
+  AppOptions,
+  AppComponentId
+>({ navigation: Navigation });
+
+const { NavigationScreenProvider, useNavigation } = createNavigation<
+  AppScreenParams,
+  AppLayout,
+  AppOptions,
+  AppComponentId
+>();
+```
+
+See [docs/HOOKS_AND_ADAPTERS.md](docs/HOOKS_AND_ADAPTERS.md) for complete Wix
+setup, typed command examples, native adapter integration, hook contracts, and
+testing guidance.
+
+## 7. Tests
 
 ```bash
 npm install
 npm run typecheck
 npm test
 npm run test:coverage
-npm run verify   # typecheck + tests
 ```
-
-### Packaging
-
-```bash
-npm run pack
-```
-
-Runs `npm i && npm pack`. `npm pack` triggers `prepack`, which cleans and rebuilds
-`dist/` first, so the tarball (`bunyan-design-system-<version>.tgz`) always ships
-fresh compiled output. Install it elsewhere with
-`npm i ./path/to/bunyan-design-system-<version>.tgz`.
 
 The suite covers tokens, themes, accessibility roles and states, interactions, form errors, loading behavior, and Arabic RTL rendering. Snapshots are intentionally reserved for stable visual structures; behavior assertions are preferred.
 
-## 9. Storybook
+See [docs/HEALTH_CHECK.md](docs/HEALTH_CHECK.md) for the latest focused
+architecture, accessibility, theme-validation, and migration audit.
+
+Safe semantic-version package generation and local `.tgz` installation are
+documented in [docs/PACKAGING.md](docs/PACKAGING.md).
+
+Consumer troubleshooting and upgrades:
+
+- [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
+- [docs/UPGRADING.md](docs/UPGRADING.md)
+- [docs/CROSS_PLATFORM_GUIDELINES.md](docs/CROSS_PLATFORM_GUIDELINES.md)
+- [docs/INPUT_FIELD_AND_LINK_MIGRATION.md](docs/INPUT_FIELD_AND_LINK_MIGRATION.md)
+
+## 8. Storybook
 
 React Native Storybook 10 configuration lives in `.rnstorybook`. It includes on-device controls and actions.
 
@@ -234,7 +283,7 @@ Use `storybook:android` or `storybook:web` for the other platforms.
 Do not use Node 21 or 23 with Metro. The repository `.nvmrc` selects the
 supported Node 22.23.0 installation.
 
-## 10. Usage
+## 9. Usage
 
 ```tsx
 import {
@@ -260,7 +309,7 @@ export function AccountForm() {
             />
           )}
         </FormField>
-        <Button fullWidth>Continue</Button>
+        <Button title="Continue" fullWidth />
       </ToastProvider>
     </ThemeProvider>
   );

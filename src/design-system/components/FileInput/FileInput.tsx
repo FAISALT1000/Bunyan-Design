@@ -136,8 +136,8 @@ export const FileInput = memo(function FileInput({
           })}
         >
           {busy ? <Spinner label="" /> : <Icon name="upload" size="lg" tone="secondary" />}
-          <Text weight="semibold" tone="link" align="center">{t(title)}</Text>
-          {hintText ? <Text variant="caption" tone="tertiary" align="center">{hintText}</Text> : null}
+          <Text weight="semibold" internalColor={theme.color.text.link} align="center" value={t(title) ?? ""} />
+          {hintText ? <Text variant="caption" tone="tertiary" align="center" value={hintText} /> : null}
         </Pressable>
       ) : null}
       {files.map((file, index) => (
@@ -158,8 +158,8 @@ export const FileInput = memo(function FileInput({
         >
           <Icon name={file.type?.startsWith('image/') ? 'image' : 'file'} size="md" tone="secondary" />
           <View style={{ flex: 1 }}>
-            <Text variant="label" weight="medium" numberOfLines={1}>{file.name}</Text>
-            {file.size ? <Text variant="caption" tone="tertiary">{formatFileSize(file.size)}</Text> : null}
+            <Text variant="labelMedium" weight="medium" numberOfLines={1} value={file.name} />
+            {file.size ? <Text variant="caption" tone="tertiary" value={formatFileSize(file.size)} /> : null}
           </View>
           <IconButton
             icon="trash"

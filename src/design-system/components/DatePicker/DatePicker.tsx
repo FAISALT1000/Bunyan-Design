@@ -1,13 +1,12 @@
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useState } from 'react';
+import { View } from '../RNTheme';
+import { Platform } from '../RNTheme/native';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { Platform, Pressable, View } from '../RNTheme';
 import { useTheme } from '../../hooks';
-import { heightForSize, logicalRow, statusBorderColor, type ComponentSize, type FeedbackStatus } from '../../utilities/styles';
+import type { FeedbackStatus } from '../../utilities/styles';
 import { BottomSheet } from '../BottomSheet';
 import { Button } from '../Button';
-import { Icon } from '../Icon';
-import { IconButton } from '../IconButton';
-import { Text } from '../Text';
+import { InputField } from '../InputField';
 
 export interface DatePickerProps {
   value?: Date;
@@ -16,44 +15,19 @@ export interface DatePickerProps {
   maximumDate?: Date;
   locale?: string;
   placeholder?: string;
-  title?: string;
   disabled?: boolean;
   status?: FeedbackStatus;
-  size?: ComponentSize;
   accessibilityLabel?: string;
   clearable?: boolean;
+  /** Sheet title. Defaults to `placeholder`. */
+  title?: string;
+  /** Accessibility label of the clear button. Default `'Clear date'`. */
   clearLabel?: string;
+  /** Text of the iOS confirm button. Default `'Confirm'`. */
   confirmLabel?: string;
-  /**
-   * Display format. Defaults to the Gregorian calendar so the label matches the
-   * (Gregorian) native picker — `ar-SA` would otherwise format as Hijri.
-   * Pass `{ calendar: 'islamic-umalqura' }` to opt into Hijri display.
-   */
+  /** Overrides of the displayed date format (`calendar`, `month`…). */
   formatOptions?: Intl.DateTimeFormatOptions;
-  testID?: string;
 }
-
-const clampDate = (date: Date, min?: Date, max?: Date) => {
-  if (min && date < min) return min;
-  if (max && date > max) return max;
-  return date;
-};
-
-const DEFAULT_FORMAT: Intl.DateTimeFormatOptions = {
-  calendar: 'gregory',
-  year: 'numeric',
-  month: 'short',
-  day: 'numeric',
-};
-
-const formatDate = (date: Date, locale: string, options: Intl.DateTimeFormatOptions) => {
-  try {
-    return new Intl.DateTimeFormat(locale, options).format(date);
-  } catch {
-    // Invalid locale tags throw a RangeError; fall back to the runtime default.
-    return new Intl.DateTimeFormat(undefined, options).format(date);
-  }
-};
 
 export const DatePicker = memo(function DatePicker({
   value,
@@ -62,36 +36,20 @@ export const DatePicker = memo(function DatePicker({
   maximumDate,
   locale,
   placeholder = 'Select date',
-  title,
   disabled = false,
   status = 'default',
-  size = 'medium',
   accessibilityLabel = 'Date',
   clearable = true,
+  title,
   clearLabel = 'Clear date',
   confirmLabel = 'Confirm',
   formatOptions,
-  testID,
 }: DatePickerProps) {
-  const { theme, direction, locale: themeLocale } = useTheme();
+  const { theme, locale: themeLocale } = useTheme();
   const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState(() => clampDate(value ?? new Date(), minimumDate, maximumDate));
+  const [draft, setDraft] = useState(value ?? new Date());
   const resolvedLocale = locale ?? themeLocale;
-  const formatted = useMemo(
-    () => (value ? formatDate(value, resolvedLocale, { ...DEFAULT_FORMAT, ...formatOptions }) : ''),
-    [formatOptions, resolvedLocale, value],
-  );
-  const limits = {
-    ...(minimumDate ? { minimumDate } : {}),
-    ...(maximumDate ? { maximumDate } : {}),
-  };
-
-  const openPicker = () => {
-    if (disabled) return;
-    setDraft(clampDate(value ?? new Date(), minimumDate, maximumDate));
-    setOpen(true);
-  };
-
+  const formatted = value ? new Intl.DateTimeFormat(resolvedLocale, { year: 'numeric', month: 'short', day: 'numeric', ...formatOptions }).format(value) : '';
   const handleNativeChange = (event: DateTimePickerEvent, next?: Date) => {
     if (Platform.OS === 'android') {
       setOpen(false);
@@ -103,59 +61,41 @@ export const DatePicker = memo(function DatePicker({
 
   return (
     <>
-      {/*
-        A pressable trigger instead of a read-only TextInput: the old approach always
-        rendered in the disabled style and onPressIn on non-editable inputs is unreliable.
-      */}
-      <View
-        testID={testID}
-        style={[
-          logicalRow(direction),
-          {
-            minHeight: heightForSize(theme, size),
-            alignItems: 'center',
-            borderRadius: theme.radius.md,
-            borderWidth: theme.borderWidth.thin,
-            borderColor: statusBorderColor(theme, status),
-            backgroundColor: disabled ? theme.color.disabled.background : theme.color.surface.primary,
-            opacity: disabled ? theme.opacity.disabled : theme.opacity.opaque,
-            overflow: 'hidden',
-          },
-        ]}
-      >
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={accessibilityLabel}
-          accessibilityValue={{ text: formatted || placeholder }}
-          accessibilityState={{ disabled, expanded: open }}
-          aria-invalid={status === 'error'}
-          disabled={disabled}
-          onPress={openPicker}
-          style={({ pressed }) => [
-            logicalRow(direction),
-            {
-              flex: 1,
-              alignSelf: 'stretch',
-              alignItems: 'center',
-              gap: theme.spacing.sm,
-              paddingHorizontal: theme.spacing.md,
-              backgroundColor: pressed ? theme.color.overlay.subtle : theme.color.overlay.transparent,
-            },
-          ]}
-        >
-          <Icon name="calendar" size="md" tone="secondary" />
-          <Text tone={value ? 'primary' : 'tertiary'} style={{ flex: 1 }} numberOfLines={1}>
-            {formatted || placeholder}
-          </Text>
-        </Pressable>
-        {clearable && value && !disabled ? (
-          <IconButton icon="close" size="small" accessibilityLabel={clearLabel} onPress={() => onChange(undefined)} />
-        ) : null}
-      </View>
-      {Platform.OS === 'android' ? (
-        open ? (
-          <DateTimePicker value={draft} mode="date" {...limits} locale={resolvedLocale} onChange={handleNativeChange} />
-        ) : null
+      <InputField
+        type="text"
+        label={accessibilityLabel}
+        value={formatted}
+        onChangeText={() => undefined}
+        placeholder={placeholder}
+        readOnly
+        disabled={disabled}
+        state={status}
+        accessibilityLabel={accessibilityLabel}
+        accessibilityRole="button"
+        onPressIn={() => {
+          if (!disabled) {
+            setDraft(value ?? new Date());
+            setOpen(true);
+          }
+        }}
+        leftIcon="calendar"
+        {...(clearable && value
+          ? {
+              rightIcon: 'close' as const,
+              rightIconAccessibilityLabel: clearLabel,
+              onRightIconPress: () => onChange(undefined),
+            }
+          : {})}
+      />
+      {Platform.OS === 'android' && open ? (
+        <DateTimePicker
+          value={draft}
+          mode="date"
+          {...(minimumDate ? { minimumDate } : {})}
+          {...(maximumDate ? { maximumDate } : {})}
+          locale={resolvedLocale}
+          onChange={handleNativeChange}
+        />
       ) : (
         <BottomSheet visible={open} onClose={() => setOpen(false)} title={title ?? placeholder}>
           <View style={{ gap: theme.spacing.lg, alignItems: 'stretch' }}>
@@ -163,21 +103,19 @@ export const DatePicker = memo(function DatePicker({
               value={draft}
               mode="date"
               display={Platform.OS === 'ios' ? 'inline' : 'default'}
-              {...limits}
+              {...(minimumDate ? { minimumDate } : {})}
+              {...(maximumDate ? { maximumDate } : {})}
               locale={resolvedLocale}
-              themeVariant={theme.mode === 'light' ? 'light' : 'dark'}
-              accentColor={theme.color.primary.default}
               onChange={handleNativeChange}
             />
             <Button
+              title={confirmLabel}
               fullWidth
               onPress={() => {
-                onChange(clampDate(draft, minimumDate, maximumDate));
+                onChange(draft);
                 setOpen(false);
               }}
-            >
-              {confirmLabel}
-            </Button>
+            />
           </View>
         </BottomSheet>
       )}

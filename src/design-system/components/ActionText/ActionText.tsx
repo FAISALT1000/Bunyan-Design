@@ -1,6 +1,8 @@
 import React, { memo } from 'react';
+import { useTheme } from '../../hooks';
 import { useText, type TextValue } from '../../i18n';
 import type { LogicalAlign } from '../../utilities/styles';
+import { RNText as NativeText } from '../RNTheme';
 import { Text, type TextVariant } from '../Text';
 
 export interface ActionTextProps {
@@ -28,26 +30,30 @@ export const ActionText = memo(function ActionText({
   disabled = false,
   testID,
 }: ActionTextProps) {
+  const { theme } = useTheme();
   const t = useText();
   const lead = t(text);
   const tail = t(trailingText);
   return (
-    <Text testID={testID} variant={variant} tone="secondary" align={align}>
-      {lead ? `${lead} ` : ''}
-      <Text
-        variant={variant}
-        tone="link"
-        weight="semibold"
+    <NativeText testID={testID}>
+      {/* Nested native Text keeps the sentence wrapping as one paragraph. */}
+      <Text variant={variant} tone="secondary" align={align} value={lead ? `${lead} ` : ''} />
+      <NativeText
         accessibilityRole="link"
         accessibilityState={{ disabled }}
         disabled={disabled}
         suppressHighlighting
         onPress={disabled ? undefined : onPress}
-        style={{ textDecorationLine: 'underline' }}
       >
-        {t(actionText)}
-      </Text>
-      {tail ? ` ${tail}` : ''}
-    </Text>
+        <Text
+          variant={variant}
+          weight="semibold"
+          decoration="underline"
+          internalColor={disabled ? theme.color.disabled.text : theme.color.text.link}
+          value={t(actionText) ?? ''}
+        />
+      </NativeText>
+      {tail ? <Text variant={variant} tone="secondary" value={` ${tail}`} /> : null}
+    </NativeText>
   );
 });

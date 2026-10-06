@@ -1,10 +1,11 @@
 import { useCallback } from 'react';
-import { useTheme } from '../hooks/useTheme';
-import { resolveText, type TextValue } from './text';
+import { useOptionalLocalization } from '../localization/useLocalization';
+import { resolveText, type TextValue, type TranslateFn } from './text';
 
 /**
- * Returns `t(value)` that turns a `TextValue` into a string using the translate
- * function given to `ThemeProvider`.
+ * Returns `t(value)` that turns a `TextValue` into a string using the
+ * `DesignSystemLocalizationProvider` translations (i18n-js). Outside the
+ * provider, or for a missing key, `fallback` (or the key) is shown.
  *
  * ```ts
  * const t = useText();
@@ -12,6 +13,10 @@ import { resolveText, type TextValue } from './text';
  * ```
  */
 export function useText() {
-  const { translate } = useTheme();
+  const localization = useOptionalLocalization();
+  const translate = useCallback<TranslateFn>(
+    (key, params) => (localization && localization.exists(key) ? localization.translate(key, params) : key),
+    [localization],
+  );
   return useCallback((value: TextValue | null | undefined) => resolveText(value, translate), [translate]);
 }

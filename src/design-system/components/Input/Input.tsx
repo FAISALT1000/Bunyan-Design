@@ -1,95 +1,119 @@
-import React, { forwardRef, memo, useState } from 'react';
-import { TextInput, View, type TextInputProps, type TextInputRef, type ViewStyle } from '../RNTheme';
-import { useTheme } from '../../hooks';
-import { fontFamilyFor, heightForSize, logicalRow, logicalText, statusBorderColor, type ComponentSize, type FeedbackStatus } from '../../utilities/styles';
-import type { IconName } from '../Icon';
-import { Icon } from '../Icon';
+import React, { forwardRef, memo } from 'react';
+import type {
+  BaseInputHandle,
+  BaseInputProps,
+} from '../../base/Input';
+import type { TranslationOptions } from '../../localization';
+import { warnDeprecated } from '../../utilities/deprecations';
+import { InputField } from '../InputField';
 
-export interface InputProps extends Omit<TextInputProps, 'style'> {
-  size?: ComponentSize;
-  status?: FeedbackStatus;
-  leadingIcon?: IconName;
-  trailing?: React.ReactNode;
-  containerStyle?: Pick<ViewStyle, 'flex' | 'width' | 'maxWidth' | 'minWidth' | 'alignSelf'>;
-  /** Content before the text (after `leadingIcon`), e.g. a country-code picker. */
-  leading?: React.ReactNode;
-  /**
-   * Direction of the typed text. Use `'ltr'` for phone numbers, IBANs, emails and
-   * amounts so they read correctly inside an Arabic UI. Default: the UI direction.
-   */
-  textDirection?: 'ltr' | 'rtl';
+/**
+ * @deprecated Use `InputField`. Scheduled for removal in 1.0.0.
+ */
+export interface InputProps extends BaseInputProps {
+  label?: string;
+  labelLocalize?: string;
+  labelTranslationOptions?: TranslationOptions;
+  placeholderLocalize?: string;
+  placeholderTranslationOptions?: TranslationOptions;
+  helperText?: string;
+  errorText?: string;
+  successText?: string;
 }
 
-export const Input = memo(forwardRef<TextInputRef, InputProps>(function Input(
+/**
+ * @deprecated Use `InputField`. Scheduled for removal in 1.0.0.
+ */
+export const Input = memo(forwardRef<BaseInputHandle, InputProps>(function Input(
   {
-    size = 'medium',
-    status = 'default',
-    leadingIcon,
-    leading,
-    trailing,
-    textDirection,
+    label,
+    labelLocalize,
+    labelTranslationOptions,
+    placeholder,
+    placeholderLocalize,
+    placeholderTranslationOptions,
+    helperText,
+    errorText,
+    successText,
+    status = errorText ? 'error' : successText ? 'success' : 'default',
+    value = '',
+    onChangeText = () => undefined,
     editable = true,
-    containerStyle,
-    onFocus,
+    leftIcon,
+    accessibilityLabel,
+    accessibilityHint,
+    accessibilityLabelledBy,
+    accessibilityRole,
+    testID,
+    autoCapitalize,
+    autoComplete,
+    autoCorrect,
+    autoFocus,
+    inputMode,
+    keyboardType,
+    maxLength,
+    multiline,
+    numberOfLines,
     onBlur,
-    accessibilityState,
-    ...props
+    onFocus,
+    onPressIn,
+    onSubmitEditing,
+    returnKeyType,
+    secureTextEntry,
+    submitBehavior,
+    textContentType,
   },
   ref,
 ) {
-  const { theme, direction } = useTheme();
-  const [focused, setFocused] = useState(false);
-  const disabled = !editable;
+  warnDeprecated(
+    'Input is deprecated. Use <InputField type="text" ... />. It will be removed in 1.0.0.',
+  );
+  const resolvedLabel = label
+    ?? accessibilityLabel
+    ?? placeholder
+    ?? 'Input';
 
   return (
-    <View
-      style={[
-        logicalRow(direction),
-        {
-          minHeight: heightForSize(theme, size),
-          alignItems: 'center',
-          gap: theme.spacing.sm,
-          paddingHorizontal: theme.spacing.md,
-          borderRadius: theme.radius.md,
-          borderWidth: focused ? theme.borderWidth.medium : theme.borderWidth.thin,
-          borderColor: focused ? theme.color.border.focus : statusBorderColor(theme, status),
-          backgroundColor: disabled ? theme.color.disabled.background : theme.color.surface.primary,
-          opacity: disabled ? theme.opacity.disabled : theme.opacity.opaque,
-        },
-        containerStyle,
-      ]}
-    >
-      {leadingIcon ? <Icon name={leadingIcon} size="md" tone="secondary" /> : null}
-      {leading}
-      <TextInput
-        ref={ref}
-        editable={editable}
-        accessibilityState={{ ...accessibilityState, disabled }}
-        aria-invalid={status === 'error'}
-        onFocus={event => {
-          setFocused(true);
-          onFocus?.(event);
-        }}
-        onBlur={event => {
-          setFocused(false);
-          onBlur?.(event);
-        }}
-        {...props}
-        style={[
-          logicalText(direction),
-          textDirection ? { writingDirection: textDirection } : null,
-          {
-            flex: 1,
-            minWidth: theme.spacing.none,
-            color: disabled ? theme.color.disabled.text : theme.color.text.primary,
-            fontFamily: fontFamilyFor(theme, direction),
-            fontSize: theme.typography.fontSize.md,
-            lineHeight: theme.typography.lineHeight.md,
-            paddingVertical: theme.spacing.none,
-          },
-        ]}
-      />
-      {trailing}
-    </View>
+    <InputField
+      ref={ref}
+      type="text"
+      label={resolvedLabel}
+      {...(labelLocalize ? { labelLocalize } : {})}
+      {...(labelTranslationOptions ? { labelTranslationOptions } : {})}
+      value={String(value)}
+      onChangeText={onChangeText}
+      {...(placeholder !== undefined ? { placeholder } : {})}
+      {...(placeholderLocalize ? { placeholderLocalize } : {})}
+      {...(placeholderTranslationOptions
+        ? { placeholderTranslationOptions }
+        : {})}
+      {...(helperText ? { helperText } : {})}
+      {...(errorText ? { errorText } : {})}
+      {...(successText ? { successText } : {})}
+      state={status}
+      disabled={!editable}
+      {...(leftIcon ? { leftIcon } : {})}
+      {...(accessibilityLabel ? { accessibilityLabel } : {})}
+      {...(accessibilityHint ? { accessibilityHint } : {})}
+      {...(accessibilityLabelledBy ? { accessibilityLabelledBy } : {})}
+      {...(accessibilityRole ? { accessibilityRole } : {})}
+      {...(testID ? { testID } : {})}
+      {...(autoCapitalize ? { autoCapitalize } : {})}
+      {...(autoComplete ? { autoComplete } : {})}
+      {...(autoCorrect !== undefined ? { autoCorrect } : {})}
+      {...(autoFocus !== undefined ? { autoFocus } : {})}
+      {...(inputMode ? { inputMode } : {})}
+      {...(keyboardType ? { keyboardType } : {})}
+      {...(maxLength !== undefined ? { maxLength } : {})}
+      numberOfLines={multiline ? numberOfLines ?? 3 : numberOfLines ?? 1}
+      {...(onBlur ? { onBlur } : {})}
+      {...(onFocus ? { onFocus } : {})}
+      {...(onPressIn ? { onPressIn } : {})}
+      {...(onSubmitEditing ? { onSubmitEditing } : {})}
+      {...(returnKeyType ? { returnKeyType } : {})}
+      {...(secureTextEntry !== undefined ? { secureTextEntry } : {})}
+      {...(submitBehavior ? { submitBehavior } : {})}
+      {...(textContentType ? { textContentType } : {})}
+    />
   );
 }));

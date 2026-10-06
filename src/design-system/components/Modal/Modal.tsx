@@ -1,7 +1,15 @@
 import React, { memo, useEffect, useRef } from 'react';
-import { Platform, Pressable, RNModal, ScrollView, StyleSheet, View, type ViewRef } from '../RNTheme';
+import { Platform } from '../RNTheme/native';
+import { BaseModal } from '../../base/Modal';
+import {
+  BasePressable,
+  type BasePressableHandle,
+} from '../../base/Pressable';
+import { Box } from '../../base/Box';
+import { Inline } from '../../base/Inline';
+import { ScrollContainer } from '../../base/ScrollContainer';
+import { Stack } from '../../base/Stack';
 import { useTheme } from '../../hooks';
-import { logicalRow } from '../../utilities/styles';
 import { Button, type ButtonVariant } from '../Button';
 import { Heading } from '../Heading';
 import { IconButton } from '../IconButton';
@@ -25,20 +33,10 @@ export interface ModalProps {
   secondaryAction?: ModalAction;
   dismissible?: boolean;
   size?: 'small' | 'medium' | 'large';
-  closeLabel?: string;
+  closeAccessibilityLabel?: string;
+  accessibilityLabel?: string;
   testID?: string;
 }
-
-const renderAction = (action: ModalAction, fallbackVariant: ButtonVariant) => (
-  <Button
-    variant={action.variant ?? fallbackVariant}
-    onPress={action.onPress}
-    {...(action.disabled !== undefined ? { disabled: action.disabled } : {})}
-    {...(action.loading !== undefined ? { loading: action.loading } : {})}
-  >
-    {action.label}
-  </Button>
-);
 
 export const Modal = memo(function Modal({
   visible,
@@ -50,80 +48,131 @@ export const Modal = memo(function Modal({
   secondaryAction,
   dismissible = true,
   size = 'medium',
-  closeLabel = 'Close modal',
+  closeAccessibilityLabel = 'Close modal',
+  accessibilityLabel,
   testID,
 }: ModalProps) {
-  const { theme, direction } = useTheme();
-  const closeRef = useRef<ViewRef>(null);
+  const { theme } = useTheme();
+  const closeRef = useRef<BasePressableHandle>(null);
 
   useEffect(() => {
-    if (visible && Platform.OS === 'web') {
-      const timer = setTimeout(() => closeRef.current?.focus?.(), theme.motion.duration.fast);
+    if (visible && dismissible && Platform.OS === 'web') {
+      const timer = setTimeout(
+        () => closeRef.current?.focus?.(),
+        theme.motion.duration.fast,
+      );
       return () => clearTimeout(timer);
     }
     return undefined;
-  }, [theme.motion.duration.fast, visible]);
+  }, [dismissible, theme.motion.duration.fast, visible]);
+
+  const maxWidth = size === 'small'
+    ? theme.breakpoint.medium
+    : size === 'large'
+      ? theme.breakpoint.expanded
+      : theme.breakpoint.medium + theme.spacing.huge;
 
   return (
-    <RNModal
+    <BaseModal
       visible={visible}
       transparent
       animationType="fade"
-      onRequestClose={() => {
-        if (dismissible) onClose();
-      }}
+      onRequestClose={dismissible ? onClose : undefined}
       statusBarTranslucent
     >
-      <View
-        style={{
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: theme.spacing.lg,
-          backgroundColor: theme.color.overlay.scrim,
-        }}
+      <Box
+        flex={1}
+        alignItems="center"
+        justifyContent="center"
+        padding="lg"
+        internalStyle={{ backgroundColor: theme.color.overlay.scrim }}
       >
         {dismissible ? (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={closeLabel}
+          <BasePressable
+            accessible={false}
+            importantForAccessibility="no-hide-descendants"
+            minTouchTarget={false}
             onPress={onClose}
-            style={StyleSheet.absoluteFill}
-          />
+            baseStyle={{
+              position: 'absolute',
+              top: theme.spacing.none,
+              bottom: theme.spacing.none,
+              start: theme.spacing.none,
+              end: theme.spacing.none,
+            }}
+          >
+            <Box flex={1} />
+          </BasePressable>
         ) : null}
-        <View
-          testID={testID}
+        <Box
           accessibilityViewIsModal
-          aria-modal
-          role="dialog"
-          accessibilityLabel={title}
-          style={{
-            width: '100%',
-            maxWidth: size === 'small' ? theme.breakpoint.medium : size === 'large' ? theme.breakpoint.expanded : theme.breakpoint.medium + theme.spacing.huge,
-            maxHeight: '90%',
-            backgroundColor: theme.color.surface.elevated,
-            borderRadius: theme.radius.xl,
-            padding: theme.spacing.xxl,
-            gap: theme.spacing.lg,
-            ...theme.shadow.lg,
-          }}
+          accessibilityLabel={accessibilityLabel ?? title}
+          testID={testID}
+          width="100%"
+          maxWidth={maxWidth}
+          maxHeight="90%"
+          padding="xxl"
+          radius="xl"
+          internalStyle={[
+            { backgroundColor: theme.color.surface.elevated },
+            theme.shadow.lg,
+          ]}
         >
-          <View style={[logicalRow(direction), { alignItems: 'flex-start', gap: theme.spacing.md }]}>
-            <View style={{ flex: 1, gap: theme.spacing.xs }}>
-              <Heading level={3}>{title}</Heading>
-              {description ? <Text tone="secondary">{description}</Text> : null}
-            </View>
-            {dismissible ? <IconButton ref={closeRef} icon="close" accessibilityLabel={closeLabel} onPress={onClose} /> : null}
-          </View>
-          <ScrollView style={{ flexShrink: 1 }}>{children}</ScrollView>
-          {primaryAction || secondaryAction ? (
-            <View style={[logicalRow(direction), { justifyContent: 'flex-end', gap: theme.spacing.md, flexWrap: 'wrap' }]}>
-              {secondaryAction ? renderAction(secondaryAction, 'ghost') : null}
-              {primaryAction ? renderAction(primaryAction, 'primary') : null}
-            </View>
-          ) : null}
-        </View>
-      </View>
-    </RNModal>
+          <Stack gap="lg">
+            <Inline gap="md" alignItems="flex-start">
+              <Stack flex={1} gap="xs">
+                <Heading title={title} level={3} />
+                {description ? <Text value={description} tone="secondary" /> : null}
+              </Stack>
+              {dismissible ? (
+                <IconButton
+                  ref={closeRef}
+                  icon="close"
+                  accessibilityLabel={closeAccessibilityLabel}
+                  onPress={onClose}
+                />
+              ) : null}
+            </Inline>
+            <ScrollContainer keyboardShouldPersistTaps="handled">
+              {children}
+            </ScrollContainer>
+            {primaryAction || secondaryAction ? (
+              <Inline
+                gap="md"
+                justifyContent="flex-end"
+                flexWrap="wrap"
+              >
+                {secondaryAction ? (
+                  <Button
+                    title={secondaryAction.label}
+                    onPress={secondaryAction.onPress}
+                    variant={secondaryAction.variant ?? 'ghost'}
+                    {...(secondaryAction.disabled !== undefined
+                      ? { disabled: secondaryAction.disabled }
+                      : {})}
+                    {...(secondaryAction.loading !== undefined
+                      ? { loading: secondaryAction.loading }
+                      : {})}
+                  />
+                ) : null}
+                {primaryAction ? (
+                  <Button
+                    title={primaryAction.label}
+                    onPress={primaryAction.onPress}
+                    variant={primaryAction.variant ?? 'primary'}
+                    {...(primaryAction.disabled !== undefined
+                      ? { disabled: primaryAction.disabled }
+                      : {})}
+                    {...(primaryAction.loading !== undefined
+                      ? { loading: primaryAction.loading }
+                      : {})}
+                  />
+                ) : null}
+              </Inline>
+            ) : null}
+          </Stack>
+        </Box>
+      </Box>
+    </BaseModal>
   );
 });

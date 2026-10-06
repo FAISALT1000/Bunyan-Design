@@ -64,7 +64,7 @@ describe('List', () => {
     );
     const json = JSON.stringify(toJSON());
     // Divider height comes from theme.borderWidth.thin (1) — count horizontal divider views
-    expect(json.match(/"height":1,"alignSelf":"stretch"/g)).toHaveLength(2);
+    expect(json.match(/"height":1,"backgroundColor"/g)).toHaveLength(2);
   });
 
   it('shows the empty form when there is nothing to render', () => {
@@ -87,14 +87,14 @@ describe('List', () => {
         data={[{ title: 'Row' }]}
         ListHeaderComponent={<Text>Header</Text>}
         ListFooterComponent={() => <Text>Footer</Text>}
-        cardVariant="filled"
+        cardVariant="secondary"
         testID="card-list"
       />,
       { initialPreference: 'dark' },
     );
     expect(screen.getByText('Header')).toBeTruthy();
     expect(screen.getByText('Footer')).toBeTruthy();
-    expect(JSON.stringify(screen.toJSON())).toContain(darkTheme.color.surface.secondary);
+    expect(JSON.stringify(screen.toJSON())).toContain(`"backgroundColor":"${darkTheme.components.card.variants.secondary.background}"`);
   });
 
   it('uses id as the default key and keyExtractor when given', () => {

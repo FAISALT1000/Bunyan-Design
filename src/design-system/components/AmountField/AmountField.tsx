@@ -76,7 +76,7 @@ export const AmountField = memo(function AmountField({
 
   return (
     <View testID={testID} style={{ gap: theme.spacing.md, alignItems: 'stretch', opacity: disabled ? theme.opacity.disabled : theme.opacity.opaque }}>
-      {labelText ? <Text variant="label" tone="secondary" align="center">{labelText}</Text> : null}
+      {labelText ? <Text variant="labelMedium" tone="secondary" align="center" value={labelText} /> : null}
       <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'baseline', gap: theme.spacing.sm }}>
         <TextInput
           value={groupAmountText(text)}
@@ -101,12 +101,12 @@ export const AmountField = memo(function AmountField({
             padding: 0,
           }}
         />
-        {currency ? <Text weight="semibold" tone="secondary" style={{ fontSize: theme.typography.fontSize.xl }}>{currency}</Text> : null}
+        {currency ? <Text weight="semibold" tone="secondary" internalStyle={{ fontSize: theme.typography.fontSize.xl }} value={currency} /> : null}
       </View>
       {errorText ? (
-        <Text accessibilityRole="alert" variant="bodySmall" tone="error" align="center">{errorText}</Text>
+        <Text accessibilityRole="alert" variant="bodySmall" tone="error" align="center" value={errorText} />
       ) : hintText ? (
-        <Text variant="bodySmall" tone="secondary" align="center">{hintText}</Text>
+        <Text variant="bodySmall" tone="secondary" align="center" value={hintText} />
       ) : null}
       {quickAmounts?.length ? (
         <View style={[logicalRow(direction), { justifyContent: 'center' }]}>
@@ -131,7 +131,7 @@ export const AmountField = memo(function AmountField({
               onPress={() => set(`${text || '0'}.`)}
               style={({ pressed }) => ({ flex: 1, alignSelf: 'stretch', alignItems: 'center', justifyContent: 'center', borderRadius: theme.radius.lg, backgroundColor: pressed ? theme.color.overlay.subtle : theme.color.overlay.transparent })}
             >
-              <Text weight="semibold" style={{ fontSize: theme.typography.fontSize.xxl, lineHeight: theme.typography.lineHeight.xxl }}>.</Text>
+              <Text weight="semibold" internalStyle={{ fontSize: theme.typography.fontSize.xxl, lineHeight: theme.typography.lineHeight.xxl }} value="." />
             </Pressable>
           ) : undefined}
         />

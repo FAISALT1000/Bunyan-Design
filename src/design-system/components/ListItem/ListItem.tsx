@@ -1,7 +1,13 @@
 import React, { memo } from 'react';
-import { Pressable, View } from '../RNTheme';
+import { Box } from '../../base/Box';
+import { Inline } from '../../base/Inline';
+import { BasePressable } from '../../base/Pressable';
+import { Stack } from '../../base/Stack';
 import { useTheme } from '../../hooks';
-import { logicalRow } from '../../utilities/styles';
+import {
+  createAccessibilityLabel,
+  createAccessibilityState,
+} from '../../utilities/accessibility';
 import { Icon, type IconName } from '../Icon';
 import { Text } from '../Text';
 
@@ -15,6 +21,9 @@ export interface ListItemProps {
   selected?: boolean;
   showChevron?: boolean;
   chevronIcon?: IconName;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
+  testID?: string;
 }
 
 export const ListItem = memo(function ListItem({
@@ -26,42 +35,76 @@ export const ListItem = memo(function ListItem({
   disabled = false,
   selected = false,
   showChevron = Boolean(onPress),
-  chevronIcon = 'chevron-right',
+  chevronIcon = 'chevron-end',
+  accessibilityLabel,
+  accessibilityHint,
+  testID,
 }: ListItemProps) {
-  const { theme, direction } = useTheme();
-  return (
-    <Pressable
-      accessibilityRole={onPress ? 'button' : 'text'}
-      accessibilityLabel={title}
-      {...(description ? { accessibilityHint: description } : {})}
-      accessibilityState={{ disabled: onPress ? disabled : false, selected }}
-      disabled={disabled || !onPress}
-      onPress={onPress}
-      style={({ pressed }) => [
-        logicalRow(direction),
-        {
-          minHeight: theme.componentHeight.xl,
-          alignItems: 'center',
-          gap: theme.spacing.md,
-          paddingVertical: theme.spacing.md,
-          paddingHorizontal: theme.spacing.lg,
-          borderRadius: theme.radius.md,
-          backgroundColor: selected
-            ? theme.color.primary.subtle
-            : pressed && onPress
-            ? theme.color.overlay.subtle
-            : theme.color.overlay.transparent,
-          opacity: disabled ? theme.opacity.disabled : theme.opacity.opaque,
-        },
-      ]}
-    >
+  const { theme } = useTheme();
+  const resolvedLabel = accessibilityLabel
+    ?? createAccessibilityLabel([title, description]);
+  const content = (
+    <Inline gap="md" alignItems="center">
       {leading}
-      <View style={{ flex: 1 }}>
-        <Text variant="label" weight="medium" tone={selected ? 'link' : 'primary'}>{title}</Text>
-        {description ? <Text variant="bodySmall" tone="secondary">{description}</Text> : null}
-      </View>
+      <Stack flex={1} gap="xxs">
+        <Text value={title} variant="labelMedium" weight="medium" />
+        {description ? (
+          <Text value={description} variant="bodySmall" tone="secondary" />
+        ) : null}
+      </Stack>
       {trailing}
-      {showChevron ? <Icon name={chevronIcon} size="sm" tone="tertiary" /> : null}
-    </Pressable>
+      {showChevron ? (
+        <Icon name={chevronIcon} size="sm" tone="tertiary" mirroredInRTL />
+      ) : null}
+    </Inline>
+  );
+  const containerStyle = {
+    minHeight: theme.componentHeight.xl,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
+    borderRadius: theme.radius.md,
+    borderWidth: theme.borderWidth.none,
+    borderColor: theme.color.border.focus,
+    backgroundColor: selected
+      ? theme.color.primary.subtle
+      : theme.color.overlay.transparent,
+  } as const;
+
+  if (!onPress) {
+    return (
+      <Box
+        accessible
+        accessibilityLabel={resolvedLabel}
+        accessibilityHint={accessibilityHint}
+        accessibilityState={createAccessibilityState({ disabled, selected })}
+        testID={testID}
+        opacity={disabled ? theme.opacity.disabled : theme.opacity.opaque}
+        internalStyle={containerStyle}
+      >
+        {content}
+      </Box>
+    );
+  }
+
+  return (
+    <BasePressable
+      accessibilityRole="button"
+      accessibilityLabel={resolvedLabel}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={createAccessibilityState({ disabled, selected })}
+      disabled={disabled}
+      onPress={onPress}
+      testID={testID}
+      baseStyle={containerStyle}
+      pressedStyle={{ backgroundColor: theme.color.overlay.subtle }}
+      hoveredStyle={{ backgroundColor: theme.color.overlay.subtle }}
+      focusedStyle={{
+        borderColor: theme.color.border.focus,
+        borderWidth: theme.borderWidth.medium,
+      }}
+      disabledStyle={{ opacity: theme.opacity.disabled }}
+    >
+      {content}
+    </BasePressable>
   );
 });

@@ -6,12 +6,14 @@ export interface DividerProps {
   orientation?: 'horizontal' | 'vertical';
   inset?: 'none' | 'small' | 'medium' | 'large';
   decorative?: boolean;
+  testID?: string;
 }
 
 export const Divider = memo(function Divider({
   orientation = 'horizontal',
   inset = 'none',
   decorative = true,
+  testID,
 }: DividerProps) {
   const { theme } = useTheme();
   const insetValue = {
@@ -22,13 +24,11 @@ export const Divider = memo(function Divider({
   }[inset];
   return (
     <View
-      // Decorative dividers are hidden from assistive tech; semantic ones are separators.
-      {...(decorative
-        ? { accessible: false, accessibilityElementsHidden: true, importantForAccessibility: 'no-hide-descendants' as const }
-        : { role: 'separator' as const, 'aria-orientation': orientation })}
+      testID={testID}
+      accessibilityRole={decorative ? undefined : 'none'}
       style={orientation === 'horizontal'
-        ? { height: theme.borderWidth.thin, alignSelf: 'stretch', backgroundColor: theme.color.border.secondary, marginHorizontal: insetValue }
-        : { width: theme.borderWidth.thin, alignSelf: 'stretch', backgroundColor: theme.color.border.secondary, marginVertical: insetValue }}
+        ? { height: theme.borderWidth.thin, backgroundColor: theme.color.border.secondary, marginHorizontal: insetValue }
+        : { width: theme.borderWidth.thin, backgroundColor: theme.color.border.secondary, marginVertical: insetValue }}
     />
   );
 });

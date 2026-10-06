@@ -46,13 +46,15 @@ Differences from the other project: icons are Bunyan icon names (`leftIcon: 'arr
 
 ## Translations
 
-Any text prop accepts a plain string **or** `{ localeKey, params?, fallback? }`. Give Bunyan your translate function once:
+Any text prop accepts a plain string **or** `{ localeKey, params?, fallback? }`. Keys are looked up in the translations of `DesignSystemLocalizationProvider` (i18n-js, see [LOCALIZATION.md](./LOCALIZATION.md)); params use i18n-js interpolation (`'Between %{min} and %{max}'`):
 
 ```tsx
-import i18n from './i18n';
-
-<ThemeProvider locale={i18n.language} translate={i18n.t}>…</ThemeProvider>
+<ThemeProvider>
+  <DesignSystemLocalizationProvider locale="ar" translations={{ en, ar }}>…</DesignSystemLocalizationProvider>
+</ThemeProvider>
 ```
+
+Outside the provider, or for a missing key, the `fallback` (else the key) is shown.
 
 Error messages are translated too, so Yup messages can be keys: `Yup.string().required('errors.required')`. A missing key falls back to the text itself, so plain messages keep working. In your own components use `const t = useText(); t({ localeKey: 'common.save' })`.
 
@@ -84,7 +86,8 @@ Every field: `{ type, name, label?, description?, required?, disabled?, visibleW
 
 | `type` | Value | Control props (besides the common ones) |
 | --- | --- | --- |
-| `Input` · `PasswordInput` · `SearchInput` · `TextArea` | `string` | All Input/TextArea props (`keyboardType`, `maxLength`, `leadingIcon`…); `placeholder` may be a `TextValue` |
+| `InputField` (recommended) | `string` | Floating-label `InputField`: `inputType` (`text`·`email`·`password`·`phone`·`number`·`decimal`·`url`), `helperText`, `leftIcon`, `rightIcon`, `variant`, `maxLength`…; shows its own label and error |
+| `Input` · `PasswordInput` · `SearchInput` · `TextArea` | `string` | All Input/TextArea props (`keyboardType`, `maxLength`, `leftIcon`…); `placeholder` may be a `TextValue`. `Input`/`PasswordInput`/`SearchInput` are deprecated in favour of `InputField` |
 | `Select` | `string` | `options: { label: TextValue, value, description?, disabled? }[]`, `searchable`, `placeholder`, `title`, `size` |
 | `DatePicker` | `Date` | `minimumDate`, `maximumDate`, `locale`, `formatOptions`, `placeholder`, `clearable` |
 | `DateRangePicker` | `{ from?: Date, to?: Date }` | `fromLabel`, `toLabel`, `minimumDate`, `maximumDate`, `showHijriToggle`, `layout`, `locale` |
@@ -204,15 +207,15 @@ All rules pass on empty values, so combine them with `.required()` when the fiel
 
 ### Messages
 
-Defaults are English. Replace any of them once for the whole app — plain text, or locale keys that your `translate` function receives together with the rule's params (`min`, `max`, `domain`, `years`…):
+Defaults are English. Replace any of them once for the whole app — plain text, or locale keys that are translated with the rule's params (`min`, `max`, `domain`, `years`…):
 
 ```ts
 import { setValidationMessages } from '@bunyan/design-system';
 
 setValidationMessages({
   mobileNumber: { localeKey: 'errors.mobileNumber' },
-  minMax: { localeKey: 'errors.length' },            // translate('errors.length', { min, max })
-  emailDomain: { localeKey: 'errors.emailDomain' },  // translate(..., { domain })
+  minMax: { localeKey: 'errors.length' },            // 'Between %{min} and %{max} characters'
+  emailDomain: { localeKey: 'errors.emailDomain' },  // 'Use a %{domain} address'
   passwordUppercase: { localeKey: 'errors.password.uppercase' },
 });
 ```

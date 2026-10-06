@@ -97,7 +97,7 @@ describe('createResponsive', () => {
     }));
     function Probe() {
       const styles = useStyles();
-      return <Text style={styles.box}>box</Text>;
+      return <Text internalStyle={styles.box} value="box" />;
     }
     renderWithTheme(<Probe />);
     expect(screen.getByText('box')).toHaveStyle({ padding: lightTheme.spacing.xl });

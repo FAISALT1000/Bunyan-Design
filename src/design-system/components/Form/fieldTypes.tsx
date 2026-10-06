@@ -6,6 +6,7 @@ import { ChipsGroup, type ChipValue } from '../ChipsGroup';
 import { DatePicker } from '../DatePicker';
 import { DateRangePicker, type DateRange } from '../DateRangePicker';
 import { Input } from '../Input';
+import { InputField } from '../InputField';
 import { PasswordInput } from '../PasswordInput';
 import { RadioGroup } from '../RadioGroup';
 import { SearchInput } from '../SearchInput';
@@ -76,6 +77,24 @@ function textControl<K extends 'Input' | 'PasswordInput' | 'SearchInput' | 'Text
   };
 }
 
+const InputFieldControl: FormFieldComponent<FormFieldConfig<FormikValues, 'InputField'>> = ({ field, value, setValue, setTouched, error, disabled, t }) => {
+  const { inputType = 'text', placeholder, helperText, ...rest } = controlProps(field);
+  const common = {
+    ...rest,
+    ...testIdOf(field),
+    label: t(field.label) ?? field.name ?? '',
+    value: asString(value),
+    onChangeText: (text: string) => setValue(text),
+    onBlur: setTouched,
+    disabled,
+    required: Boolean(field.required),
+    ...opt('placeholder', t(placeholder)),
+    ...opt('helperText', t(helperText)),
+    ...opt('errorText', error),
+  };
+  return inputType === 'password' ? <InputField {...common} type="password" /> : <InputField {...common} type={inputType} />;
+};
+
 const SelectField: FormFieldComponent<FormFieldConfig<FormikValues, 'Select'>> = ({ field, value, setValue, setTouched, invalid, disabled, t }) => {
   const { options, placeholder, title, searchPlaceholder, emptyMessage, ...rest } = controlProps(field);
   const optional = (key: string, text: string | undefined) => (text ? { [key]: text } : {});
@@ -143,7 +162,7 @@ const DateRangePickerField: FormFieldComponent<FormFieldConfig<FormikValues, 'Da
 );
 
 const InlineError = ({ error }: { error?: string | undefined }) =>
-  error ? <Text accessibilityRole="alert" variant="caption" tone="error">{error}</Text> : null;
+  error ? <Text accessibilityRole="alert" variant="caption" tone="error" value={error} /> : null;
 
 const CheckboxField: FormFieldComponent<FormFieldConfig<FormikValues, 'Checkbox'>> = ({ field, value, setValue, setTouched, error, invalid, disabled, t }) => {
   const description = t(field.description);
@@ -418,6 +437,7 @@ const ActionTextField: FormFieldComponent<FormFieldConfig<FormikValues, 'ActionT
 };
 
 const registry = new Map<string, FormFieldRegistration<any>>([
+  ['InputField', { component: InputFieldControl, wrap: false }],
   ['Input', { component: textControl<'Input'>(Input) }],
   ['PasswordInput', { component: textControl<'PasswordInput'>(PasswordInput) }],
   ['SearchInput', { component: textControl<'SearchInput'>(SearchInput) }],

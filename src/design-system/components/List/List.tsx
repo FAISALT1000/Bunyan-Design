@@ -176,7 +176,7 @@ function ListInner<T extends object, D = T>(props: ListProps<T, D>) {
  *   formatItem={user => ({ title: user.name, description: user.email, onPress: () => open(user.id) })}
  *   shareProps={{ showChevron: true }}
  *   withDivider
- *   cardVariant="outlined"
+ *   cardVariant="outline"
  * />
  * ```
  */

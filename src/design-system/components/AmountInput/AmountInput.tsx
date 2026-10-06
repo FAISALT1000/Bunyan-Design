@@ -1,10 +1,9 @@
 import React, { forwardRef, memo, useEffect, useRef, useState } from 'react';
-import type { TextInputRef } from '../RNTheme';
 import { groupAmountText, parseAmount, sanitizeAmountText } from '../../utilities/numbers';
-import { Input, type InputProps } from '../Input';
+import { BaseInput, type BaseInputHandle, type BaseInputProps } from '../../base/Input';
 import { Text } from '../Text';
 
-export interface AmountInputProps extends Omit<InputProps, 'value' | 'defaultValue' | 'onChangeText' | 'keyboardType' | 'inputMode'> {
+export interface AmountInputProps extends Omit<BaseInputProps, 'value' | 'defaultValue' | 'onChangeText' | 'keyboardType' | 'inputMode'> {
   /** Numeric value (`null` when empty). */
   value?: number | null;
   onChangeValue?: (value: number | null) => void;
@@ -24,7 +23,7 @@ const textFromValue = (value: number | null | undefined) =>
  * Numeric amount entry: groups thousands while typing (`12,500.75`), accepts
  * Arabic-Indic digits, limits decimals and reports a `number`.
  */
-export const AmountInput = memo(forwardRef<TextInputRef, AmountInputProps>(function AmountInput(
+export const AmountInput = memo(forwardRef<BaseInputHandle, AmountInputProps>(function AmountInput(
   { value, onChangeValue, currency, decimals = 2, allowNegative = false, groupSeparator = ',', trailing, ...props },
   ref,
 ) {
@@ -40,7 +39,7 @@ export const AmountInput = memo(forwardRef<TextInputRef, AmountInputProps>(funct
   }, [value]);
 
   return (
-    <Input
+    <BaseInput
       ref={ref}
       keyboardType="decimal-pad"
       inputMode="decimal"
@@ -54,7 +53,7 @@ export const AmountInput = memo(forwardRef<TextInputRef, AmountInputProps>(funct
         lastEmitted.current = parsed;
         onChangeValue?.(parsed);
       }}
-      trailing={trailing ?? (currency ? <Text tone="secondary" weight="medium">{currency}</Text> : null)}
+      trailing={trailing ?? (currency ? <Text tone="secondary" weight="medium" value={currency} /> : null)}
     />
   );
 }));

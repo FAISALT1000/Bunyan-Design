@@ -79,7 +79,7 @@ export const ListRoot = memo(function ListRoot({
   if (cardVariant) {
     return (
       <View testID={testID} style={style}>
-        <Card variant={cardVariant} padding="none">{content}</Card>
+        <Card variant={cardVariant} size="small">{content}</Card>
       </View>
     );
   }

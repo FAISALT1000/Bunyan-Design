@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { cloneElement, memo, useState } from 'react';
 import { Pressable, View } from '../RNTheme';
 import { useTheme } from '../../hooks';
 import { Text } from '../Text';
@@ -7,74 +7,34 @@ export interface TooltipProps {
   content: string;
   children: React.ReactElement;
   placement?: 'top' | 'bottom';
-  /** How long a long-press tooltip stays visible on touch devices (ms). */
-  touchDuration?: number;
 }
 
-export const Tooltip = memo(function Tooltip({
-  content,
-  children,
-  placement = 'top',
-  touchDuration = 1500,
-}: TooltipProps) {
+export const Tooltip = memo(function Tooltip({ content, children, placement = 'top' }: TooltipProps) {
   const { theme } = useTheme();
   const [visible, setVisible] = useState(false);
-  const hideTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-
-  const clearHideTimer = () => {
-    if (hideTimer.current) clearTimeout(hideTimer.current);
-    hideTimer.current = undefined;
-  };
-  useEffect(() => clearHideTimer, []);
-
-  const show = () => {
-    clearHideTimer();
-    setVisible(true);
-  };
-  const hide = () => {
-    clearHideTimer();
-    setVisible(false);
-  };
-
-  const bubble = visible ? (
-    <View
-      accessibilityLiveRegion="polite"
-      pointerEvents="none"
-      style={{
-        [placement === 'top' ? 'marginBottom' : 'marginTop']: theme.spacing.xs,
-        maxWidth: theme.breakpoint.medium / 2,
-        paddingHorizontal: theme.spacing.md,
-        paddingVertical: theme.spacing.sm,
-        borderRadius: theme.radius.md,
-        backgroundColor: theme.color.surface.inverse,
-        zIndex: theme.zIndex.tooltip,
-        ...theme.shadow.sm,
-      }}
-    >
-      <Text variant="caption" tone="inverse">{content}</Text>
-    </View>
-  ) : null;
-
   return (
     <View style={{ alignSelf: 'flex-start', alignItems: 'center' }}>
-      {placement === 'top' ? bubble : null}
+      {visible && placement === 'top' ? (
+        <View accessible accessibilityLabel={content} style={{ marginBottom: theme.spacing.xs, maxWidth: theme.breakpoint.medium / 2, paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.sm, borderRadius: theme.radius.md, backgroundColor: theme.color.surface.inverse, ...theme.shadow.sm }}>
+          <Text value={content} variant="caption" tone="inverse" />
+        </View>
+      ) : null}
       <Pressable
         accessibilityHint={content}
-        onHoverIn={show}
-        onHoverOut={hide}
-        onFocus={show}
-        onBlur={hide}
-        onLongPress={show}
-        onPressOut={() => {
-          // Previously the tooltip vanished the instant the finger lifted, so touch
-          // users could never read it. Keep it on screen briefly instead.
-          clearHideTimer();
-          hideTimer.current = setTimeout(() => setVisible(false), touchDuration);
-        }}
+        onHoverIn={() => setVisible(true)}
+        onHoverOut={() => setVisible(false)}
+        onFocus={() => setVisible(true)}
+        onBlur={() => setVisible(false)}
+        onLongPress={() => setVisible(true)}
+        onPressOut={() => setVisible(false)}
       >
-        {children}
+        {cloneElement(children)}
       </Pressable>
-      {placement === 'bottom' ? bubble : null}
+      {visible && placement === 'bottom' ? (
+        <View accessible accessibilityLabel={content} style={{ marginTop: theme.spacing.xs, maxWidth: theme.breakpoint.medium / 2, paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.sm, borderRadius: theme.radius.md, backgroundColor: theme.color.surface.inverse, ...theme.shadow.sm }}>
+          <Text value={content} variant="caption" tone="inverse" />
+        </View>
+      ) : null}
     </View>
   );
 });

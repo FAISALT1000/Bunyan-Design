@@ -9,6 +9,7 @@ import type { ChipsGroupItem, ChipValue } from '../ChipsGroup';
 import type { DatePickerProps } from '../DatePicker';
 import type { DateRangePickerProps } from '../DateRangePicker';
 import type { InputProps } from '../Input';
+import type { StandardInputFieldProps } from '../InputField';
 import type { ListSpacing } from '../List';
 import type { PasswordInputProps } from '../PasswordInput';
 import type { RadioGroupOption } from '../RadioGroup';
@@ -47,6 +48,16 @@ type Translated<T, K extends keyof T> = Omit<T, K> & { [P in K]?: TextValue };
  * ```
  */
 export interface FormFieldTypes {
+  /** Floating-label `InputField` (recommended). Shows its own label and error, so it is not wrapped in `FormField`. */
+  InputField: Omit<
+    StandardInputFieldProps,
+    'type' | 'label' | 'value' | 'onChangeText' | 'onBlur' | 'errorText' | 'state' | 'disabled' | 'required' | 'placeholder' | 'helperText'
+  > & {
+    /** `InputField` type. Default `'text'`. */
+    inputType?: StandardInputFieldProps['type'] | 'password';
+    placeholder?: TextValue;
+    helperText?: TextValue;
+  };
   Input: Omit<InputProps, Controlled> & { placeholder?: TextValue };
   PasswordInput: Omit<PasswordInputProps, Controlled> & { placeholder?: TextValue };
   SearchInput: Omit<SearchInputProps, Controlled | 'onClear'> & { placeholder?: TextValue };
@@ -200,7 +211,7 @@ export interface FormFieldRegistration<C = FormFieldConfig> {
   wrap?: boolean;
 }
 
-export type FormButtonConfig = Omit<ButtonProps, 'children' | 'onPress'> & { text?: TextValue };
+export type FormButtonConfig = Omit<ButtonProps, 'children' | 'onPress' | 'title'> & { text?: TextValue };
 
 export interface FormProps<Values extends FormikValues> {
   initialValues: Values;

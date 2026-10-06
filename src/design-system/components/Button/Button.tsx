@@ -1,208 +1,297 @@
 import React, { forwardRef, memo } from 'react';
 import {
-  ActivityIndicator,
-  Linking,
-  Pressable,
-  type PressableProps,
-  type TextStyle,
-  type ViewRef,
-  type ViewStyle,
-} from '../RNTheme';
+  BasePressable,
+  type BasePressableHandle,
+  type BasePressableProps,
+} from '../../base/Pressable';
+import { Inline } from '../../base/Inline';
 import { useTheme } from '../../hooks';
+import {
+  resolveLocalizedText,
+  type TranslationOptions,
+  useOptionalLocalization,
+} from '../../localization';
 import {
   heightForSize,
   horizontalPaddingForSize,
-  iconTokenForSize,
-  logicalRow,
   type ComponentSize,
 } from '../../utilities/styles';
-import { Icon, type IconName } from '../Icon';
-import { Text, type TextTone, type TextVariant } from '../Text';
+import {
+  createAccessibilityLabel,
+  createAccessibilityState,
+} from '../../utilities/accessibility';
+import { warnDeprecated } from '../../utilities/deprecations';
+import { Icon, type IconName, type IconTone } from '../Icon';
+import { Spinner } from '../Spinner';
+import { Text, type TextTone } from '../Text';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'link';
+export type ButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'tertiary'
+  | 'outline'
+  | 'ghost'
+  | 'link'
+  | 'danger';
+export type ButtonSize = ComponentSize;
+export type ButtonActionType = 'action' | 'navigation' | 'externalLink';
 
-export interface ButtonProps extends Omit<PressableProps, 'children' | 'style'> {
-  children: React.ReactNode;
-  /** `link` renders inline link text (no container); every other variant is a filled/outlined button. */
+interface SharedButtonProps {
+  onPress?: () => void;
   variant?: ButtonVariant;
-  size?: ComponentSize;
+  size?: ButtonSize;
+  disabled?: boolean;
   loading?: boolean;
   fullWidth?: boolean;
-  leadingIcon?: IconName;
-  trailingIcon?: IconName;
-  /** URL opened with `Linking.openURL` after `onPress` (unless the event was `preventDefault`-ed). Gives the control the link role. */
-  href?: string;
-  /** Marks the destination as outside the app: shows ↗ and announces `externalHint`. */
-  external?: boolean;
-  /** Screen-reader hint for external destinations. */
-  externalHint?: string;
-  /** Called when `href` cannot be opened. */
-  onOpenError?: (error: unknown) => void;
+  leftIcon?: IconName;
+  rightIcon?: IconName;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
+  testID?: string;
+  titleLocalize?: string;
+  titleTranslationOptions?: TranslationOptions;
+  actionType?: ButtonActionType;
+  underline?: boolean;
 }
 
-interface VariantStyle {
-  background: string;
-  pressedBackground: string;
-  border: string;
-  text: TextTone;
-}
+export type ButtonProps = SharedButtonProps & (
+  | {
+      title: string;
+      children?: never;
+    }
+  | {
+      title?: never;
+      /**
+       * @deprecated Use the title prop. Scheduled for removal in 1.0.0.
+       */
+      children: string;
+    }
+);
 
-const linkTextVariant: Record<ComponentSize, TextVariant> = {
-  small: 'bodySmall',
-  medium: 'body',
-  large: 'body',
-};
-
-export const Button = memo(forwardRef<ViewRef, ButtonProps>(function Button(
+export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function Button(
   {
+    title,
     children,
+    titleLocalize,
+    titleTranslationOptions,
     variant = 'primary',
     size = 'medium',
     loading = false,
     disabled = false,
     fullWidth = false,
-    leadingIcon,
-    trailingIcon,
-    href,
-    external = false,
-    externalHint = 'Opens in another app',
-    onOpenError,
-    onPress,
+    leftIcon,
+    rightIcon,
     accessibilityLabel,
     accessibilityHint,
-    accessibilityState,
-    hitSlop,
-    ...props
+    testID,
+    onPress,
+    actionType = 'action',
+    underline,
   },
   ref,
 ) {
-  const { theme, direction } = useTheme();
-  const isLink = variant === 'link';
-  const isDisabled = Boolean(disabled) || loading;
-  const variants: Record<ButtonVariant, VariantStyle> = {
+  const { platformTokens, theme } = useTheme();
+  const localization = useOptionalLocalization();
+  const titleFallback = title ?? children;
+  const resolvedTitle = resolveLocalizedText({
+    ...(titleLocalize ? { localize: titleLocalize } : {}),
+    value: titleFallback,
+    ...(titleTranslationOptions
+      ? { translationOptions: titleTranslationOptions }
+      : {}),
+    ...(localization ? { localization } : {}),
+  });
+  if (title === undefined && children !== undefined) {
+    warnDeprecated('Button children is deprecated. Use <Button title="..." />. It will be removed in 1.0.0.');
+  }
+  const isDisabled = disabled || loading;
+  const variants: Record<
+    ButtonVariant,
+    {
+      background: string;
+      pressedBackground: string;
+      border: string;
+      textTone: TextTone;
+      iconTone: IconTone;
+      textColor?: string;
+      pressedTextColor?: string;
+    }
+  > = {
     primary: {
       background: theme.color.primary.default,
       pressedBackground: theme.color.primary.pressed,
       border: theme.color.primary.default,
-      text: 'inverse',
+      textTone: 'inverse',
+      iconTone: 'inverse',
     },
     secondary: {
       background: theme.color.secondary.default,
       pressedBackground: theme.color.secondary.pressed,
       border: theme.color.secondary.default,
-      text: 'inverse',
+      textTone: 'inverse',
+      iconTone: 'inverse',
+    },
+    tertiary: {
+      background: theme.color.neutral.subtle,
+      pressedBackground: theme.color.overlay.subtle,
+      border: theme.color.border.secondary,
+      textTone: 'primary',
+      iconTone: 'primary',
     },
     outline: {
       background: theme.color.overlay.transparent,
       pressedBackground: theme.color.overlay.subtle,
       border: theme.color.border.primary,
-      text: 'primary',
+      textTone: 'primary',
+      iconTone: 'primary',
     },
     ghost: {
       background: theme.color.overlay.transparent,
       pressedBackground: theme.color.overlay.subtle,
       border: theme.color.overlay.transparent,
-      text: 'link',
-    },
-    danger: {
-      background: theme.color.error.default,
-      pressedBackground: theme.color.error.default,
-      border: theme.color.error.default,
-      text: 'inverse',
+      textTone: 'info',
+      iconTone: 'information',
     },
     link: {
       background: theme.color.overlay.transparent,
       pressedBackground: theme.color.overlay.transparent,
       border: theme.color.overlay.transparent,
-      text: 'link',
+      textTone: 'info',
+      iconTone: 'information',
+      textColor: theme.components.button.link.textColor,
+      pressedTextColor: theme.components.button.link.pressedTextColor,
+    },
+    danger: {
+      background: theme.color.error.default,
+      pressedBackground: theme.color.error.text,
+      border: theme.color.error.default,
+      textTone: 'inverse',
+      iconTone: 'inverse',
     },
   };
   const current = variants[variant];
-  // Links keep their link colour when disabled (opacity carries the state), buttons go grey.
-  const textTone: TextTone = isDisabled && !isLink ? 'tertiary' : current.text;
-  const contentColor = isDisabled && !isLink
-    ? theme.color.text.tertiary
-    : current.text === 'inverse'
-    ? theme.color.text.inverse
-    : current.text === 'link'
-    ? theme.color.text.link
-    : theme.color.text.primary;
-  const height = heightForSize(theme, size);
-  // Keep at least a 44pt touch target (WCAG 2.5.8): compact buttons and inline links get hitSlop.
-  const touchSlop = isLink ? theme.spacing.sm : Math.max(0, (theme.componentHeight.md - height) / 2);
-
-  const resolveStyle = ({ pressed, focused }: { pressed: boolean; focused?: boolean }): ViewStyle => {
-    if (isLink) {
-      return {
-        ...logicalRow(direction),
-        alignItems: 'center',
-        alignSelf: fullWidth ? 'stretch' : 'flex-start',
-        gap: theme.spacing.xs,
-        borderRadius: theme.radius.sm,
-        borderWidth: focused ? theme.borderWidth.medium : theme.borderWidth.none,
-        borderColor: theme.color.border.focus,
-        opacity: isDisabled ? theme.opacity.disabled : pressed ? theme.opacity.strong : theme.opacity.opaque,
-      };
-    }
-    return {
-      ...logicalRow(direction),
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: theme.spacing.sm,
-      minHeight: height,
-      paddingHorizontal: horizontalPaddingForSize(theme, size),
-      borderRadius: theme.radius.md,
-      borderWidth: focused ? theme.borderWidth.medium : theme.borderWidth.thin,
-      borderColor: focused ? theme.color.border.focus : isDisabled ? theme.color.disabled.border : current.border,
-      backgroundColor: isDisabled
-        ? theme.color.disabled.background
-        : pressed
-        ? current.pressedBackground
-        : current.background,
-      opacity: isDisabled
-        ? theme.opacity.disabled
-        : pressed && variant === 'danger'
-        ? theme.opacity.strong
-        : theme.opacity.opaque,
-      alignSelf: fullWidth ? 'stretch' : 'flex-start',
-    };
+  const iconSize = size === 'small' ? 'sm' : size === 'large' ? 'lg' : 'md';
+  const baseStyle: BasePressableProps['baseStyle'] = {
+    minHeight: heightForSize(theme, size),
+    paddingHorizontal: variant === 'link'
+      ? theme.components.button.link.touchTargetPadding
+      : horizontalPaddingForSize(theme, size),
+    borderRadius: theme.radius.md,
+    borderWidth: theme.borderWidth.thin,
+    borderColor: current.border,
+    backgroundColor: current.background,
+    alignSelf: fullWidth ? 'stretch' : 'flex-start',
+    justifyContent: 'center',
   };
-  const iconSize = isLink ? (size === 'small' ? 'sm' : 'md') : iconTokenForSize(size);
-  const labelStyle: TextStyle | undefined = isLink ? { textDecorationLine: 'underline' } : undefined;
 
   return (
-    <Pressable
+    <BasePressable
       ref={ref}
-      accessibilityRole={isLink || href ? 'link' : 'button'}
-      accessibilityLabel={accessibilityLabel}
-      accessibilityHint={accessibilityHint ?? (external ? externalHint : undefined)}
-      accessibilityState={{ ...accessibilityState, disabled: isDisabled, busy: loading }}
+      accessibilityRole={
+        variant === 'link' && actionType !== 'action'
+          ? 'link'
+          : 'button'
+      }
+      accessibilityLabel={
+        accessibilityLabel
+        ?? createAccessibilityLabel([
+          resolvedTitle,
+          loading ? 'Loading' : undefined,
+        ])
+      }
+      accessibilityHint={accessibilityHint}
+      accessibilityState={createAccessibilityState({
+        disabled: isDisabled,
+        busy: loading,
+      })}
+      testID={testID}
       disabled={isDisabled}
-      hitSlop={hitSlop ?? (touchSlop > 0 ? touchSlop : undefined)}
-      {...props}
-      onPress={event => {
-        onPress?.(event);
-        if (href && !event.defaultPrevented) {
-          // Linking.openURL rejects for unsupported URLs; never leave it unhandled.
-          Linking.openURL(href).catch((error: unknown) => onOpenError?.(error));
-        }
+      onPress={onPress}
+      stopPropagation
+      baseStyle={baseStyle}
+      pressedStyle={{ backgroundColor: current.pressedBackground }}
+      focusedStyle={{
+        borderColor: variant === 'link'
+          ? theme.components.button.link.focusIndicatorColor
+          : theme.color.border.focus,
+        borderWidth: platformTokens.interaction.focusRingWidth,
       }}
-      style={resolveStyle}
+      disabledStyle={{
+        backgroundColor: theme.color.disabled.background,
+        borderColor: theme.color.disabled.border,
+        opacity: theme.opacity.disabled,
+      }}
     >
-      {loading ? (
-        <ActivityIndicator size="small" color={contentColor} accessibilityLabel="Loading" />
-      ) : leadingIcon ? (
-        <Icon name={leadingIcon} size={iconSize} color={contentColor} />
-      ) : null}
-      <Text
-        variant={isLink ? linkTextVariant[size] : 'label'}
-        weight="semibold"
-        tone={textTone}
-        {...(labelStyle ? { style: labelStyle } : {})}
-      >
-        {children}{external ? ' ↗' : ''}
-      </Text>
-      {!loading && trailingIcon ? <Icon name={trailingIcon} size={iconSize} color={contentColor} /> : null}
-    </Pressable>
+      {({ pressed }) => (
+        <Inline
+          gap="sm"
+          alignItems="center"
+          justifyContent="center"
+        >
+          {loading ? (
+            <Spinner
+              size="small"
+              tone={current.textTone === 'inverse' ? 'inverse' : 'primary'}
+              label="Loading"
+              showLabel={false}
+              accessible={false}
+            />
+          ) : leftIcon ? (
+            <Icon
+              name={leftIcon}
+              size={iconSize}
+              tone={current.iconTone}
+              {...(variant === 'link' && current.textColor
+                ? {
+                    color: pressed
+                      ? current.pressedTextColor
+                      : current.textColor,
+                  }
+                : {})}
+            />
+          ) : null}
+          <Text
+            value={titleFallback}
+            {...(titleLocalize ? { localize: titleLocalize } : {})}
+            {...(titleTranslationOptions
+              ? { translationOptions: titleTranslationOptions }
+              : {})}
+            variant="labelMedium"
+            weight="semibold"
+            tone={isDisabled ? 'disabled' : current.textTone}
+            decoration={
+              variant === 'link'
+              && (underline ?? theme.components.button.link.underline === 'always')
+                ? 'underline'
+                : 'none'
+            }
+            {...(variant === 'link'
+              ? {
+                  internalColor: isDisabled
+                    ? theme.components.button.link.disabledTextColor
+                    : pressed
+                      ? current.pressedTextColor
+                      : current.textColor,
+                }
+              : {})}
+          />
+          {!loading && rightIcon ? (
+            <Icon
+              name={rightIcon}
+              size={iconSize}
+              tone={current.iconTone}
+              mirroredInRTL
+              {...(variant === 'link' && current.textColor
+                ? {
+                    color: pressed
+                      ? current.pressedTextColor
+                      : current.textColor,
+                  }
+                : {})}
+            />
+          ) : null}
+        </Inline>
+      )}
+    </BasePressable>
   );
 }));

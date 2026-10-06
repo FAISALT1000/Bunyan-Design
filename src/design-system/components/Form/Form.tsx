@@ -52,7 +52,7 @@ const FormFieldItem = memo(function FormFieldItem({ field, prefix }: { field: Fo
   if (field.visibleWhen && !field.visibleWhen(scopeValues)) return null;
 
   if (!registration) {
-    return <Text tone="error">{`Unknown field type "${field.type}" for "${name ?? ''}". Register it with registerFormFieldType().`}</Text>;
+    return <Text tone="error" value={`Unknown field type "${field.type}" for "${name ?? ''}". Register it with registerFormFieldType().`} />;
   }
 
   const touched = name ? Boolean(getIn(form.touched, name)) || form.submitCount > 0 : false;
@@ -92,7 +92,7 @@ const FormFieldItem = memo(function FormFieldItem({ field, prefix }: { field: Fo
     return (
       <View style={{ gap: 6 }}>
         {control}
-        {error ? <Text accessibilityRole="alert" variant="caption" tone="error">{error}</Text> : null}
+        {error ? <Text accessibilityRole="alert" variant="caption" tone="error" value={error} /> : null}
       </View>
     );
   }
@@ -134,10 +134,10 @@ const RepeatedControlsField: FormFieldComponent<FormFieldConfig<FormikValues, 'R
   return (
     <View style={{ gap: theme.spacing.md }}>
       {items.map((_, index) => (
-        <Card key={index} variant="outlined" padding="medium">
+        <Card key={index} variant="outline" size="medium">
           <View style={{ gap: theme.spacing.md }}>
             <View style={[logicalRow(direction), { alignItems: 'center', justifyContent: 'space-between' }]}>
-              <Text weight="semibold">{labelOf(index)}</Text>
+              <Text weight="semibold" value={labelOf(index)} />
               {items.length > min ? (
                 <IconButton
                   icon="trash"
@@ -156,12 +156,11 @@ const RepeatedControlsField: FormFieldComponent<FormFieldConfig<FormikValues, 'R
       {items.length < max ? (
         <Button
           variant="outline"
-          leadingIcon="plus"
+          leftIcon="plus"
+          title={t(addText) ?? 'Add'}
           disabled={disabled}
           onPress={() => void form.setFieldValue(name, [...items, typeof newItem === 'function' ? newItem() : { ...newItem }])}
-        >
-          {t(addText) ?? 'Add'}
-        </Button>
+        />
       ) : null}
     </View>
   );
@@ -188,16 +187,12 @@ function FormButtons<Values extends FormikValues>({
     <View style={[logicalRow(direction), { gap: theme.spacing.md, flexWrap: 'wrap' }]}>
       {resetButton ? (
         <View style={{ flex: 1 }}>
-          <Button variant="outline" fullWidth {...resetProps} disabled={form.isSubmitting || Boolean(resetProps.disabled)} onPress={() => form.resetForm({ values: initialValues })}>
-            {t(resetText)}
-          </Button>
+          <Button variant="outline" fullWidth {...resetProps} disabled={form.isSubmitting || Boolean(resetProps.disabled)} onPress={() => form.resetForm({ values: initialValues })} title={t(resetText) ?? 'Reset'} />
         </View>
       ) : null}
       {submitButton ? (
         <View style={{ flex: 1 }}>
-          <Button fullWidth {...submitProps} loading={form.isSubmitting || Boolean(submitProps.loading)} onPress={() => form.handleSubmit()}>
-            {t(submitText)}
-          </Button>
+          <Button fullWidth {...submitProps} loading={form.isSubmitting || Boolean(submitProps.loading)} onPress={() => form.handleSubmit()} title={t(submitText) ?? 'Submit'} />
         </View>
       ) : null}
     </View>

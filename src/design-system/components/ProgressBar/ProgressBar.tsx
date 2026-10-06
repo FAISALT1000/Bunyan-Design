@@ -49,8 +49,8 @@ export const ProgressBar = memo(function ProgressBar({
     >
       {labelText || showValue ? (
         <View style={[logicalRow(direction), { justifyContent: 'space-between' }]}>
-          {labelText ? <Text variant="label" weight="medium">{labelText}</Text> : <View />}
-          {showValue ? <Text variant="caption" tone="secondary">{valueText}</Text> : null}
+          {labelText ? <Text variant="labelMedium" weight="medium" value={labelText} /> : <View />}
+          {showValue ? <Text variant="caption" tone="secondary" value={valueText} /> : null}
         </View>
       ) : null}
       <View style={{ height, borderRadius: theme.radius.pill, backgroundColor: theme.color.neutral.subtle, overflow: 'hidden', flexDirection: needsMirroring(direction) ? 'row-reverse' : 'row' }}>

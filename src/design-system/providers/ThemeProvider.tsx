@@ -1,8 +1,19 @@
-import React, { createContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { Appearance, I18nManager, type ColorSchemeName } from '../components/RNTheme/native';
-import { themes } from '../themes/themes';
+import {
+  getDesignSystemPlatform,
+  resolvePlatformTokens,
+  type DesignSystemPlatform,
+  type PlatformTokens,
+} from '../platform';
+import { themes as defaultThemes } from '../themes/themes';
 import type { Direction, Theme, ThemeMode } from '../themes/types';
-import { defaultTranslate, type TranslateFn } from '../i18n/text';
 
 export type ThemePreference = ThemeMode | 'system';
 
@@ -14,19 +25,20 @@ export interface ThemeContextValue {
   direction: Direction;
   isRTL: boolean;
   locale: string;
-  /** Translate function used for `{ localeKey }` texts. Identity when not configured. */
-  translate: TranslateFn;
+  platform: DesignSystemPlatform;
+  platformTokens: PlatformTokens;
 }
 
 const defaultContext: ThemeContextValue = {
-  theme: themes.light,
+  theme: defaultThemes.light,
   mode: 'light',
   preference: 'system',
   setPreference: () => undefined,
   direction: 'ltr',
   isRTL: false,
   locale: 'en',
-  translate: defaultTranslate,
+  platform: 'default',
+  platformTokens: resolvePlatformTokens('default'),
 };
 
 export const ThemeContext = createContext<ThemeContextValue>(defaultContext);
@@ -34,24 +46,14 @@ export const ThemeContext = createContext<ThemeContextValue>(defaultContext);
 export interface ThemeProviderProps {
   children: React.ReactNode;
   initialPreference?: ThemePreference;
+  preference?: ThemePreference;
+  onPreferenceChange?: (preference: ThemePreference) => void;
   locale?: string;
   direction?: Direction;
   blackForSystemDark?: boolean;
-  /**
-   * Your own themes (e.g. from `createThemes`). Modes you leave out fall back to
-   * Bunyan's defaults. Memoise the object (or define it at module level).
-   */
   themes?: Partial<Record<ThemeMode, Theme>>;
-  /**
-   * Translate function for `{ localeKey }` texts across Bunyan (Form labels,
-   * ChipsGroup items, error messages…). E.g. `translate={i18n.t}`. Keep it stable.
-   */
-  translate?: TranslateFn;
+  platform?: DesignSystemPlatform;
 }
-
-const RTL_LOCALE = /^(ar|arc|ckb|dv|fa|he|iw|ps|sd|ug|ur|yi)(-|_|$)/i;
-
-export const isRTLLocale = (locale: string) => RTL_LOCALE.test(locale);
 
 const resolveSystemMode = (scheme: ColorSchemeName | null, blackForSystemDark: boolean): ThemeMode =>
   scheme === 'dark' ? (blackForSystemDark ? 'black' : 'dark') : 'light';
@@ -59,13 +61,24 @@ const resolveSystemMode = (scheme: ColorSchemeName | null, blackForSystemDark: b
 export function ThemeProvider({
   children,
   initialPreference = 'system',
+  preference: controlledPreference,
+  onPreferenceChange,
   locale = 'en',
   direction,
   blackForSystemDark = false,
-  themes: customThemes,
-  translate = defaultTranslate,
+  themes,
+  platform: platformOverride,
 }: ThemeProviderProps) {
-  const [preference, setPreference] = useState<ThemePreference>(initialPreference);
+  const [internalPreference, setInternalPreference] = useState<ThemePreference>(
+    initialPreference,
+  );
+  const preference = controlledPreference ?? internalPreference;
+  const setPreference = useCallback((nextPreference: ThemePreference) => {
+    if (controlledPreference === undefined) {
+      setInternalPreference(nextPreference);
+    }
+    onPreferenceChange?.(nextPreference);
+  }, [controlledPreference, onPreferenceChange]);
   const [systemScheme, setSystemScheme] = useState<ColorSchemeName | null>(
     Appearance.getColorScheme() ?? null,
   );
@@ -76,23 +89,37 @@ export function ThemeProvider({
   }, []);
 
   const resolvedDirection: Direction =
-    direction ?? (isRTLLocale(locale) || I18nManager.isRTL ? 'rtl' : 'ltr');
+    direction ?? (/^(ar|fa|he|ur)(-|$)/i.test(locale) || I18nManager.isRTL ? 'rtl' : 'ltr');
   const mode = preference === 'system'
     ? resolveSystemMode(systemScheme, blackForSystemDark)
     : preference;
 
+  const activeTheme = themes?.[mode] ?? defaultThemes[mode];
+  const platform = platformOverride ?? getDesignSystemPlatform();
+  const platformTokens = resolvePlatformTokens(platform);
+
   const value = useMemo<ThemeContextValue>(
     () => ({
-      theme: customThemes?.[mode] ?? themes[mode],
+      theme: activeTheme,
       mode,
       preference,
       setPreference,
       direction: resolvedDirection,
       isRTL: resolvedDirection === 'rtl',
       locale,
-      translate,
+      platform,
+      platformTokens,
     }),
-    [customThemes, locale, mode, preference, resolvedDirection, translate],
+    [
+      activeTheme,
+      locale,
+      mode,
+      platform,
+      platformTokens,
+      preference,
+      resolvedDirection,
+      setPreference,
+    ],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

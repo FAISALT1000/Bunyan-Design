@@ -105,9 +105,9 @@ export const OTPInput = memo(function OTPInput({
                 opacity: disabled ? theme.opacity.disabled : theme.opacity.opaque,
               }}
             >
-              <Text weight="bold" style={{ fontSize: theme.typography.fontSize.xl, lineHeight: theme.typography.lineHeight.xl }}>
-                {digit ? (secure ? '•' : digit) : ''}
-              </Text>
+              <Text weight="bold" internalStyle={{ fontSize: theme.typography.fontSize.xl, lineHeight: theme.typography.lineHeight.xl }}
+                value={digit ? (secure ? '•' : digit) : ''}
+              />
             </View>
           );
         })}
@@ -133,7 +133,7 @@ export const OTPInput = memo(function OTPInput({
       />
 
       {errorText ? (
-        <Text accessibilityRole="alert" variant="bodySmall" tone="error" align="center">{errorText}</Text>
+        <Text accessibilityRole="alert" variant="bodySmall" tone="error" align="center" value={errorText} />
       ) : null}
 
       {useNumPad ? <NumPad value={code} onChange={update} maxLength={length} disabled={disabled} /> : null}
