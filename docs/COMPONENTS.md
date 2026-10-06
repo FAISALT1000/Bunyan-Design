@@ -141,7 +141,7 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Accessibility: Each control gets its label as accessible name; errors use alert semantics; submit shows busy state while submitting.
 - Example: `<Form initialValues={{ email: '' }} validationSchema={schema} onSubmit={save} fields={[{ type: 'Input', name: 'email', label: { localeKey: 'common.email' } }]} />`.
 - Do/don’t: Keep rules in `validationSchema` and texts as locale keys; do not render one Form inside another.
-- Edge cases: Falsy `fields` entries are skipped; `visibleWhen` hides fields based on values; Yup messages can be locale keys; needs `formik` (and `yup` for schemas) installed.
+- Edge cases: Falsy `fields` entries are skipped; `visibleWhen` hides fields based on values; Yup messages can be locale keys; needs `formik` installed; use the `Yup` exported by Bunyan for schemas.
 ## Checkbox
 
 - Purpose: Selects zero or more independent options.
@@ -210,7 +210,7 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Variants/sizes/states: Row or column; empty, partial, complete; Gregorian or Hijri display; error; disabled.
 - Accessibility: Each side is a labelled DatePicker; the calendar toggle is a ChipsGroup.
 - Example: `<DateRangePicker value={range} onChange={setRange} maximumDate={new Date()} showHijriToggle />`.
-- Do/don’t: Validate with `Yup.mixed().dateRange()` (registered automatically), `dateRangeSchema()` or `validateDateRange()`.
+- Do/don’t: Validate with Bunyan's `Yup.mixed().dateRange()`, `dateRangeSchema()` or `validateDateRange()`.
 - Edge cases: Each side is bounded by the other, so `from` ≤ `to`; Hijri changes display only — values stay `Date`s and the native picker grid stays Gregorian.
 ## Badge
 

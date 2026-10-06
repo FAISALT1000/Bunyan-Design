@@ -1,7 +1,6 @@
 /* Compile-time checks for <Form> (run by `npm run typecheck`). Mirrors the filter example. */
 import React from 'react';
-import * as Yup from 'yup';
-import { Form, registerFormFieldType, type DateRange } from '../src';
+import { Form, Yup, registerFormFieldType, type DateRange } from '../src';
 
 
 declare module '../src' {

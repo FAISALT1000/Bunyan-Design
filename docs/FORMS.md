@@ -3,14 +3,13 @@
 `<Form>` builds a whole form from a `fields` array. [Formik](https://formik.org) keeps the state, [Yup](https://github.com/jquense/yup) validates, and every field is a Bunyan control with label, description, error, theme, RTL and accessibility handled for you.
 
 ```bash
-npm i formik yup
+npm i formik   # Yup ships inside Bunyan — don't install it separately
 ```
 
 ## Quick start
 
 ```tsx
-import * as Yup from 'yup';
-import { Form } from '@bunyan/design-system'; // also registers Yup.mixed().dateRange() — no setup call needed
+import { Form, Yup } from '@bunyan/design-system'; // Yup comes from Bunyan, dateRange() included
 
 <Form
   formProps={{ enableReinitialize: true }}
@@ -161,17 +160,24 @@ fields={[{ type: 'IbanInput', name: 'iban', label: { localeKey: 'transfer.iban' 
 
 The component receives `{ field, name, value, setValue, setTouched, error, invalid, disabled, t, form }`. Pass `{ wrap: false }` as the third argument when the control renders its own label (like Checkbox). `registerFormFieldType` can also replace a built-in type. For a one-off type use the `fieldTypes` prop of a single form.
 
-## Yup helpers — no setup
+## Yup comes from Bunyan
 
-Importing Bunyan registers `Yup.mixed().dateRange(requireFrom?, requireTo?, messages?)` on your app's `yup` automatically. If you prefer not to extend Yup at all, use the factory instead:
+Bunyan ships Yup as a dependency and re-exports it with its helpers already registered:
 
 ```ts
-import { dateRangeSchema } from '@bunyan/design-system';
+import { Yup } from '@bunyan/design-system';
 
-Yup.object({ transactionDate: dateRangeSchema(true, true, { fromRequired: 'errors.dateFrom' }) });
+const schema = Yup.object({
+  email: Yup.string().email('errors.email').required('errors.required'),
+  transactionDate: Yup.mixed().dateRange(true, true),   // Bunyan helper
+});
+type FilterValues = Yup.InferType<typeof schema>;
 ```
 
-`addBunyanYupMethods(Yup)` is still exported for unusual setups (e.g. a monorepo where Bunyan and the app resolve two different copies of `yup`); calling it more than once is harmless.
+- It is the complete Yup API (`Yup.object`, `Yup.string`, `Yup.InferType`, `Yup.ValidationError`…), types included.
+- Apps should **not** install or import `yup` directly. Replace `import * as Yup from 'yup'` with `import { Yup } from '@bunyan/design-system'` and remove `yup` from the app's `package.json`, so the whole app uses one copy with the same helpers.
+- Prefer not to extend Yup? `dateRangeSchema(requireFrom, requireTo, messages)` returns the same rule as a schema.
+- `addBunyanYupMethods(otherYup)` is only for an app that must keep its own separate `yup` copy.
 
 ## Standalone pieces
 

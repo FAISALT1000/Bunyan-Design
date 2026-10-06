@@ -1,4 +1,4 @@
-import type * as YupModule from 'yup';
+import * as YupModule from 'yup';
 import type { DateRange } from '../DateRangePicker';
 
 export interface DateRangeMessages {
@@ -35,12 +35,10 @@ export function validateDateRange(
 }
 
 /**
- * Adds Bunyan helpers (`Yup.mixed().dateRange()`) to a Yup instance.
+ * Adds Bunyan helpers (`mixed().dateRange()`) to a Yup instance.
  *
- * **You normally don't need to call this**: Bunyan registers the helpers on the
- * app's `yup` automatically when the package is imported. Call it yourself only
- * for a second Yup copy (e.g. a monorepo where Bunyan resolves a different
- * `yup` than your app). Calling it more than once is harmless.
+ * Not needed with Bunyan's own `Yup` export (already registered). Only for an
+ * app that still imports its own separate `yup` copy. Idempotent.
  */
 export function addBunyanYupMethods(yup: typeof YupModule) {
   if (typeof (yup.mixed() as unknown as { dateRange?: unknown }).dateRange === 'function') return yup;
@@ -66,36 +64,36 @@ export function addBunyanYupMethods(yup: typeof YupModule) {
  * ```
  */
 export function dateRangeSchema(requireFrom = false, requireTo = false, messages: DateRangeMessages = {}) {
-  return loadYup().mixed<DateRange>().test('dateRange', function test(value) {
+  return YupModule.mixed<DateRange>().test('dateRange', function test(value) {
     const message = validateDateRange(value, requireFrom, requireTo, messages);
     return message ? this.createError({ message, path: this.path }) : true;
   });
 }
 
-declare const require: (id: string) => unknown;
+// Bunyan owns Yup: register the helpers once, when this module loads.
+addBunyanYupMethods(YupModule);
 
-/** The app's `yup` (optional peer dependency). */
-function loadYup(): typeof YupModule {
-  try {
-    return require('yup') as typeof YupModule;
-  } catch {
-    throw new Error('@bunyan/design-system: install `yup` to use dateRangeSchema / Yup.mixed().dateRange().');
-  }
-}
-
-// Register `Yup.mixed().dateRange()` on the app's yup as soon as Bunyan is imported.
-// `yup` is optional: Metro treats a require inside try/catch as an optional dependency,
-// so apps without yup still bundle and simply skip this.
-try {
-  addBunyanYupMethods(require('yup') as typeof YupModule);
-} catch {
-  // yup is not installed — nothing to register.
-}
+/**
+ * Yup, shipped by Bunyan with Bunyan's helpers (`Yup.mixed().dateRange()`)
+ * already registered. Apps import it from the design system instead of
+ * installing `yup` themselves:
+ *
+ * ```ts
+ * import { Form, Yup } from '@bunyan/design-system';
+ *
+ * const schema = Yup.object({
+ *   email: Yup.string().email('errors.email').required('errors.required'),
+ *   transactionDate: Yup.mixed().dateRange(true, true),
+ * });
+ * type Values = Yup.InferType<typeof schema>;
+ * ```
+ */
+export { YupModule as Yup };
 
 declare module 'yup' {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface MixedSchema<TType, TContext, TDefault, TFlags> {
-    /** `{ from, to }` date range: optional required sides and from ≤ to. Registered automatically by Bunyan. */
+    /** `{ from, to }` date range: optional required sides and from ≤ to. Registered on Bunyan's `Yup` export. */
     dateRange(requireFrom?: boolean, requireTo?: boolean, messages?: DateRangeMessages): this;
   }
 }

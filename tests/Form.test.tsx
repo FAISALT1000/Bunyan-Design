@@ -1,5 +1,4 @@
 import React from 'react';
-import * as Yup from 'yup';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import {
   ChipsGroup,
@@ -10,6 +9,7 @@ import {
   resolveText,
   validateDateRange,
   type DateRange,
+  Yup,
 } from '../src';
 import { renderWithTheme } from './test-utils';
 

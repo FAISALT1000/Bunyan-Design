@@ -30,7 +30,7 @@ You are working with **Bunyan** (`@bunyan/design-system`), a strongly typed Reac
 - Disclosure/navigation: `Accordion`, `Tabs` (line|pill), `Tooltip`.
 - Overlays: `Modal` (primary/secondary actions), `BottomSheet`.
 - Templates: `NumPad`, `OTPTemplate` (bottomSheet|overlay|fullScreen).
-- Forms: `<Form initialValues validationSchema onSubmit fields formProps submitButton resetButton>` (Formik + Yup). Field `type`s: Input/TextInput, PasswordInput, SearchInput, TextArea, Select/Picker, DatePicker, DateRangePicker, Checkbox, Switch/Toggle, RadioGroup, ChipsGroup, CheckboxGroup, RadioImageGroup, BoxGroup, SwatchGroup, Slider, AmountInput, AmountWithCurrencyInput, PhoneWithCountryInput, AmountField, FileInput, OTP, RepeatedControls, Progress, ActionText, plus React elements and custom types via `registerFormFieldType`. Falsy entries are skipped (`cond && {...}`); `visibleWhen(values)` hides fields; texts accept `{ localeKey }` (ThemeProvider `translate`); Yup messages may be locale keys; `Yup.mixed().dateRange(requireFrom, requireTo)` is registered automatically when Bunyan is imported (or use `dateRangeSchema()`); no setup call is needed.
+- Forms: `<Form initialValues validationSchema onSubmit fields formProps submitButton resetButton>` (Formik + Yup). Field `type`s: Input/TextInput, PasswordInput, SearchInput, TextArea, Select/Picker, DatePicker, DateRangePicker, Checkbox, Switch/Toggle, RadioGroup, ChipsGroup, CheckboxGroup, RadioImageGroup, BoxGroup, SwatchGroup, Slider, AmountInput, AmountWithCurrencyInput, PhoneWithCountryInput, AmountField, FileInput, OTP, RepeatedControls, Progress, ActionText, plus React elements and custom types via `registerFormFieldType`. Falsy entries are skipped (`cond && {...}`); `visibleWhen(values)` hides fields; texts accept `{ localeKey }` (ThemeProvider `translate`); Yup messages may be locale keys; Yup ships inside Bunyan: always `import { Yup } from '@bunyan/design-system'` (never from 'yup'); it includes `Yup.mixed().dateRange(requireFrom, requireTo)`, and `dateRangeSchema()` is available too.
 - Theming: `RNTheme.*` themed primitives, `createThemedComponent(Component, { displayName, baseStyle, defaultProps })`.
 - Responsive: `useResponsive()` → `{ breakpoint, up, down, between, is, select, resolve, s, vs, ms, mvs, isPortrait, isLandscape }`; `useBreakpoint()`, `useResponsiveValue()`, `makeStyles()`, static `s/vs/ms/mvs`, `getResponsive(size)`, `createResponsive(config)`; own tokens via `createTheme` / `createThemes`.
 
@@ -70,7 +70,7 @@ Fields: {name: type, required?, rules} …
 Submit: `{submitFn}`; show a success Toast after it resolves and an Alert on failure.
 
 Rules:
-- One `<Form>` with `initialValues`, a Yup `validationSchema` (messages as locale keys) and a `fields` array — no hand-wired inputs.
+- One `<Form>` with `initialValues`, a `validationSchema` built with Bunyan's `Yup` (`import { Yup } from '@bunyan/design-system'`, messages as locale keys) and a `fields` array — no hand-wired inputs.
 - Pick field types from the catalogue (TextInput, Picker, AmountInput, PhoneWithCountryInput, DateRangePicker, ChipsGroup, CheckboxGroup, FileInput, OTP, RepeatedControls…). Use `cond && {...}` for conditional fields known up front and `visibleWhen` for fields that depend on other values.
 - All labels/placeholders as `{ localeKey }`.
 - Use `formProps={{ enableReinitialize: true }}` when `initialValues` come from saved state.
