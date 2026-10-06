@@ -7,14 +7,12 @@ import {
   Form,
   RadioGroup,
   ThemeProvider,
-  addBunyanYupMethods,
   resolveText,
   validateDateRange,
   type DateRange,
 } from '../src';
 import { renderWithTheme } from './test-utils';
 
-addBunyanYupMethods(Yup);
 
 const dictionary: Record<string, string> = {
   'common.from': 'من',

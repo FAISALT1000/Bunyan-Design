@@ -157,7 +157,7 @@ mirroring again would render RTL apps left-to-right.
 />
 ```
 
-Formik + Yup under the hood, texts accept `{ localeKey }` (pass `translate` to `ThemeProvider`), and projects can register their own field types. Full guide: [docs/FORMS.md](docs/FORMS.md).
+Formik + Yup under the hood (`Yup.mixed().dateRange()` is registered automatically — no setup call), texts accept `{ localeKey }` (pass `translate` to `ThemeProvider`), and projects can register their own field types. Full guide: [docs/FORMS.md](docs/FORMS.md).
 
 ### Responsive layout & your own tokens
 

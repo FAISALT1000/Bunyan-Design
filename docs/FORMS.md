@@ -10,9 +10,7 @@ npm i formik yup
 
 ```tsx
 import * as Yup from 'yup';
-import { Form, addBunyanYupMethods } from '@bunyan/design-system';
-
-addBunyanYupMethods(Yup); // once, at app start — adds Yup.mixed().dateRange()
+import { Form } from '@bunyan/design-system'; // also registers Yup.mixed().dateRange() — no setup call needed
 
 <Form
   formProps={{ enableReinitialize: true }}
@@ -162,6 +160,18 @@ fields={[{ type: 'IbanInput', name: 'iban', label: { localeKey: 'transfer.iban' 
 ```
 
 The component receives `{ field, name, value, setValue, setTouched, error, invalid, disabled, t, form }`. Pass `{ wrap: false }` as the third argument when the control renders its own label (like Checkbox). `registerFormFieldType` can also replace a built-in type. For a one-off type use the `fieldTypes` prop of a single form.
+
+## Yup helpers — no setup
+
+Importing Bunyan registers `Yup.mixed().dateRange(requireFrom?, requireTo?, messages?)` on your app's `yup` automatically. If you prefer not to extend Yup at all, use the factory instead:
+
+```ts
+import { dateRangeSchema } from '@bunyan/design-system';
+
+Yup.object({ transactionDate: dateRangeSchema(true, true, { fromRequired: 'errors.dateFrom' }) });
+```
+
+`addBunyanYupMethods(Yup)` is still exported for unusual setups (e.g. a monorepo where Bunyan and the app resolve two different copies of `yup`); calling it more than once is harmless.
 
 ## Standalone pieces
 

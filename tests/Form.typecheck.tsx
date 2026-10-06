@@ -1,9 +1,8 @@
 /* Compile-time checks for <Form> (run by `npm run typecheck`). Mirrors the filter example. */
 import React from 'react';
 import * as Yup from 'yup';
-import { Form, addBunyanYupMethods, registerFormFieldType, type DateRange } from '../src';
+import { Form, registerFormFieldType, type DateRange } from '../src';
 
-addBunyanYupMethods(Yup);
 
 declare module '../src' {
   interface FormFieldTypes {

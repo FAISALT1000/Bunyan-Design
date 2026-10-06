@@ -6,7 +6,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "react-native": "src/index.ts",
-  "sideEffects": false,
+  "sideEffects": [
+    "./src/design-system/components/Form/yupMethods.ts",
+    "./dist/design-system/components/Form/yupMethods.js"
+  ],
   "files": [
     "dist",
     "src",

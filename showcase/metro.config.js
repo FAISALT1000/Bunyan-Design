@@ -18,6 +18,9 @@ const singletonPackages = [
   'react-native-gesture-handler',
   'react-native-safe-area-context',
   '@gorhom/bottom-sheet',
+  // One copy of these for the app and the linked design system (Form + Yup helpers).
+  'formik',
+  'yup',
 ];
 
 config.resolver.resolveRequest = (context, moduleName, platform) => {
