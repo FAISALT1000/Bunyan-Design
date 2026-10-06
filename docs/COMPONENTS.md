@@ -210,7 +210,7 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Variants/sizes/states: Row or column; empty, partial, complete; Gregorian or Hijri display; error; disabled.
 - Accessibility: Each side is a labelled DatePicker; the calendar toggle is a ChipsGroup.
 - Example: `<DateRangePicker value={range} onChange={setRange} maximumDate={new Date()} showHijriToggle />`.
-- Do/don’t: Validate with Bunyan's `Yup.mixed().dateRange()`, `dateRangeSchema()` or `validateDateRange()`.
+- Do/don’t: Validate with Bunyan's `Yup.mixed().dateRange()` (or `validateDateRange()` without Yup).
 - Edge cases: Each side is bounded by the other, so `from` ≤ `to`; Hijri changes display only — values stay `Date`s and the native picker grid stays Gregorian.
 ## Badge
 

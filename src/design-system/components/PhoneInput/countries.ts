@@ -1,3 +1,11 @@
+/** Value of `PhoneInput` / the `PhoneWithCountryInput` form field. */
+export interface PhoneValue {
+  /** ISO country code, e.g. `'SA'`. */
+  country: string;
+  /** National number, digits only, without the leading 0. */
+  number: string;
+}
+
 export interface PhoneCountry {
   /** ISO 3166-1 alpha-2, e.g. `'SA'`. */
   code: string;
@@ -30,3 +38,18 @@ export const DEFAULT_PHONE_COUNTRIES: readonly PhoneCountry[] = [
 /** `'SA'` → 🇸🇦 */
 export const flagEmoji = (code: string) =>
   code.toUpperCase().replace(/[A-Z]/g, letter => String.fromCodePoint(0x1f1e6 + letter.charCodeAt(0) - 65));
+
+/** `{ country: 'SA', number: '512345678' }` → `'+966512345678'` */
+export const toE164 = (value: PhoneValue | null | undefined, countries: readonly PhoneCountry[] = DEFAULT_PHONE_COUNTRIES) => {
+  if (!value?.number) return '';
+  const dial = countries.find(country => country.code === value.country)?.dialCode ?? '';
+  return `${dial}${value.number}`;
+};
+
+/** Checks the national number length against the country's `lengths`. */
+export const isValidPhone = (value: PhoneValue | null | undefined, countries: readonly PhoneCountry[] = DEFAULT_PHONE_COUNTRIES) => {
+  if (!value?.number) return false;
+  const lengths = countries.find(country => country.code === value.country)?.lengths;
+  return lengths ? lengths.includes(value.number.length) : value.number.length >= 6;
+};
+

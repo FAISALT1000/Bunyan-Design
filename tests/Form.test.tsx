@@ -10,6 +10,8 @@ import {
   validateDateRange,
   type DateRange,
   Yup,
+  defaultValidationMessages,
+  setValidationMessages,
 } from '../src';
 import { renderWithTheme } from './test-utils';
 
@@ -193,3 +195,27 @@ describe('Form', () => {
   });
 });
 
+
+describe('Form shows Bunyan rule messages', () => {
+  afterEach(() => setValidationMessages(defaultValidationMessages));
+
+  it('translates locale-key messages with their params', async () => {
+    setValidationMessages({ minMax: { localeKey: 'errors.length' } });
+    const translateWithParams = (key: string, params?: Record<string, unknown>) =>
+      key === 'errors.length' ? `يجب أن يكون بين ${String(params?.min)} و ${String(params?.max)} حروف` : key;
+    render(
+      <ThemeProvider translate={translateWithParams}>
+        <Form
+          initialValues={{ name: 'a' }}
+          onSubmit={jest.fn()}
+          validationSchema={Yup.object({ name: Yup.string().minMax(2, 4) })}
+          fields={[{ type: 'Input', name: 'name', label: 'Name' }]}
+        />
+      </ThemeProvider>,
+    );
+    await act(async () => {
+      fireEvent.press(screen.getByRole('button', { name: 'Submit' }));
+    });
+    expect(await screen.findByText('يجب أن يكون بين 2 و 4 حروف')).toBeTruthy();
+  });
+});

@@ -7,8 +7,8 @@
   "types": "dist/index.d.ts",
   "react-native": "src/index.ts",
   "sideEffects": [
-    "./src/design-system/components/Form/yupMethods.ts",
-    "./dist/design-system/components/Form/yupMethods.js"
+    "./src/design-system/validation/yup.ts",
+    "./dist/design-system/validation/yup.js"
   ],
   "files": [
     "dist",

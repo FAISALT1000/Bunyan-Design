@@ -2,7 +2,7 @@ import React, { createContext, memo, useContext, useMemo } from 'react';
 import { Formik, getIn, useFormikContext, type FormikProps, type FormikValues } from 'formik';
 import { View } from '../RNTheme';
 import { useTheme } from '../../hooks';
-import { useText } from '../../i18n';
+import { isTextValue, useText, type TextValue } from '../../i18n';
 import { useResponsive } from '../../responsive';
 import type { Theme } from '../../themes/types';
 import { logicalRow } from '../../utilities/styles';
@@ -18,10 +18,11 @@ import type { FormButtonConfig, FormFieldComponent, FormFieldConfig, FormFieldEn
 const resolveSpacing = (theme: Theme, value: ListSpacing | undefined, fallback: number) =>
   value === undefined ? fallback : typeof value === 'number' ? value : theme.spacing[value];
 
-/** First string inside a (possibly nested) Formik error. */
-const firstError = (error: unknown): string | undefined => {
+/** First message inside a (possibly nested) Formik error: a string or a `{ localeKey, params }` object. */
+const firstError = (error: unknown): TextValue | undefined => {
   if (!error) return undefined;
   if (typeof error === 'string') return error;
+  if (isTextValue(error)) return error;
   if (Array.isArray(error)) return error.map(firstError).find(Boolean);
   if (typeof error === 'object') return Object.values(error as Record<string, unknown>).map(firstError).find(Boolean);
   return undefined;
@@ -57,7 +58,9 @@ const FormFieldItem = memo(function FormFieldItem({ field, prefix }: { field: Fo
   const touched = name ? Boolean(getIn(form.touched, name)) || form.submitCount > 0 : false;
   const rawError = name ? firstError(getIn(form.errors, name)) : undefined;
   // Error strings may be locale keys; untranslated keys fall back to the text itself.
-  const error = touched && rawError ? t({ localeKey: rawError }) : undefined;
+  const error = touched && rawError
+    ? t(typeof rawError === 'string' ? { localeKey: rawError, fallback: rawError } : rawError)
+    : undefined;
   const disabled = Boolean(field.disabled) || form.isSubmitting;
   const Control = registration.component;
 

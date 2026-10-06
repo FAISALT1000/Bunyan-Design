@@ -160,25 +160,69 @@ fields={[{ type: 'IbanInput', name: 'iban', label: { localeKey: 'transfer.iban' 
 
 The component receives `{ field, name, value, setValue, setTouched, error, invalid, disabled, t, form }`. Pass `{ wrap: false }` as the third argument when the control renders its own label (like Checkbox). `registerFormFieldType` can also replace a built-in type. For a one-off type use the `fieldTypes` prop of a single form.
 
-## Yup comes from Bunyan
+## Yup comes from Bunyan — with ready-made rules
 
-Bunyan ships Yup as a dependency and re-exports it with its helpers already registered:
+Bunyan ships Yup and extends it. Import it from the design system (never from `'yup'`) and every schema has these extra methods:
 
 ```ts
 import { Yup } from '@bunyan/design-system';
 
 const schema = Yup.object({
-  email: Yup.string().email('errors.email').required('errors.required'),
-  transactionDate: Yup.mixed().dateRange(true, true),   // Bunyan helper
+  name: Yup.string().required().onlyENAndARAlphabetic().minMax(2, 50),
+  mobile: Yup.string().required().mobileNumber(),
+  email: Yup.string().required().email('gmail'),
+  password: Yup.string().required().password(),
+  confirm: Yup.string().required().sameAs('password'),
+  nationalId: Yup.string().saudiNationalId(),
+  transactionDate: Yup.mixed().dateRange(true, true),
 });
-type FilterValues = Yup.InferType<typeof schema>;
+type Values = Yup.InferType<typeof schema>;
 ```
 
-- It is the complete Yup API (`Yup.object`, `Yup.string`, `Yup.InferType`, `Yup.ValidationError`…), types included.
-- Apps should **not** install or import `yup` directly. Replace `import * as Yup from 'yup'` with `import { Yup } from '@bunyan/design-system'` and remove `yup` from the app's `package.json`, so the whole app uses one copy with the same helpers.
-- Prefer not to extend Yup? `dateRangeSchema(requireFrom, requireTo, messages)` returns the same rule as a schema.
-- `addBunyanYupMethods(otherYup)` is only for an app that must keep its own separate `yup` copy.
+All rules pass on empty values, so combine them with `.required()` when the field is mandatory. Every method takes an optional last `message` (text or `{ localeKey }`).
+
+| Method | Checks |
+| --- | --- |
+| `string().mobileNumber(options?)` | Digits only: `5XXXXXXXX` (9), `05XXXXXXXX` (10), or with country code `9665XXXXXXXX`, `+9665XXXXXXXX` (13 chars), `009665XXXXXXXX`. Arabic-Indic digits accepted. Options: `countryCode` (default `'966'`), `startsWith` (`'5'`), `nationalLength` (9). |
+| `string().email(domain?)` | Yup's email check, plus an optional domain: `email('gmail')` → must end in `@gmail.com`; `email('outlook.com')`, `email('@company.sa')`, `email(['company.sa', 'company.com'])`. A sentence or locale key is still treated as the message: `email('errors.email')`. |
+| `string().password(options?)` | Default: 8–64 characters, upper + lower case, number, special character, no spaces, English characters only. Options: `min`, `max`, `uppercase`, `lowercase`, `number`, `special`, `noSpaces`, `noSequence` (1234/abcd), `noRepeat` (aaaa), `englishOnly`. Shows one message: the first rule not met yet. |
+| `string().minMax(min, max)` | Length between min and max with one message (also `number().minMax` for values and `array().minMax` for item count). |
+| `string().noEmojis()` | No emoji (faces, symbols, flags, hearts…). |
+| `string().noSpecialChar(options?)` | Only English/Arabic letters, digits and spaces. `{ allow: "-'." }` adds characters, `{ allowSpaces: false }`. |
+| `string().onlyEnglishAlphabetic(options?)` | A–Z / a–z (and spaces). `{ allowDigits: true }`, `{ allowSpaces: false }`, `{ allow }`. |
+| `string().onlyArabicAlphabetic(options?)` | Arabic letters incl. harakat (and spaces). Same options. |
+| `string().onlyENAndARAlphabetic(options?)` | Arabic or English letters (and spaces). Same options. |
+| `string().onlyNumbers()` | Digits only (Arabic-Indic accepted). |
+| `string().fullName(minWords = 2)` | At least N names, Arabic/English letters, `-` and `'`. |
+| `string().saudiNationalId(type?)` | 10 digits, starts with 1 (citizen) or 2 (Iqama), check digit verified. `type`: `'citizen'`, `'resident'`, `'any'`. |
+| `string().iban(country?)` | IBAN with mod-97 check and country length; `iban('SA')` requires a Saudi IBAN. |
+| `string().sameAs(field)` | Equals a sibling field (confirm password / email). |
+| `number().maxDecimals(n = 2)` | At most n decimal places (amounts). |
+| `date().minAge(years)` · `date().notFuture()` · `date().notPast()` | Birth dates and schedule dates. |
+| `mixed().dateRange(requireFrom?, requireTo?)` | `DateRangePicker` value `{ from, to }`: required sides and from ≤ to. |
+| `mixed().phone()` | `PhoneWithCountryInput` value `{ country, number }` with the country's number length. |
+
+### Messages
+
+Defaults are English. Replace any of them once for the whole app — plain text, or locale keys that your `translate` function receives together with the rule's params (`min`, `max`, `domain`, `years`…):
+
+```ts
+import { setValidationMessages } from '@bunyan/design-system';
+
+setValidationMessages({
+  mobileNumber: { localeKey: 'errors.mobileNumber' },
+  minMax: { localeKey: 'errors.length' },            // translate('errors.length', { min, max })
+  emailDomain: { localeKey: 'errors.emailDomain' },  // translate(..., { domain })
+  passwordUppercase: { localeKey: 'errors.password.uppercase' },
+});
+```
+
+The full list of keys is `defaultValidationMessages`.
+
+### Without Yup
+
+The same rules are plain functions for handlers, Formik `validate` or servers: `isMobileNumber`, `toNationalMobile`, `isEmail`, `passwordIssues`, `passwordStrength` (0–4 for a meter), `hasEmoji`, `hasNoSpecialChar`, `isOnlyEnglishAlphabetic`, `isOnlyArabicAlphabetic`, `isOnlyENAndARAlphabetic`, `isOnlyNumbers`, `isSaudiNationalId`, `isIban`, `ageOn`, `validateDateRange`.
 
 ## Standalone pieces
 
-`ChipsGroup`, `RadioGroup` and `DateRangePicker` are normal components too, usable without `<Form>`. `validateDateRange(value, requireFrom, requireTo, messages)` validates a range without Yup.
+`ChipsGroup`, `RadioGroup` and `DateRangePicker` are normal components too, usable without `<Form>`.

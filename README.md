@@ -157,7 +157,7 @@ mirroring again would render RTL apps left-to-right.
 />
 ```
 
-Formik + Yup under the hood. Yup ships inside Bunyan: `import { Form, Yup } from '@bunyan/design-system'` (with `Yup.mixed().dateRange()` ready) — apps don't install `yup`. Texts accept `{ localeKey }` (pass `translate` to `ThemeProvider`), and projects can register their own field types. Full guide: [docs/FORMS.md](docs/FORMS.md).
+Formik + Yup under the hood. Yup ships inside Bunyan with extra rules — `mobileNumber()`, `password()`, `email('gmail')`, `minMax()`, `noEmojis()`, `noSpecialChar()`, `onlyEnglishAlphabetic()`, `onlyArabicAlphabetic()`, `onlyENAndARAlphabetic()`, `saudiNationalId()`, `iban()`, `sameAs()`… — via `import { Form, Yup } from '@bunyan/design-system'`; apps don't install `yup`. Texts accept `{ localeKey }` (pass `translate` to `ThemeProvider`), and projects can register their own field types. Full guide: [docs/FORMS.md](docs/FORMS.md).
 
 ### Responsive layout & your own tokens
 

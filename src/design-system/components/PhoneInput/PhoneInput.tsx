@@ -5,14 +5,7 @@ import { useText, type TextValue } from '../../i18n';
 import { normalizeDigits } from '../../utilities/numbers';
 import { InlinePicker } from '../InlinePicker';
 import { Input, type InputProps } from '../Input';
-import { DEFAULT_PHONE_COUNTRIES, flagEmoji, type PhoneCountry } from './countries';
-
-export interface PhoneValue {
-  /** ISO country code, e.g. `'SA'`. */
-  country: string;
-  /** National number, digits only, without the leading 0. */
-  number: string;
-}
+import { DEFAULT_PHONE_COUNTRIES, flagEmoji, type PhoneCountry, type PhoneValue } from './countries';
 
 export interface PhoneInputProps extends Omit<InputProps, 'value' | 'defaultValue' | 'onChangeText' | 'onChange' | 'keyboardType' | 'leading'> {
   value?: PhoneValue | null;
@@ -26,20 +19,6 @@ export interface PhoneInputProps extends Omit<InputProps, 'value' | 'defaultValu
   countryAccessibilityLabel?: TextValue;
   searchPlaceholder?: TextValue;
 }
-
-/** `{ country: 'SA', number: '512345678' }` → `'+966512345678'` */
-export const toE164 = (value: PhoneValue | null | undefined, countries: readonly PhoneCountry[] = DEFAULT_PHONE_COUNTRIES) => {
-  if (!value?.number) return '';
-  const dial = countries.find(country => country.code === value.country)?.dialCode ?? '';
-  return `${dial}${value.number}`;
-};
-
-/** Checks the national number length against the country's `lengths`. */
-export const isValidPhone = (value: PhoneValue | null | undefined, countries: readonly PhoneCountry[] = DEFAULT_PHONE_COUNTRIES) => {
-  if (!value?.number) return false;
-  const lengths = countries.find(country => country.code === value.country)?.lengths;
-  return lengths ? lengths.includes(value.number.length) : value.number.length >= 6;
-};
 
 /**
  * Phone number with a searchable country-code picker inside the field.
