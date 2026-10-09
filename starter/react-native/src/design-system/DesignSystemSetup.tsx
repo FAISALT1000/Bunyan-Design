@@ -3,6 +3,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {
   ApplicationAdapterProvider,
   DesignSystemProvider,
+  OverlayProvider,
+  ToastProvider,
   type ThemePreference,
 } from '@bunyan/design-system';
 import { designSystemAdapters } from './designSystemAdapters';
@@ -41,7 +43,10 @@ export function DesignSystemSetup({
             locale,
           }}
         >
-          {children}
+          {/* Toasts (useToast / useStatusToast) and dialogs (useConfirm, useActionSheet, usePrompt). */}
+          <ToastProvider>
+            <OverlayProvider>{children}</OverlayProvider>
+          </ToastProvider>
         </DesignSystemProvider>
       </ApplicationAdapterProvider>
     </SafeAreaProvider>

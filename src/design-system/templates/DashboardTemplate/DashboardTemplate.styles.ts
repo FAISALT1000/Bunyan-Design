@@ -1,5 +1,6 @@
 import { StyleSheet } from '../../components/RNTheme/native';
 import type { Direction, Theme } from '../../themes';
+import { needsMirroring } from '../../utilities/styles';
 
 export const createDashboardTemplateStyles = (theme: Theme, direction: Direction) =>
   StyleSheet.create({
@@ -10,7 +11,7 @@ export const createDashboardTemplateStyles = (theme: Theme, direction: Direction
       gap: theme.spacing.xxl,
     },
     greeting: {
-      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+      flexDirection: needsMirroring(direction) ? 'row-reverse' : 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
       gap: theme.spacing.lg,
@@ -20,7 +21,7 @@ export const createDashboardTemplateStyles = (theme: Theme, direction: Direction
       gap: theme.spacing.xs,
     },
     quickActions: {
-      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+      flexDirection: needsMirroring(direction) ? 'row-reverse' : 'row',
       alignItems: 'stretch',
       gap: theme.spacing.md,
       flexWrap: 'wrap',
@@ -36,7 +37,7 @@ export const createDashboardTemplateStyles = (theme: Theme, direction: Direction
       gap: theme.spacing.md,
     },
     sectionHeader: {
-      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+      flexDirection: needsMirroring(direction) ? 'row-reverse' : 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
       gap: theme.spacing.md,

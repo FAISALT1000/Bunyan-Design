@@ -1,5 +1,6 @@
 import { StyleSheet } from '../../components/RNTheme/native';
 import type { Direction, Theme } from '../../themes';
+import { needsMirroring } from '../../utilities/styles';
 
 export const createBottomActionTemplateStyles = (
   theme: Theme,
@@ -19,9 +20,7 @@ export const createBottomActionTemplateStyles = (
       alignSelf: 'center',
       flexDirection:
         layout === 'inline'
-          ? direction === 'rtl'
-            ? 'row-reverse'
-            : 'row'
+          ? needsMirroring(direction) ? 'row-reverse' : 'row'
           : 'column',
       alignItems: 'stretch',
       gap: theme.spacing.md,

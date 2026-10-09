@@ -1,5 +1,6 @@
 import { StyleSheet } from '../../components/RNTheme/native';
 import type { Direction, Theme } from '../../themes';
+import { needsMirroring } from '../../utilities/styles';
 
 export const createDetailsScreenTemplateStyles = (theme: Theme, direction: Direction) =>
   StyleSheet.create({
@@ -13,14 +14,14 @@ export const createDetailsScreenTemplateStyles = (theme: Theme, direction: Direc
       gap: theme.spacing.md,
     },
     statusRow: {
-      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+      flexDirection: needsMirroring(direction) ? 'row-reverse' : 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
       gap: theme.spacing.md,
       flexWrap: 'wrap',
     },
     utilityActions: {
-      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+      flexDirection: needsMirroring(direction) ? 'row-reverse' : 'row',
       alignItems: 'center',
       gap: theme.spacing.sm,
       flexWrap: 'wrap',
@@ -35,7 +36,7 @@ export const createDetailsScreenTemplateStyles = (theme: Theme, direction: Direc
       gap: theme.spacing.xs,
     },
     row: {
-      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+      flexDirection: needsMirroring(direction) ? 'row-reverse' : 'row',
       alignItems: 'flex-start',
       justifyContent: 'space-between',
       gap: theme.spacing.xxl,

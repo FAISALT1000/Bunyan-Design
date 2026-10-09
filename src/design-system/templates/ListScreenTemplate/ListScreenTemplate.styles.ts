@@ -1,5 +1,6 @@
 import { StyleSheet } from '../../components/RNTheme/native';
 import type { Direction, Theme } from '../../themes';
+import { needsMirroring } from '../../utilities/styles';
 
 export const createListScreenTemplateStyles = (theme: Theme, direction: Direction) =>
   StyleSheet.create({
@@ -13,7 +14,7 @@ export const createListScreenTemplateStyles = (theme: Theme, direction: Directio
       backgroundColor: theme.color.background.primary,
     },
     filterRow: {
-      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+      flexDirection: needsMirroring(direction) ? 'row-reverse' : 'row',
       alignItems: 'center',
       gap: theme.spacing.md,
       flexWrap: 'wrap',

@@ -4,6 +4,77 @@ All notable changes to `@bunyan/design-system`. Versions follow semantic
 versioning; until 1.0.0, minor changes may still add props but never rename or
 remove public ones without a deprecation.
 
+## 0.1.0
+
+New presets so screens contain data instead of stacks of View / Text /
+Button, a status feedback family, dialogs as functions and a categorized icon
+set. Everything follows the five theme modes, Arabic RTL, translations
+(`{ localeKey }`) and accessibility. Nothing existing was removed or renamed.
+See docs/PRESETS.md, docs/ICONS.md and docs/ADOPTION_PROMPT.md.
+
+### Added
+
+- **Cards:**
+  - `OneLineCard`, `TwoLineCard` and `ThreeLineCard`: icon, avatar or
+    custom leading element; value, sub-value, badge, switch, chevron;
+    destructive rows; matching skeletons through `loading`.
+  - `SettingsGroup`, `DetailsCard` (copyable rows, total), `AmountCard`
+    (trend, hide button, quick actions), `StatCard`, `ProfileCard`,
+    `ActionCard`, `ProductCard` (vertical and horizontal, favourite,
+    call to action, quantity stepper) and `StatusCard`.
+  - `IconBox`, a tinted icon tile.
+- **Layout:** `Row`, `Column`, `Center` and `Grid`, with token props (`gap`,
+  `p`, `bg`, `radius`…), plus `Section` (title row with an action, loading
+  and empty states).
+- **Status feedback:**
+  - `StatusScreen` and `StatusModal`: success, error or pending with title,
+    subtitle, your own children between the text and the buttons, and two
+    buttons.
+  - `useStatusToast()`: `show()` returns `{ update, dismiss }`, and
+    `run(promise, texts)` handles the whole flow.
+  - `StatusBanner`, plus `StatusIcon` with built-in animations: the check
+    or X is drawn, error shakes, pending spins. Reduce Motion is respected.
+  - Optional haptics, and `animation` accepts your own (e.g. Lottie)
+    element.
+- **Toast:** `ToastOptions.status` and `subtitle`, and
+  `ToastContextValue.updateToast(id, options)`.
+- **Dialogs:** `OverlayProvider` with promise-based `useConfirm()`,
+  `useActionSheet()` and `usePrompt()`.
+- **Data states:** `DataState` handles loading skeletons, error with retry,
+  empty and data. It reads React Query results.
+- **Formatting:**
+  - Components: `Money`, `DateText` (date, time, datetime, month,
+    relative, Hijri), `PhoneText` and `MaskedText` (card, IBAN, phone).
+  - Matching functions: `formatMoney`, `formatDate`, `formatPhone`,
+    `maskText`.
+  - Latin, Arabic-Indic or locale digits.
+- **Screen builder:**
+  - `ScreenContent` renders a screen from a `blocks` array: every preset,
+    plus Section, Grid, Row, List (with DataState), Heading, Text, Button,
+    Spacer and Divider.
+  - Falsy entries are skipped.
+  - `registerBlockType` and the `ScreenBlockTypes` interface add custom
+    blocks.
+- **Icons:**
+  - 153 icons in 12 categories, exported as `iconCategories` (115 are new;
+    existing drawings are unchanged).
+  - Per-icon components from `@bunyan/design-system/icons` (`WalletIcon`…)
+    and `createIcon()`.
+  - `registerIcons()` with a `CustomIcons` interface for app icons, and
+    `getIconNames()`.
+  - `Icon` accepts a numeric `size`.
+- **Storybook:** `Presets/*` stories.
+- **Starter:** `DesignSystemSetup` wraps the app in `ToastProvider` and
+  `OverlayProvider`.
+
+### Fixed
+
+- Rows no longer render left-to-right when an app runs natively in RTL
+  (`I18nManager.forceRTL`). `Inline`, horizontal `ScrollContainer`, Line, all
+  templates and `useRTL().rowDirection` now mirror only when the provider
+  direction differs from the native one, like `logicalRow`. Apps with a
+  native LTR layout render exactly as before.
+
 ## 0.0.3
 
 Fixes for issues found by StreamSpy on Android (Samsung, gesture and 3-button

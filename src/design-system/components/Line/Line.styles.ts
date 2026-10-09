@@ -3,6 +3,7 @@ import type {
   LineGap,
   LinePadding,
 } from './Line.types';
+import { needsMirroring } from '../../utilities/styles';
 
 export function createLineStyles(
   theme: Theme,
@@ -39,13 +40,13 @@ export function createLineStyles(
         : theme.components.line.paddingVertical,
     },
     row: {
-      flexDirection: direction === 'rtl' ? 'row-reverse' as const : 'row' as const,
+      flexDirection: needsMirroring(direction) ? 'row-reverse' as const : 'row' as const,
       alignItems,
       justifyContent: 'space-between' as const,
       gap: gapMap[gap],
     },
     section: {
-      flexDirection: direction === 'rtl' ? 'row-reverse' as const : 'row' as const,
+      flexDirection: needsMirroring(direction) ? 'row-reverse' as const : 'row' as const,
       alignItems,
       gap: theme.components.line.iconGap,
       minWidth: theme.spacing.none,

@@ -1,5 +1,6 @@
 import { StyleSheet } from '../../components/RNTheme/native';
 import type { Direction, Theme } from '../../themes';
+import { needsMirroring } from '../../utilities/styles';
 
 export const createConfirmationScreenTemplateStyles = (
   theme: Theme,
@@ -16,7 +17,7 @@ export const createConfirmationScreenTemplateStyles = (
       gap: theme.spacing.md,
     },
     row: {
-      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+      flexDirection: needsMirroring(direction) ? 'row-reverse' : 'row',
       alignItems: 'flex-start',
       justifyContent: 'space-between',
       gap: theme.spacing.xxl,
@@ -34,7 +35,7 @@ export const createConfirmationScreenTemplateStyles = (
       gap: theme.spacing.md,
     },
     amountRow: {
-      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+      flexDirection: needsMirroring(direction) ? 'row-reverse' : 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
       gap: theme.spacing.lg,

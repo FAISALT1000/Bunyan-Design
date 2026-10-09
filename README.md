@@ -43,6 +43,16 @@ See [docs/SETUP.md](docs/SETUP.md#generated-setup).
 
 ## Forms, validation, lists, and responsive layout
 
+- [docs/PRESETS.md](docs/PRESETS.md): ready-made cards (`TwoLineCard`,
+  `SettingsGroup`, `DetailsCard`, `AmountCard`, `ProductCard`…), layout
+  (`Row`, `Grid`, `Section`), status feedback (`StatusScreen`, `StatusModal`,
+  `useStatusToast`, `StatusBanner`), dialogs as functions (`useConfirm`…),
+  `DataState`, formatters (`Money`, `DateText`…) and `ScreenContent`.
+- [docs/ICONS.md](docs/ICONS.md): 153 categorized icons, also as components
+  from `@bunyan/design-system/icons`.
+- [docs/ADOPTION_PROMPT.md](docs/ADOPTION_PROMPT.md): a prompt for AI
+  assistants that moves an app to the presets, wrapped in the app's own
+  components.
 - [docs/FORMS.md](docs/FORMS.md): declarative `<Form fields={[...]}>` on Formik,
   with Yup shipped inside Bunyan (`import { Yup } from '@bunyan/design-system'`)
   and extra rules such as `mobileNumber()`, `email('gmail')`, `password()`,

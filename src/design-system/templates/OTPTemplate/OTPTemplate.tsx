@@ -8,6 +8,7 @@ import { IconButton } from '../../components/IconButton';
 import { Text } from '../../components/Text';
 import { useTheme } from '../../hooks';
 import { NumPad } from '../NumPad';
+import { needsMirroring } from '../../utilities/styles';
 
 export type OTPTemplateVariant = 'bottomSheet' | 'overlay' | 'fullScreen';
 
@@ -118,7 +119,7 @@ const OTPContent = memo(function OTPContent({
         accessibilityState={{ disabled }}
         onPress={() => inputRef.current?.focus()}
         style={{
-          flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+          flexDirection: needsMirroring(direction) ? 'row-reverse' : 'row',
           justifyContent: 'center',
           gap: theme.spacing.sm,
         }}
@@ -348,7 +349,7 @@ export const OTPTemplate = memo(function OTPTemplate({
         style={{
           minHeight: theme.componentHeight.xl,
           paddingHorizontal: theme.spacing.lg,
-          flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+          flexDirection: needsMirroring(direction) ? 'row-reverse' : 'row',
           alignItems: 'center',
         }}
       >

@@ -5,11 +5,17 @@ import { useKeyboard, useSafeArea, useTheme } from '../../hooks';
 import { logicalRow } from '../../utilities/styles';
 import { Icon, type IconName } from '../Icon';
 import { Text } from '../Text';
+import { StatusIcon, type StatusKind } from '../../presets/status/StatusIcon';
 
 export type ToastTone = 'neutral' | 'success' | 'warning' | 'error' | 'information';
 export interface ToastOptions {
   message: string;
+  /** Second line under the message. */
+  subtitle?: string;
   tone?: ToastTone;
+  /** Animated status mark instead of the tone icon. Pending toasts stay until updated. */
+  status?: StatusKind;
+  /** Milliseconds; `0` keeps the toast until dismissed. Default 5000 (0 for `status: 'pending'`). */
   duration?: number;
   actionLabel?: string;
   onAction?: () => void;
@@ -21,8 +27,12 @@ interface ToastItem extends ToastOptions {
 
 export interface ToastContextValue {
   showToast: (options: ToastOptions) => number;
+  /** Changes a visible toast in place (e.g. pending → success) and restarts its timer. */
+  updateToast: (id: number, options: Partial<ToastOptions>) => void;
   dismissToast: (id: number) => void;
 }
+
+const durationOf = (options: ToastOptions) => options.duration ?? (options.status === 'pending' ? 0 : 5000);
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
@@ -61,6 +71,9 @@ export function ToastProvider({
           : safeArea.bottom + theme.spacing.xxl + bottomOffset,
       };
   const [items, setItems] = useState<ToastItem[]>([]);
+  // Latest items for synchronous reads in updateToast.
+  const itemsRef = useRef(items);
+  itemsRef.current = items;
   const nextId = useRef(0);
   const timers = useRef(new Map<number, ReturnType<typeof setTimeout>>());
 
@@ -73,6 +86,7 @@ export function ToastProvider({
 
   const showToast = useCallback((options: ToastOptions) => {
     const id = ++nextId.current;
+    itemsRef.current = [...itemsRef.current, { ...options, id }];
     setItems(current => {
       // `slice(-0)` would keep everything, so compute the kept count explicitly.
       const keep = Math.max(0, maxVisible - 1);
@@ -84,10 +98,25 @@ export function ToastProvider({
       });
       return [...current.slice(current.length - Math.min(keep, current.length)), { ...options, id }];
     });
-    const duration = options.duration ?? 5000;
+    const duration = durationOf(options);
     if (duration > 0) timers.current.set(id, setTimeout(() => dismissToast(id), duration));
     return id;
   }, [dismissToast, maxVisible]);
+
+  const updateToast = useCallback((id: number, options: Partial<ToastOptions>) => {
+    const existing = itemsRef.current.find(item => item.id === id);
+    if (!existing) return;
+    const merged: ToastItem = { ...existing, ...options, id };
+    // A new status without an explicit duration uses that status' default.
+    if (options.status && options.duration === undefined) delete merged.duration;
+    itemsRef.current = itemsRef.current.map(item => (item.id === id ? merged : item));
+    setItems(current => current.map(item => (item.id === id ? merged : item)));
+    const timer = timers.current.get(id);
+    if (timer) clearTimeout(timer);
+    timers.current.delete(id);
+    const duration = durationOf(merged);
+    if (duration > 0) timers.current.set(id, setTimeout(() => dismissToast(id), duration));
+  }, [dismissToast]);
 
   useEffect(() => {
     const pending = timers.current;
@@ -97,7 +126,7 @@ export function ToastProvider({
     };
   }, []);
 
-  const contextValue = useMemo(() => ({ showToast, dismissToast }), [dismissToast, showToast]);
+  const contextValue = useMemo(() => ({ showToast, updateToast, dismissToast }), [dismissToast, showToast, updateToast]);
   return (
     <ToastContext.Provider value={contextValue}>
       {children}
@@ -130,7 +159,7 @@ const ToastItemView = memo(function ToastItemView({ item, onDismiss }: { item: T
   const icons: Record<ToastTone, IconName> = { neutral: 'info', success: 'success', warning: 'warning', error: 'error', information: 'info' };
   return (
     <Animated.View
-      accessibilityRole={item.tone === 'error' ? 'alert' : 'none'}
+      accessibilityRole={item.tone === 'error' || item.status === 'error' ? 'alert' : 'none'}
       style={[
         logicalRow(direction),
         {
@@ -146,9 +175,12 @@ const ToastItemView = memo(function ToastItemView({ item, onDismiss }: { item: T
         },
       ]}
     >
-      <Icon name={icons[item.tone ?? 'neutral']} size="md" tone="inverse" />
+      {item.status
+        ? <StatusIcon status={item.status} size={theme.iconSize.xl} halo={false} />
+        : <Icon name={icons[item.tone ?? 'neutral']} size="md" tone="inverse" />}
       <View style={{ flex: 1 }}>
-        <Text value={item.message} tone="inverse" />
+        <Text value={item.message} tone="inverse" weight={item.subtitle ? 'semibold' : 'regular'} />
+        {item.subtitle ? <Text value={item.subtitle} tone="inverse" variant="caption" /> : null}
       </View>
       {item.actionLabel && item.onAction ? (
         <Pressable accessibilityRole="button" onPress={item.onAction}>

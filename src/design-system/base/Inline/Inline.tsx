@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { useTheme } from '../../hooks';
+import { needsMirroring } from '../../utilities/styles';
 import { Box, type BoxProps, type SpacingToken } from '../Box';
 
 export interface InlineProps extends Omit<BoxProps, 'gap' | 'internalStyle'> {
@@ -14,7 +15,9 @@ export const Inline = memo(function Inline({
   ...props
 }: InlineProps) {
   const { direction } = useTheme();
-  const isReversed = reverse ? direction !== 'rtl' : direction === 'rtl';
+  // Mirror only when the provider direction differs from the native layout one.
+  const mirrored = needsMirroring(direction);
+  const isReversed = reverse ? !mirrored : mirrored;
 
   return (
     <Box

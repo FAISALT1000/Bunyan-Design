@@ -1,5 +1,6 @@
 import { StyleSheet } from '../../components/RNTheme/native';
 import type { Direction, Theme } from '../../themes';
+import { needsMirroring } from '../../utilities/styles';
 
 export const createStepperFlowTemplateStyles = (theme: Theme, direction: Direction) =>
   StyleSheet.create({
@@ -10,7 +11,7 @@ export const createStepperFlowTemplateStyles = (theme: Theme, direction: Directi
       gap: theme.spacing.xxl,
     },
     progress: {
-      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+      flexDirection: needsMirroring(direction) ? 'row-reverse' : 'row',
       alignItems: 'flex-start',
       width: '100%',
     },
@@ -20,7 +21,7 @@ export const createStepperFlowTemplateStyles = (theme: Theme, direction: Directi
       gap: theme.spacing.sm,
     },
     stepIndicatorRow: {
-      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+      flexDirection: needsMirroring(direction) ? 'row-reverse' : 'row',
       alignItems: 'center',
       width: '100%',
     },

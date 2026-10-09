@@ -2,6 +2,7 @@ import { StyleSheet } from '../../components/RNTheme/native';
 import type { Direction, Theme } from '../../themes';
 import type { TemplateBackground, TemplatePadding } from '../types';
 import { backgroundFor, paddingFor } from '../utilities';
+import { needsMirroring } from '../../utilities/styles';
 
 export const createBaseScreenTemplateStyles = (
   theme: Theme,
@@ -23,7 +24,7 @@ export const createBaseScreenTemplateStyles = (
     },
     header: {
       minHeight: theme.componentHeight.xl,
-      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+      flexDirection: needsMirroring(direction) ? 'row-reverse' : 'row',
       alignItems: 'center',
       gap: theme.spacing.md,
       paddingHorizontal: theme.spacing.lg,
@@ -38,7 +39,7 @@ export const createBaseScreenTemplateStyles = (
       gap: theme.spacing.xxs,
     },
     headerActions: {
-      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+      flexDirection: needsMirroring(direction) ? 'row-reverse' : 'row',
       alignItems: 'center',
       gap: theme.spacing.sm,
     },

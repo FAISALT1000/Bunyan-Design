@@ -1,5 +1,6 @@
 import { StyleSheet } from '../../components/RNTheme/native';
 import type { Direction, Theme } from '../../themes';
+import { needsMirroring } from '../../utilities/styles';
 
 export const createResultScreenTemplateStyles = (
   theme: Theme,
@@ -32,7 +33,7 @@ export const createResultScreenTemplateStyles = (
       gap: theme.spacing.md,
     },
     metaRow: {
-      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+      flexDirection: needsMirroring(direction) ? 'row-reverse' : 'row',
       justifyContent: 'space-between',
       alignItems: 'flex-start',
       gap: theme.spacing.xxl,
@@ -42,7 +43,7 @@ export const createResultScreenTemplateStyles = (
       gap: theme.spacing.md,
     },
     utilityActions: {
-      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+      flexDirection: needsMirroring(direction) ? 'row-reverse' : 'row',
       justifyContent: 'center',
       alignItems: 'center',
       gap: theme.spacing.md,

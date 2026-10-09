@@ -2,6 +2,7 @@ import React, { forwardRef, memo } from 'react';
 import { ScrollView, type ScrollViewProps, type StyleProp, type ViewStyle } from '../../components/RNTheme/native';
 import { useTheme } from '../../hooks';
 import type { SpacingToken } from '../Box';
+import { needsMirroring } from '../../utilities/styles';
 
 export interface ScrollContainerProps extends Omit<
   ScrollViewProps,
@@ -56,9 +57,7 @@ export const ScrollContainer = memo(forwardRef<ScrollView, ScrollContainerProps>
               : undefined,
             gap: gap ? theme.spacing[gap] : undefined,
             flexDirection: horizontal
-              ? direction === 'rtl'
-                ? 'row-reverse'
-                : 'row'
+              ? needsMirroring(direction) ? 'row-reverse' : 'row'
               : undefined,
           },
           contentInternalStyle,

@@ -1,5 +1,6 @@
 import { StyleSheet } from '../components/RNTheme/native';
 import type { Direction, Theme } from '../themes';
+import { needsMirroring } from '../utilities/styles';
 
 export const createSharedTemplateStyles = (theme: Theme, direction: Direction) =>
   StyleSheet.create({
@@ -11,11 +12,11 @@ export const createSharedTemplateStyles = (theme: Theme, direction: Direction) =
       justifyContent: 'center',
     },
     row: {
-      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+      flexDirection: needsMirroring(direction) ? 'row-reverse' : 'row',
       alignItems: 'center',
     },
     rowStart: {
-      flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
+      flexDirection: needsMirroring(direction) ? 'row-reverse' : 'row',
       alignItems: 'flex-start',
     },
     spread: {

@@ -1,0 +1,7 @@
+{
+  "name": "@bunyan/design-system/icons",
+  "private": true,
+  "main": "../dist/design-system/icons/index.js",
+  "react-native": "../dist/design-system/icons/index.js",
+  "types": "../dist/design-system/icons/index.d.ts"
+}
