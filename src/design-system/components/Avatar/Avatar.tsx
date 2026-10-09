@@ -1,5 +1,6 @@
 import React, { memo, useState } from 'react';
-import { Image, View, type ImageSourcePropType } from 'react-native';
+import { Image, View } from '../RNTheme';
+import { type ImageSourcePropType } from '../RNTheme/native';
 import { useTheme } from '../../hooks';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
@@ -31,7 +32,12 @@ export const Avatar = memo(function Avatar({
   const content = source && !failed ? (
     <Image source={source} onError={() => setFailed(true)} style={{ width: dimension, height: dimension }} />
   ) : name ? (
-    <Text variant={size === 'small' ? 'caption' : 'label'} weight="semibold" tone="link">{initialsFor(name)}</Text>
+    <Text
+      value={initialsFor(name)}
+      variant={size === 'small' ? 'caption' : 'labelMedium'}
+      weight="semibold"
+      tone="info"
+    />
   ) : (
     <Icon name="user" size={size === 'small' ? 'sm' : size === 'xlarge' ? 'xl' : 'md'} tone="secondary" />
   );

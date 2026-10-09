@@ -1,0 +1,13 @@
+{
+  "common": {
+    "confirm": "تأكيد",
+    "continue": "متابعة"
+  },
+  "home": {
+    "title": "الرئيسية"
+  },
+  "account": {
+    "title": "الحساب",
+    "availableBalance": "الرصيد المتاح"
+  }
+}

@@ -1,5 +1,7 @@
 node_modules/
 dist/
 coverage/
+package-output/
 .DS_Store
 *.log
+*.tgz

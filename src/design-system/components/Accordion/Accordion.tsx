@@ -1,7 +1,9 @@
 import React, { memo, useId, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Box } from '../../base/Box';
+import { Inline } from '../../base/Inline';
+import { BasePressable } from '../../base/Pressable';
 import { useTheme } from '../../hooks';
-import { logicalRow } from '../../utilities/styles';
+import { createAccessibilityState } from '../../utilities/accessibility';
 import { Icon } from '../Icon';
 import { Text } from '../Text';
 
@@ -12,6 +14,8 @@ export interface AccordionProps {
   defaultExpanded?: boolean;
   onExpandedChange?: (expanded: boolean) => void;
   disabled?: boolean;
+  accessibilityHint?: string;
+  testID?: string;
 }
 
 export const Accordion = memo(function Accordion({
@@ -21,8 +25,10 @@ export const Accordion = memo(function Accordion({
   defaultExpanded = false,
   onExpandedChange,
   disabled = false,
+  accessibilityHint,
+  testID,
 }: AccordionProps) {
-  const { theme, direction } = useTheme();
+  const { theme } = useTheme();
   const [internalExpanded, setInternalExpanded] = useState(defaultExpanded);
   const isExpanded = expanded ?? internalExpanded;
   const contentId = `${useId()}-content`;
@@ -33,33 +39,47 @@ export const Accordion = memo(function Accordion({
   };
 
   return (
-    <View style={{ borderBottomWidth: theme.borderWidth.thin, borderBottomColor: theme.color.border.secondary }}>
-      <Pressable
+    <Box
+      internalStyle={{
+        borderBottomWidth: theme.borderWidth.thin,
+        borderBottomColor: theme.color.border.secondary,
+      }}
+    >
+      <BasePressable
         accessibilityRole="button"
-        accessibilityState={{ expanded: isExpanded, disabled }}
+        accessibilityLabel={title}
+        accessibilityHint={accessibilityHint}
+        accessibilityState={createAccessibilityState({
+          expanded: isExpanded,
+          disabled,
+        })}
         aria-controls={contentId}
+        testID={testID}
         disabled={disabled}
         onPress={toggle}
-        style={({ pressed }) => [
-          logicalRow(direction),
-          {
-            minHeight: theme.componentHeight.lg,
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: theme.spacing.md,
-            paddingVertical: theme.spacing.md,
-            opacity: disabled ? theme.opacity.disabled : pressed ? theme.opacity.strong : theme.opacity.opaque,
-            borderRadius: theme.radius.sm,
-            borderWidth: theme.borderWidth.none,
-          },
-        ]}
+        baseStyle={{
+          minHeight: theme.componentHeight.lg,
+          paddingVertical: theme.spacing.md,
+          borderRadius: theme.radius.sm,
+        }}
+        pressedStyle={{ backgroundColor: theme.color.overlay.subtle }}
+        hoveredStyle={{ backgroundColor: theme.color.overlay.subtle }}
+        focusedStyle={{
+          borderColor: theme.color.border.focus,
+          borderWidth: theme.borderWidth.medium,
+        }}
+        disabledStyle={{ opacity: theme.opacity.disabled }}
       >
-        <Text weight="semibold">{title}</Text>
-        <Icon name="chevron-down" size="sm" tone="secondary" />
-      </Pressable>
+        <Inline gap="md" alignItems="center" justifyContent="space-between">
+          <Text value={title} weight="semibold" />
+          <Icon name="chevron-down" size="sm" tone="secondary" />
+        </Inline>
+      </BasePressable>
       {isExpanded ? (
-        <View nativeID={contentId} style={{ paddingBottom: theme.spacing.lg }}>{children}</View>
+        <Box nativeID={contentId} paddingBottom="lg">
+          {children}
+        </Box>
       ) : null}
-    </View>
+    </Box>
   );
 });

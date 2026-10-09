@@ -18,6 +18,8 @@ const singletonPackages = [
   'react-native-gesture-handler',
   'react-native-safe-area-context',
   '@gorhom/bottom-sheet',
+  // One copy of Formik for the app and the linked design system (Yup ships inside Bunyan).
+  'formik',
 ];
 
 config.resolver.resolveRequest = (context, moduleName, platform) => {

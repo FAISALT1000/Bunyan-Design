@@ -1,2 +1,4 @@
 export * from './types';
 export * from './themes';
+export * from './validateTheme';
+export * from './createTheme';

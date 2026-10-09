@@ -1,6 +1,7 @@
-import React, { createContext, memo, useCallback, useContext, useMemo, useRef, useState } from 'react';
-import { Animated, Pressable, View } from 'react-native';
-import { useTheme } from '../../hooks';
+import React, { createContext, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Pressable, View } from '../RNTheme';
+import { Animated } from '../RNTheme/native';
+import { useKeyboard, useSafeArea, useTheme } from '../../hooks';
 import { logicalRow } from '../../utilities/styles';
 import { Icon, type IconName } from '../Icon';
 import { Text } from '../Text';
@@ -18,20 +19,47 @@ interface ToastItem extends ToastOptions {
   id: number;
 }
 
-interface ToastContextValue {
+export interface ToastContextValue {
   showToast: (options: ToastOptions) => number;
   dismissToast: (id: number) => void;
 }
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
+export type ToastPlacement = 'top' | 'bottom';
+
 export interface ToastProviderProps {
   children: React.ReactNode;
   maxVisible?: number;
+  /**
+   * Extra space between the toasts and the screen edge on top of the safe
+   * area, e.g. the height of a bottom tab bar. Default `0`.
+   */
+  bottomOffset?: number;
+  /** Screen edge the toasts stack from. Default `'bottom'`. */
+  placement?: ToastPlacement;
+  testID?: string;
 }
 
-export function ToastProvider({ children, maxVisible = 3 }: ToastProviderProps) {
+export function ToastProvider({
+  children,
+  maxVisible = 3,
+  bottomOffset = 0,
+  placement = 'bottom',
+  testID,
+}: ToastProviderProps) {
   const { theme } = useTheme();
+  const safeArea = useSafeArea();
+  const keyboard = useKeyboard();
+  // Bottom toasts clear the navigation bar / home indicator and the app's tab
+  // bar; while the keyboard is open they sit just above it instead.
+  const edgeStyle = placement === 'top'
+    ? { top: safeArea.top + theme.spacing.xxl }
+    : {
+        bottom: keyboard.isVisible
+          ? keyboard.height + theme.spacing.lg
+          : safeArea.bottom + theme.spacing.xxl + bottomOffset,
+      };
   const [items, setItems] = useState<ToastItem[]>([]);
   const nextId = useRef(0);
   const timers = useRef(new Map<number, ReturnType<typeof setTimeout>>());
@@ -45,11 +73,29 @@ export function ToastProvider({ children, maxVisible = 3 }: ToastProviderProps) 
 
   const showToast = useCallback((options: ToastOptions) => {
     const id = ++nextId.current;
-    setItems(current => [...current.slice(-(maxVisible - 1)), { ...options, id }]);
+    setItems(current => {
+      // `slice(-0)` would keep everything, so compute the kept count explicitly.
+      const keep = Math.max(0, maxVisible - 1);
+      const evicted = current.slice(0, Math.max(0, current.length - keep));
+      evicted.forEach(item => {
+        const timer = timers.current.get(item.id);
+        if (timer) clearTimeout(timer);
+        timers.current.delete(item.id);
+      });
+      return [...current.slice(current.length - Math.min(keep, current.length)), { ...options, id }];
+    });
     const duration = options.duration ?? 5000;
     if (duration > 0) timers.current.set(id, setTimeout(() => dismissToast(id), duration));
     return id;
   }, [dismissToast, maxVisible]);
+
+  useEffect(() => {
+    const pending = timers.current;
+    return () => {
+      pending.forEach(clearTimeout);
+      pending.clear();
+    };
+  }, []);
 
   const contextValue = useMemo(() => ({ showToast, dismissToast }), [dismissToast, showToast]);
   return (
@@ -58,11 +104,12 @@ export function ToastProvider({ children, maxVisible = 3 }: ToastProviderProps) 
       <View
         pointerEvents="box-none"
         accessibilityLiveRegion="polite"
+        {...(testID ? { testID } : {})}
         style={{
           position: 'absolute',
           start: theme.spacing.lg,
           end: theme.spacing.lg,
-          bottom: theme.spacing.xxl,
+          ...edgeStyle,
           zIndex: theme.zIndex.toast,
           gap: theme.spacing.sm,
           alignItems: 'center',
@@ -100,10 +147,12 @@ const ToastItemView = memo(function ToastItemView({ item, onDismiss }: { item: T
       ]}
     >
       <Icon name={icons[item.tone ?? 'neutral']} size="md" tone="inverse" />
-      <Text tone="inverse" style={{ flex: 1 }}>{item.message}</Text>
+      <View style={{ flex: 1 }}>
+        <Text value={item.message} tone="inverse" />
+      </View>
       {item.actionLabel && item.onAction ? (
         <Pressable accessibilityRole="button" onPress={item.onAction}>
-          <Text tone="inverse" weight="semibold">{item.actionLabel}</Text>
+          <Text value={item.actionLabel} tone="inverse" weight="semibold" />
         </Pressable>
       ) : null}
       <Pressable accessibilityRole="button" accessibilityLabel="Dismiss notification" onPress={onDismiss}>

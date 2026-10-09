@@ -1,5 +1,17 @@
-import { palette, tokens } from '../tokens';
-import type { SemanticColors, Theme, ThemeMode } from './types';
+import {
+  buttonBaseTokens,
+  cardBaseTokens,
+  inputFieldBaseTokens,
+  lineBaseTokens,
+  palette,
+  tokens,
+} from '../tokens';
+import type {
+  ComponentTokens,
+  SemanticColors,
+  Theme,
+  ThemeMode,
+} from './types';
 
 const shared = {
   typography: tokens.typography,
@@ -88,12 +100,201 @@ const blackColors: SemanticColors = {
   border: { ...darkColors.border, primary: palette.gray[700], secondary: palette.gray[800] },
 };
 
-export const lightTheme: Theme = { mode: 'light', color: lightColors, ...shared };
-export const darkTheme: Theme = { mode: 'dark', color: darkColors, ...shared };
-export const blackTheme: Theme = { mode: 'black', color: blackColors, ...shared };
+/** Soft dark: lighter slate surfaces and softer text than `dark`. */
+const dimColors: SemanticColors = {
+  ...darkColors,
+  neutral: { ...darkColors.neutral, strong: palette.gray[200] },
+  background: { primary: palette.gray[800], secondary: palette.gray[900], inverse: palette.gray[100] },
+  surface: { primary: palette.gray[800], secondary: palette.gray[900], elevated: palette.gray[700], inverse: palette.gray[100] },
+  border: { ...darkColors.border, primary: palette.gray[600], secondary: palette.gray[700] },
+  text: { primary: palette.gray[200], secondary: palette.gray[300], tertiary: palette.gray[400], inverse: palette.gray[900], link: palette.blue[300] },
+  disabled: { background: palette.gray[700], border: palette.gray[600], text: palette.gray[400] },
+  overlay: { scrim: 'rgba(2, 6, 23, 0.6)', subtle: 'rgba(255, 255, 255, 0.1)', transparent: 'transparent' },
+};
+
+/** Warm light for reading: cream paper, brown ink. */
+const sepiaColors: SemanticColors = {
+  ...lightColors,
+  primary: {
+    default: palette.sepia[700],
+    hover: palette.sepia[800],
+    pressed: palette.sepia[900],
+    subtle: palette.sepia[100],
+    contrast: palette.sepia[50],
+  },
+  neutral: {
+    default: palette.sepia[600],
+    subtle: palette.sepia[100],
+    strong: palette.sepia[900],
+    contrast: palette.sepia[50],
+  },
+  background: { primary: palette.sepia[50], secondary: palette.sepia[100], inverse: palette.sepia[900] },
+  surface: { primary: palette.sepia[50], secondary: palette.sepia[100], elevated: palette.sepia[50], inverse: palette.sepia[900] },
+  border: { primary: palette.sepia[300], secondary: palette.sepia[200], focus: palette.sepia[700], error: palette.red[600], success: palette.green[700] },
+  text: { primary: palette.sepia[900], secondary: palette.sepia[700], tertiary: palette.sepia[600], inverse: palette.sepia[50], link: palette.amber[800] },
+  disabled: { background: palette.sepia[100], border: palette.sepia[200], text: palette.sepia[400] },
+  overlay: { scrim: 'rgba(46, 31, 18, 0.6)', subtle: 'rgba(46, 31, 18, 0.1)', transparent: 'transparent' },
+};
+
+const createComponentTokens = (color: SemanticColors): ComponentTokens => ({
+  button: {
+    link: {
+      ...buttonBaseTokens.link,
+      textColor: color.text.link,
+      pressedTextColor: color.primary.pressed,
+      disabledTextColor: color.disabled.text,
+      focusIndicatorColor: color.border.focus,
+    },
+  },
+  inputField: {
+    ...inputFieldBaseTokens,
+    disabledOpacity: tokens.opacity.disabled,
+    focusedBorderColor: color.border.focus,
+    errorBorderColor: color.border.error,
+    successBorderColor: color.border.success,
+    labelColor: color.text.secondary,
+    focusedLabelColor: color.primary.default,
+    errorLabelColor: color.error.text,
+    successLabelColor: color.success.text,
+    variants: {
+      outlined: {
+        ...inputFieldBaseTokens.variants.outlined,
+        background: color.surface.primary,
+        borderColor: color.border.primary,
+      },
+      filled: {
+        ...inputFieldBaseTokens.variants.filled,
+        background: color.surface.secondary,
+        borderColor: color.border.secondary,
+      },
+      underlined: {
+        ...inputFieldBaseTokens.variants.underlined,
+        background: color.overlay.transparent,
+        borderColor: color.border.primary,
+      },
+    },
+  },
+  line: {
+    ...lineBaseTokens,
+    dividerColor: color.border.secondary,
+    pressedBackground: color.overlay.subtle,
+    focusedBorderColor: color.border.focus,
+  },
+  card: {
+    ...cardBaseTokens,
+    selectedBorderColor: color.primary.default,
+    focusedBorderColor: color.border.focus,
+    disabledOpacity: tokens.opacity.disabled,
+    variants: {
+      primary: {
+        background: color.primary.subtle,
+        borderColor: color.primary.default,
+        borderWidth: tokens.borderWidth.thin,
+        shadow: 'none',
+        pressedBackground: color.primary.subtle,
+      },
+      secondary: {
+        background: color.secondary.subtle,
+        borderColor: color.secondary.default,
+        borderWidth: tokens.borderWidth.thin,
+        shadow: 'none',
+        pressedBackground: color.secondary.subtle,
+      },
+      tertiary: {
+        background: color.surface.secondary,
+        borderColor: color.border.secondary,
+        borderWidth: tokens.borderWidth.thin,
+        shadow: 'none',
+        pressedBackground: color.overlay.subtle,
+      },
+      outline: {
+        background: color.overlay.transparent,
+        borderColor: color.border.primary,
+        borderWidth: tokens.borderWidth.thin,
+        shadow: 'none',
+        pressedBackground: color.overlay.subtle,
+      },
+      elevated: {
+        background: color.surface.elevated,
+        borderColor: color.overlay.transparent,
+        borderWidth: tokens.borderWidth.none,
+        shadow: 'md',
+        pressedBackground: color.overlay.subtle,
+      },
+      ghost: {
+        background: color.overlay.transparent,
+        borderColor: color.overlay.transparent,
+        borderWidth: tokens.borderWidth.none,
+        shadow: 'none',
+        pressedBackground: color.overlay.subtle,
+      },
+      success: {
+        background: color.success.subtle,
+        borderColor: color.success.border,
+        borderWidth: tokens.borderWidth.thin,
+        shadow: 'none',
+        pressedBackground: color.overlay.subtle,
+      },
+      warning: {
+        background: color.warning.subtle,
+        borderColor: color.warning.border,
+        borderWidth: tokens.borderWidth.thin,
+        shadow: 'none',
+        pressedBackground: color.overlay.subtle,
+      },
+      error: {
+        background: color.error.subtle,
+        borderColor: color.error.border,
+        borderWidth: tokens.borderWidth.thin,
+        shadow: 'none',
+        pressedBackground: color.overlay.subtle,
+      },
+    },
+  },
+});
+
+export const lightTheme: Theme = {
+  mode: 'light',
+  color: lightColors,
+  components: createComponentTokens(lightColors),
+  ...shared,
+};
+export const darkTheme: Theme = {
+  mode: 'dark',
+  color: darkColors,
+  components: createComponentTokens(darkColors),
+  ...shared,
+};
+export const blackTheme: Theme = {
+  mode: 'black',
+  color: blackColors,
+  components: createComponentTokens(blackColors),
+  ...shared,
+};
+
+export const dimTheme: Theme = {
+  ...shared,
+  mode: 'dim',
+  color: dimColors,
+  components: createComponentTokens(dimColors),
+};
+
+export const sepiaTheme: Theme = {
+  ...shared,
+  mode: 'sepia',
+  color: sepiaColors,
+  components: createComponentTokens(sepiaColors),
+};
+
+/** Modes rendered on a dark background (status bar, scroll indicators, `isDark`). */
+export const DARK_THEME_MODES: readonly ThemeMode[] = ['dark', 'black', 'dim'];
+
+export const isDarkMode = (mode: ThemeMode) => DARK_THEME_MODES.includes(mode);
 
 export const themes: Record<ThemeMode, Theme> = {
   light: lightTheme,
   dark: darkTheme,
   black: blackTheme,
+  dim: dimTheme,
+  sepia: sepiaTheme,
 };

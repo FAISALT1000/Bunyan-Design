@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
-import { View } from 'react-native';
+import { Box } from '../../base/Box';
+import { Stack } from '../../base/Stack';
 import { useTheme } from '../../hooks';
 import { Button } from '../Button';
 import { Heading } from '../Heading';
@@ -14,6 +15,8 @@ export interface EmptyStateProps {
   onAction?: () => void;
   secondaryActionLabel?: string;
   onSecondaryAction?: () => void;
+  accessibilityLabel?: string;
+  testID?: string;
 }
 
 export const EmptyState = memo(function EmptyState({
@@ -24,19 +27,46 @@ export const EmptyState = memo(function EmptyState({
   onAction,
   secondaryActionLabel,
   onSecondaryAction,
+  accessibilityLabel,
+  testID,
 }: EmptyStateProps) {
   const { theme } = useTheme();
+
   return (
-    <View style={{ alignItems: 'center', padding: theme.spacing.xxxl, gap: theme.spacing.md }}>
-      <View style={{ width: theme.componentHeight.xl, height: theme.componentHeight.xl, borderRadius: theme.radius.pill, alignItems: 'center', justifyContent: 'center', backgroundColor: theme.color.neutral.subtle }}>
+    <Stack
+      gap="md"
+      padding="xxxl"
+      alignItems="center"
+      accessible
+      accessibilityLabel={accessibilityLabel}
+      testID={testID}
+    >
+      <Box
+        width={theme.componentHeight.xl}
+        height={theme.componentHeight.xl}
+        radius="pill"
+        alignItems="center"
+        justifyContent="center"
+        internalStyle={{ backgroundColor: theme.color.neutral.subtle }}
+      >
         <Icon name={icon} size="xl" tone="secondary" />
-      </View>
-      <Heading level={4} align="center">{title}</Heading>
-      {description ? <Text tone="secondary" align="center">{description}</Text> : null}
-      <View style={{ alignItems: 'center', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
-        {actionLabel && onAction ? <Button onPress={onAction}>{actionLabel}</Button> : null}
-        {secondaryActionLabel && onSecondaryAction ? <Button variant="ghost" onPress={onSecondaryAction}>{secondaryActionLabel}</Button> : null}
-      </View>
-    </View>
+      </Box>
+      <Heading title={title} level={4} align="center" />
+      {description ? (
+        <Text value={description} tone="secondary" align="center" />
+      ) : null}
+      <Stack gap="sm" paddingTop="sm" alignItems="center">
+        {actionLabel && onAction ? (
+          <Button title={actionLabel} onPress={onAction} />
+        ) : null}
+        {secondaryActionLabel && onSecondaryAction ? (
+          <Button
+            title={secondaryActionLabel}
+            variant="ghost"
+            onPress={onSecondaryAction}
+          />
+        ) : null}
+      </Stack>
+    </Stack>
   );
 });

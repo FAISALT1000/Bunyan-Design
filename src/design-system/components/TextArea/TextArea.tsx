@@ -1,5 +1,6 @@
 import React, { forwardRef, memo, useState } from 'react';
-import { TextInput, View, type TextInputProps } from 'react-native';
+import { View } from '../RNTheme';
+import { TextInput, type TextInputProps } from '../RNTheme/native';
 import { useTheme } from '../../hooks';
 import { logicalText, statusBorderColor, type FeedbackStatus } from '../../utilities/styles';
 import { Text } from '../Text';
@@ -76,9 +77,12 @@ export const TextArea = memo(forwardRef<TextInput, TextAreaProps>(function TextA
         ]}
       />
       {showCounter && maxLength ? (
-        <Text variant="caption" tone={displayedValue.length >= maxLength ? 'error' : 'tertiary'} align="end">
-          {displayedValue.length}/{maxLength}
-        </Text>
+        <Text
+          value={`${displayedValue.length}/${maxLength}`}
+          variant="caption"
+          tone={displayedValue.length >= maxLength ? 'error' : 'tertiary'}
+          align="end"
+        />
       ) : null}
     </View>
   );
