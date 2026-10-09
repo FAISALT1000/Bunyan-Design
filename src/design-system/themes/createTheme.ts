@@ -50,5 +50,11 @@ export function createThemes(
 ): Record<ThemeMode, Theme> {
   const build = (mode: ThemeMode) =>
     createTheme(deepMerge(overrides.shared ?? {}, overrides[mode] ?? {}) as ThemeOverrides, base[mode]);
-  return { light: build('light'), dark: build('dark'), black: build('black') };
+  return {
+    light: build('light'),
+    dark: build('dark'),
+    black: build('black'),
+    dim: build('dim'),
+    sepia: build('sepia'),
+  };
 }

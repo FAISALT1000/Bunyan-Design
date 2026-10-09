@@ -100,6 +100,42 @@ const blackColors: SemanticColors = {
   border: { ...darkColors.border, primary: palette.gray[700], secondary: palette.gray[800] },
 };
 
+/** Soft dark: lighter slate surfaces and softer text than `dark`. */
+const dimColors: SemanticColors = {
+  ...darkColors,
+  neutral: { ...darkColors.neutral, strong: palette.gray[200] },
+  background: { primary: palette.gray[800], secondary: palette.gray[900], inverse: palette.gray[100] },
+  surface: { primary: palette.gray[800], secondary: palette.gray[900], elevated: palette.gray[700], inverse: palette.gray[100] },
+  border: { ...darkColors.border, primary: palette.gray[600], secondary: palette.gray[700] },
+  text: { primary: palette.gray[200], secondary: palette.gray[300], tertiary: palette.gray[400], inverse: palette.gray[900], link: palette.blue[300] },
+  disabled: { background: palette.gray[700], border: palette.gray[600], text: palette.gray[400] },
+  overlay: { scrim: 'rgba(2, 6, 23, 0.6)', subtle: 'rgba(255, 255, 255, 0.1)', transparent: 'transparent' },
+};
+
+/** Warm light for reading: cream paper, brown ink. */
+const sepiaColors: SemanticColors = {
+  ...lightColors,
+  primary: {
+    default: palette.sepia[700],
+    hover: palette.sepia[800],
+    pressed: palette.sepia[900],
+    subtle: palette.sepia[100],
+    contrast: palette.sepia[50],
+  },
+  neutral: {
+    default: palette.sepia[600],
+    subtle: palette.sepia[100],
+    strong: palette.sepia[900],
+    contrast: palette.sepia[50],
+  },
+  background: { primary: palette.sepia[50], secondary: palette.sepia[100], inverse: palette.sepia[900] },
+  surface: { primary: palette.sepia[50], secondary: palette.sepia[100], elevated: palette.sepia[50], inverse: palette.sepia[900] },
+  border: { primary: palette.sepia[300], secondary: palette.sepia[200], focus: palette.sepia[700], error: palette.red[600], success: palette.green[700] },
+  text: { primary: palette.sepia[900], secondary: palette.sepia[700], tertiary: palette.sepia[600], inverse: palette.sepia[50], link: palette.amber[800] },
+  disabled: { background: palette.sepia[100], border: palette.sepia[200], text: palette.sepia[400] },
+  overlay: { scrim: 'rgba(46, 31, 18, 0.6)', subtle: 'rgba(46, 31, 18, 0.1)', transparent: 'transparent' },
+};
+
 const createComponentTokens = (color: SemanticColors): ComponentTokens => ({
   button: {
     link: {
@@ -236,8 +272,29 @@ export const blackTheme: Theme = {
   ...shared,
 };
 
+export const dimTheme: Theme = {
+  ...shared,
+  mode: 'dim',
+  color: dimColors,
+  components: createComponentTokens(dimColors),
+};
+
+export const sepiaTheme: Theme = {
+  ...shared,
+  mode: 'sepia',
+  color: sepiaColors,
+  components: createComponentTokens(sepiaColors),
+};
+
+/** Modes rendered on a dark background (status bar, scroll indicators, `isDark`). */
+export const DARK_THEME_MODES: readonly ThemeMode[] = ['dark', 'black', 'dim'];
+
+export const isDarkMode = (mode: ThemeMode) => DARK_THEME_MODES.includes(mode);
+
 export const themes: Record<ThemeMode, Theme> = {
   light: lightTheme,
   dark: darkTheme,
   black: blackTheme,
+  dim: dimTheme,
+  sepia: sepiaTheme,
 };

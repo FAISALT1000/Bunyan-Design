@@ -40,6 +40,10 @@ export const Chip = memo(function Chip({
       baseStyle={{
         alignSelf: 'flex-start',
         minHeight: theme.componentHeight.sm,
+        // The minimum touch target can make the chip taller than its content:
+        // keep the label and remove icon centred on both axes.
+        justifyContent: 'center',
+        alignItems: 'center',
         paddingHorizontal: theme.spacing.md,
         borderRadius: theme.radius.pill,
         borderWidth: theme.borderWidth.thin,

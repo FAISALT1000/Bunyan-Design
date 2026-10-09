@@ -1,11 +1,41 @@
 import React, {
   memo,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react';
-import { Animated, Easing, type ViewStyle } from '../../components/RNTheme/native';
+import { View } from '../../components/RNTheme';
+import {
+  Animated,
+  Easing,
+  type LayoutChangeEvent,
+  type ViewStyle,
+} from '../../components/RNTheme/native';
 import { useTheme } from '../../hooks';
+import type { Direction } from '../../themes/types';
+import { logicalTextAlign, needsMirroring } from '../../utilities/styles';
+
+/**
+ * Physical side where text starts reading. Transform origins are physical
+ * (React Native never swaps them), so RTL text scales from its right edge.
+ */
+export const floatingLabelOrigin = (direction: Direction) =>
+  direction === 'rtl' ? 'right top' : 'left top';
+
+/**
+ * Logical `start`/`end` offsets of the label box. `labelInsetStart` (room for a
+ * leading icon) must sit on the side where the text starts; when the provider
+ * direction differs from the native one, `start` is on the opposite side.
+ */
+export const floatingLabelInsets = (
+  direction: Direction,
+  padding: number,
+  labelInsetStart: number,
+) => (needsMirroring(direction)
+  ? { start: padding, end: padding + labelInsetStart }
+  : { start: padding + labelInsetStart, end: padding });
 
 export type BaseFloatingFieldVariant = 'outlined' | 'filled' | 'underlined';
 export type BaseFloatingFieldTone = 'default' | 'error' | 'success';
@@ -47,6 +77,25 @@ export const BaseFloatingField = memo(function BaseFloatingField({
   const easing = useMemo(
     () => Easing.bezier(...tokens.animationEasing),
     [tokens.animationEasing],
+  );
+  const lineHeight = theme.typography.lineHeight.md;
+  // Centre line of the content row (value text, leading and trailing icons).
+  // Starts from the token-based estimate and follows the measured row.
+  const [contentCenter, setContentCenter] = useState<number>(
+    tokens.contentPaddingTop + theme.componentHeight.md / 2,
+  );
+  const handleContentLayout = useCallback((event: LayoutChangeEvent) => {
+    const { y, height } = event.nativeEvent.layout;
+    if (height > 0) {
+      const next = y + height / 2;
+      setContentCenter(current => (Math.abs(current - next) < 0.5 ? current : next));
+    }
+  }, []);
+  const restingTop = contentCenter - lineHeight / 2;
+  const insets = floatingLabelInsets(
+    direction,
+    tokens.contentPaddingHorizontal,
+    labelInsetStart,
   );
   const duration = reducedMotion
     ? platformTokens.motion.reduced
@@ -136,8 +185,7 @@ export const BaseFloatingField = memo(function BaseFloatingField({
         numberOfLines={1}
         style={{
           position: 'absolute',
-          start: tokens.contentPaddingHorizontal + labelInsetStart,
-          end: tokens.contentPaddingHorizontal,
+          ...insets,
           top: tokens.labelFloatingTop,
           color: emphasisProgress.interpolate({
             inputRange: [0, 1],
@@ -147,14 +195,18 @@ export const BaseFloatingField = memo(function BaseFloatingField({
             ? theme.typography.fontFamily.arabic
             : theme.typography.fontFamily.sans,
           fontSize: tokens.labelFontSize,
-          lineHeight: theme.typography.lineHeight.md,
-          textAlign: direction === 'rtl' ? 'right' : 'left',
+          lineHeight,
+          textAlign: logicalTextAlign(direction),
+          writingDirection: direction,
+          // Scale from the edge where the text starts so the floated label
+          // stays aligned with the value text instead of drifting inwards.
+          transformOrigin: floatingLabelOrigin(direction),
           transform: [
             {
               translateY: labelProgress.interpolate({
                 inputRange: [0, 1],
                 outputRange: [
-                  tokens.labelRestingTop - tokens.labelFloatingTop,
+                  restingTop - tokens.labelFloatingTop,
                   theme.spacing.none,
                 ],
               }),
@@ -170,7 +222,12 @@ export const BaseFloatingField = memo(function BaseFloatingField({
       >
         {label}
       </Animated.Text>
-      {children}
+      <View
+        onLayout={handleContentLayout}
+        {...(testID ? { testID: `${testID}-content` } : {})}
+      >
+        {children}
+      </View>
     </Animated.View>
   );
 });

@@ -16,6 +16,7 @@ export {
   Easing,
   FlatList,
   I18nManager,
+  InteractionManager,
   Image,
   Keyboard,
   KeyboardAvoidingView,

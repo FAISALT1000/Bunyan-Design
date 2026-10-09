@@ -56,8 +56,8 @@ export const TextInput = createThemedComponent(Native.TextInput, {
 
 export const ScrollView = createThemedComponent(Native.ScrollView, {
   displayName: 'RNTheme.ScrollView',
-  defaultProps: ({ mode }) => ({
-    indicatorStyle: mode === 'light' ? ('black' as const) : ('white' as const),
+  defaultProps: ({ isDark }) => ({
+    indicatorStyle: isDark ? ('white' as const) : ('black' as const),
     keyboardShouldPersistTaps: 'handled' as const,
   }),
 });

@@ -7,6 +7,7 @@ import { IconButton } from '../../components/IconButton';
 import { Spinner } from '../../components/Spinner';
 import { Text } from '../../components/Text';
 import { useTheme } from '../../hooks';
+import { isDarkMode } from '../../themes/themes';
 import { renderScreenState } from '../utilities';
 import type { BaseScreenTemplateProps } from './BaseScreenTemplate.types';
 import { createBaseScreenTemplateStyles } from './BaseScreenTemplate.styles';
@@ -64,7 +65,7 @@ export const BaseScreenTemplate = memo(function BaseScreenTemplate({
   const resolvedKeyboardBehavior =
     keyboardBehavior ?? (Platform.OS === 'ios' ? 'padding' : undefined);
   const statusBarStyle =
-    statusBar?.style ?? (theme.mode === 'light' ? 'dark-content' : 'light-content');
+    statusBar?.style ?? (isDarkMode(theme.mode) ? 'light-content' : 'dark-content');
 
   const content =
     state.type === 'content' ? (

@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { Box } from '../../base/Box';
+import type { ViewStyle } from '../RNTheme/native';
 import { useTheme } from '../../hooks';
 import {
   resolveLocalizedText,
@@ -20,6 +21,12 @@ export type BadgeTone =
 interface SharedBadgeProps {
   tone?: BadgeTone;
   size?: 'small' | 'medium';
+  /**
+   * Cross-axis alignment of the badge itself. Default `'auto'`, so it follows
+   * the parent's `alignItems` (e.g. centred next to a name in a row). Pass
+   * `'flex-start'` inside a stretching column to keep the old placement.
+   */
+  alignSelf?: ViewStyle['alignSelf'];
   accessibilityLabel?: string;
   testID?: string;
   labelLocalize?: string;
@@ -44,6 +51,7 @@ export const Badge = memo(function Badge({
   labelTranslationOptions,
   tone = 'neutral',
   size = 'medium',
+  alignSelf = 'auto',
   accessibilityLabel,
   testID,
 }: BadgeProps) {
@@ -75,7 +83,9 @@ export const Badge = memo(function Badge({
     <Box
       testID={testID}
       accessibilityLabel={accessibilityLabel ?? String(resolvedLabel)}
-      alignSelf="flex-start"
+      alignSelf={alignSelf}
+      flexGrow={0}
+      flexShrink={0}
       alignItems="center"
       paddingHorizontal={size === 'small' ? 'sm' : 'md'}
       paddingVertical={size === 'small' ? 'xxs' : 'xs'}

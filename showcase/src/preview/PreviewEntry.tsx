@@ -399,7 +399,7 @@ function StatesPreview() {
         />
       </Section>
 
-      <Section title="Loading and disabled states" description="State styling remains semantic across light, dark, black, LTR, and RTL.">
+      <Section title="Loading and disabled states" description="State styling remains semantic across light, dark, black, dim, sepia, LTR, and RTL.">
         <Card loading title="Loading card" />
         <Line loading type="3" />
         <Button title="Loading action" loading fullWidth />
@@ -479,6 +479,8 @@ function HooksPreview() {
     if (preference === 'system') return 'light';
     if (preference === 'light') return 'dark';
     if (preference === 'dark') return 'black';
+    if (preference === 'black') return 'dim';
+    if (preference === 'dim') return 'sepia';
     return 'system';
   }, [preference]);
 

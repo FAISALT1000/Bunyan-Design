@@ -12,7 +12,7 @@ import {
   type DesignSystemPlatform,
   type PlatformTokens,
 } from '../platform';
-import { themes as defaultThemes } from '../themes/themes';
+import { isDarkMode, themes as defaultThemes } from '../themes/themes';
 import type { Direction, Theme, ThemeMode } from '../themes/types';
 
 export type ThemePreference = ThemeMode | 'system';
@@ -20,6 +20,8 @@ export type ThemePreference = ThemeMode | 'system';
 export interface ThemeContextValue {
   theme: Theme;
   mode: ThemeMode;
+  /** `true` for dark-background modes (`dark`, `black`, `dim`); use it for the status bar and color scheme. */
+  isDark: boolean;
   preference: ThemePreference;
   setPreference: (preference: ThemePreference) => void;
   direction: Direction;
@@ -32,6 +34,7 @@ export interface ThemeContextValue {
 const defaultContext: ThemeContextValue = {
   theme: defaultThemes.light,
   mode: 'light',
+  isDark: false,
   preference: 'system',
   setPreference: () => undefined,
   direction: 'ltr',
@@ -102,6 +105,7 @@ export function ThemeProvider({
     () => ({
       theme: activeTheme,
       mode,
+      isDark: isDarkMode(mode),
       preference,
       setPreference,
       direction: resolvedDirection,

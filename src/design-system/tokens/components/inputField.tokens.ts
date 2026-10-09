@@ -15,6 +15,7 @@ export const inputFieldBaseTokens = {
   contentPaddingBottom: spacing.sm,
   iconGap: spacing.sm,
   helperTextSpacing: spacing.xs,
+  /** @deprecated Since 0.0.3 the resting label is centred on the content row; kept for compatibility. */
   labelRestingTop: spacing.lg,
   labelFloatingTop: spacing.xs,
   labelScale: 0.82,

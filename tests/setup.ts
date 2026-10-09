@@ -9,13 +9,21 @@ jest.mock('@react-native-community/datetimepicker', () => {
 jest.mock('react-native-safe-area-context', () => {
   const React = require('react');
   const { View } = require('react-native');
+  const zero = { top: 0, right: 0, bottom: 0, left: 0 };
+  const SafeAreaInsetsContext = React.createContext(null);
 
   return {
-    SafeAreaProvider: ({ children }: { children?: React.ReactNode }) =>
-      React.createElement(View, null, children),
+    SafeAreaInsetsContext,
+    // Tests can pass `initialMetrics={{ insets }}` to simulate a device.
+    SafeAreaProvider: ({ children, initialMetrics }: { children?: React.ReactNode; initialMetrics?: { insets: typeof zero } }) =>
+      React.createElement(
+        SafeAreaInsetsContext.Provider,
+        { value: initialMetrics?.insets ?? zero },
+        React.createElement(View, null, children),
+      ),
     SafeAreaView: ({ children, ...props }: { children?: React.ReactNode }) =>
       React.createElement(View, props, children),
-    useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }),
+    useSafeAreaInsets: () => React.useContext(SafeAreaInsetsContext) ?? zero,
     initialWindowMetrics: {
       frame: { x: 0, y: 0, width: 0, height: 0 },
       insets: { top: 0, right: 0, bottom: 0, left: 0 },

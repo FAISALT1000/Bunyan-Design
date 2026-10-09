@@ -79,7 +79,7 @@ const meta = {
     },
     theme: {
       control: 'select',
-      options: ['light', 'dark', 'black'],
+      options: ['light', 'dark', 'black', 'dim', 'sepia'],
     },
   },
 } satisfies Meta<typeof FoundationPreview>;

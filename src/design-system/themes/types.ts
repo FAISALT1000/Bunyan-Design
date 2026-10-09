@@ -2,7 +2,7 @@ import type { TextStyle } from '../components/RNTheme/native';
 import type { tokens } from '../tokens';
 import type { TextVariant } from '../tokens/typography.types';
 
-export type ThemeMode = 'light' | 'dark' | 'black';
+export type ThemeMode = 'light' | 'dark' | 'black' | 'dim' | 'sepia';
 export type Direction = 'ltr' | 'rtl';
 
 export interface SemanticColors {

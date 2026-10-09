@@ -189,12 +189,12 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 ## Badge
 
 - Purpose: Displays compact read-only status or metadata.
-- Props: Required `label`, plus `tone`, `size`, and accessibility props.
+- Props: Required `label`, plus `tone`, `size`, `alignSelf` (default `'auto'`), and accessibility props.
 - Variants/sizes/states: Neutral, primary, success, warning, error, information; small/medium.
 - Accessibility: Text remains the source of meaning; color is supplemental.
 - Example: `<Badge label="Approved" tone="success" />`.
 - Do/don’t: Keep copy short; do not make badges interactive.
-- Edge cases: Long localized status text may wrap; use a Chip if interaction is needed.
+- Edge cases: Long localized status text may wrap; use a Chip if interaction is needed. The badge keeps its intrinsic size and follows the parent's `alignItems`; inside a stretching column pass `alignSelf="flex-start"`.
 
 ## Chip
 
@@ -204,7 +204,7 @@ Each component is exported from `@bunyan/design-system`. Prop interfaces are the
 - Accessibility: Announces selected/disabled state; remove is a separate labelled action.
 - Example: `<Chip label="Finance" selected onRemove={removeFinance} />`.
 - Do/don’t: Use concise nouns; do not nest arbitrary controls inside a chip.
-- Edge cases: Removing a selected filter should update focus predictably.
+- Edge cases: Removing a selected filter should update focus predictably. The label stays centred when the minimum touch target makes the chip taller.
 
 ## Avatar
 
@@ -318,7 +318,7 @@ scheduled for removal in `1.0.0`. Arbitrary nested children are not accepted.
 - Accessibility: Modal isolation and labelled close control.
 - Example: `<BottomSheet visible={open} onClose={close} title="Actions">…</BottomSheet>`.
 - Do/don’t: Use for short choices; use Modal for complex keyboard-heavy tasks.
-- Edge cases: Content scrolls when it exceeds 90% of viewport height.
+- Edge cases: Content scrolls when it exceeds 90% of viewport height. The bottom padding includes the safe-area inset (home indicator / Android navigation bar) and the sheet rises above the keyboard.
 
 ## Tooltip
 
@@ -333,12 +333,12 @@ scheduled for removal in `1.0.0`. Arbitrary nested children are not accepted.
 ## Toast and ToastProvider
 
 - Purpose: Announces transient, non-blocking feedback.
-- Props: `ToastProviderProps`; `maxVisible`. `showToast` accepts message, tone, duration, and optional action.
+- Props: `ToastProviderProps`; `maxVisible`, `bottomOffset` (extra space such as a tab bar height), `placement` (`'bottom'` default or `'top'`). `showToast` accepts message, tone, duration, and optional action.
 - Variants/sizes/states: Neutral, success, warning, error, information; timed or persistent.
 - Accessibility: Polite live region; errors use alert semantics.
 - Example: `useToast().showToast({ message: 'Saved', tone: 'success' })`.
 - Do/don’t: Use concise status messages; do not use a toast for required decisions.
-- Edge cases: `duration: 0` persists until dismissed; queue length is bounded.
+- Edge cases: `duration: 0` persists until dismissed; queue length is bounded. Toasts clear the safe area and move above the open keyboard.
 
 ## Alert
 
@@ -480,12 +480,12 @@ scheduled for removal in `1.0.0`. Arbitrary nested children are not accepted.
 ## OTPInput
 
 - Purpose: One-time-code slots usable anywhere (also used by OTPTemplate and the `OTP` form field).
-- Props: `OTPInputProps`; `value`, `onChange`, `onComplete`, `length`, `secure`, `error`, `errorText`, `disabled`, `useNumPad`, `autoFocus`.
+- Props: `OTPInputProps`; `value`, `onChange`, `onComplete`, `length`, `secure`, `error`, `errorText`, `disabled`, `useNumPad`, `autoFocus`. Ref: `OTPInputHandle` with `focus()`, `blur()`, `clear()`.
 - Variants/sizes/states: Keyboard or NumPad; secure; error; disabled.
-- Accessibility: Slot row announces progress; hidden native input supports paste and SMS autofill.
+- Accessibility: Slot row announces progress; the native input laid over the slots supports tap-to-type, long-press Paste and SMS autofill. Slot 1 is always on the left, also in Arabic.
 - Example: `<OTPInput value={code} onChange={setCode} length={6} onComplete={verify} />`.
 - Do/don’t: Keep verification logic outside.
-- Edge cases: `onComplete` fires once per completed code.
+- Edge cases: `onComplete` fires once per completed code. A pasted code with separators (`123-456`) fills every slot. `autoFocus` waits for a surrounding Modal/BottomSheet to finish showing.
 
 ## Slider
 

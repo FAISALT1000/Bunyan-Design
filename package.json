@@ -1,6 +1,6 @@
 {
   "name": "@bunyan/design-system",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "private": false,
   "description": "Accessible React Native design system for iOS, Android, and web.",
   "main": "dist/index.js",
@@ -15,6 +15,7 @@
     "scripts",
     "starter",
     "README.md",
+    "CHANGELOG.md",
     "docs",
     "!docs/*.pdf"
   ],

@@ -1,7 +1,7 @@
 import React, { createContext, memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, View } from '../RNTheme';
 import { Animated } from '../RNTheme/native';
-import { useTheme } from '../../hooks';
+import { useKeyboard, useSafeArea, useTheme } from '../../hooks';
 import { logicalRow } from '../../utilities/styles';
 import { Icon, type IconName } from '../Icon';
 import { Text } from '../Text';
@@ -26,13 +26,40 @@ export interface ToastContextValue {
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
+export type ToastPlacement = 'top' | 'bottom';
+
 export interface ToastProviderProps {
   children: React.ReactNode;
   maxVisible?: number;
+  /**
+   * Extra space between the toasts and the screen edge on top of the safe
+   * area, e.g. the height of a bottom tab bar. Default `0`.
+   */
+  bottomOffset?: number;
+  /** Screen edge the toasts stack from. Default `'bottom'`. */
+  placement?: ToastPlacement;
+  testID?: string;
 }
 
-export function ToastProvider({ children, maxVisible = 3 }: ToastProviderProps) {
+export function ToastProvider({
+  children,
+  maxVisible = 3,
+  bottomOffset = 0,
+  placement = 'bottom',
+  testID,
+}: ToastProviderProps) {
   const { theme } = useTheme();
+  const safeArea = useSafeArea();
+  const keyboard = useKeyboard();
+  // Bottom toasts clear the navigation bar / home indicator and the app's tab
+  // bar; while the keyboard is open they sit just above it instead.
+  const edgeStyle = placement === 'top'
+    ? { top: safeArea.top + theme.spacing.xxl }
+    : {
+        bottom: keyboard.isVisible
+          ? keyboard.height + theme.spacing.lg
+          : safeArea.bottom + theme.spacing.xxl + bottomOffset,
+      };
   const [items, setItems] = useState<ToastItem[]>([]);
   const nextId = useRef(0);
   const timers = useRef(new Map<number, ReturnType<typeof setTimeout>>());
@@ -77,11 +104,12 @@ export function ToastProvider({ children, maxVisible = 3 }: ToastProviderProps) 
       <View
         pointerEvents="box-none"
         accessibilityLiveRegion="polite"
+        {...(testID ? { testID } : {})}
         style={{
           position: 'absolute',
           start: theme.spacing.lg,
           end: theme.spacing.lg,
-          bottom: theme.spacing.xxl,
+          ...edgeStyle,
           zIndex: theme.zIndex.toast,
           gap: theme.spacing.sm,
           alignItems: 'center',

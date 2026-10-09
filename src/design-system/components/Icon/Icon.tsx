@@ -7,7 +7,8 @@ export type IconName =
   | 'chevron-right' | 'chevron-end' | 'close' | 'eye' | 'eye-off' | 'info' | 'search'
   | 'settings' | 'success' | 'transfer' | 'trash' | 'warning' | 'error' | 'user'
   | 'arrow-down' | 'arrow-down-left' | 'arrow-up' | 'arrow-up-right' | 'file' | 'filter'
-  | 'image' | 'minus' | 'plus' | 'upload';
+  | 'image' | 'minus' | 'plus' | 'upload'
+  | 'monitor' | 'sun' | 'moon' | 'contrast' | 'bell' | 'globe' | 'layers' | 'grid';
 export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
 export type IconTone = 'primary' | 'secondary' | 'tertiary' | 'inverse' | 'success' | 'warning' | 'error' | 'information';
 
@@ -51,6 +52,14 @@ const paths: Record<IconName, React.ReactNode> = {
   minus: <Line x1="5" y1="12" x2="19" y2="12" />,
   plus: <><Line x1="12" y1="5" x2="12" y2="19" /><Line x1="5" y1="12" x2="19" y2="12" /></>,
   upload: <><Path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3" /><Polyline points="7 9 12 4 17 9" /><Line x1="12" y1="4" x2="12" y2="16" /></>,
+  monitor: <><Rect x="3" y="4" width="18" height="12" rx="2" /><Line x1="8" y1="20" x2="16" y2="20" /><Line x1="12" y1="16" x2="12" y2="20" /></>,
+  sun: <><Circle cx="12" cy="12" r="4" /><Line x1="12" y1="2" x2="12" y2="4" /><Line x1="12" y1="20" x2="12" y2="22" /><Line x1="4.9" y1="4.9" x2="6.3" y2="6.3" /><Line x1="17.7" y1="17.7" x2="19.1" y2="19.1" /><Line x1="2" y1="12" x2="4" y2="12" /><Line x1="20" y1="12" x2="22" y2="12" /><Line x1="4.9" y1="19.1" x2="6.3" y2="17.7" /><Line x1="17.7" y1="6.3" x2="19.1" y2="4.9" /></>,
+  moon: <Path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z" />,
+  contrast: <><Circle cx="12" cy="12" r="9" /><Path d="M12 3a9 9 0 010 18z" fill="currentColor" /></>,
+  bell: <><Path d="M18 16V11a6 6 0 00-12 0v5l-2 2h16z" /><Path d="M10 20a2 2 0 004 0" /></>,
+  globe: <><Circle cx="12" cy="12" r="9" /><Line x1="3" y1="12" x2="21" y2="12" /><Path d="M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" /></>,
+  layers: <><Polyline points="12 3 21 8 12 13 3 8 12 3" /><Polyline points="3 12 12 17 21 12" /><Polyline points="3 16 12 21 21 16" /></>,
+  grid: <><Rect x="4" y="4" width="6" height="6" rx="1" /><Rect x="14" y="4" width="6" height="6" rx="1" /><Rect x="4" y="14" width="6" height="6" rx="1" /><Rect x="14" y="14" width="6" height="6" rx="1" /></>,
   user: <><Circle cx="12" cy="8" r="4" /><Path d="M4 21c.5-5 3-7 8-7s7.5 2 8 7" /></>,
 };
 
@@ -83,6 +92,7 @@ export const Icon = memo(function Icon({
       height={dimension}
       viewBox="0 0 24 24"
       fill="none"
+      color={color ?? toneColors[tone]}
       stroke={color ?? toneColors[tone]}
       strokeWidth={theme.borderWidth.medium}
       strokeLinecap="round"
