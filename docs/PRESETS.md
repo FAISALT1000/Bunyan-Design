@@ -182,7 +182,8 @@ A screen described as data, in the same style as `<Form fields>`:
 ```
 
 - Block types: every card above, `StatusBanner`, `DoubleButtons`,
-  `CodeBlock`, `TimelineEvent`, `StepperHeader`, `Section`, `Grid`, `Row`,
+  `CodeBlock`, `TimelineEvent`, `StepperHeader`, `BarList`, `BarChart`,
+  `Sparkline`, `DataTable`, `Section`, `Grid`, `Row`,
   `List` (`renderAs` + `formatItem`, with DataState), `Heading`, `Text`,
   `Button`, `Spacer`, `Divider`.
 - Falsy entries are skipped; React elements render as they are.
@@ -244,6 +245,63 @@ A screen described as data, in the same style as `<Form fields>`:
   (defaults to `query.isRefetching`); `skeleton` adds `'card'` and `'field'`.
 - Action objects (`PresetAction`): `title` optional when `titleLocalize` is
   set; `accessibilityLabel`.
+
+## Lists, chat, charts and navigation (0.0.6)
+
+| Component | Use it for | Key props |
+| --- | --- | --- |
+| `PagedList` | Infinite lists (tickets, invoices, audit log) | `query` (a `useInfiniteQuery` result; pages are flattened with `getItems`) or `data` + `hasMore` + `loadingMore` + `onLoadMore` + `onRefresh`; `renderAs` + `formatItem` or `renderItem`; `empty`, `skeleton`, `endMessage`, `header`, `inverted`, `listProps` |
+| `ChatThread` | A conversation | `messages` (oldest first: `{ id, side, createdAt, text, status, author, attachments, system }`), `typing`, `showAvatars`, `onRetry`, `onLongPress`, `onLoadOlder` + `hasOlder` + `loadingOlder`, `renderMessage` |
+| `ChatBubble` | One message | `side: 'outgoing' \| 'incoming'`, `text`, `time`, `status: 'sending' \| 'sent' \| 'delivered' \| 'read' \| 'failed'`, `onRetry`, `attachments`, `author`, `position` |
+| `ChatComposer` | Message input | `value`, `onChangeText`, `onSend(text)`, `onAttach`, `attachments` (chips), `sending`, `maxLength`, `maxLines`, `bottomInset` |
+| `TypingIndicator`, `ChatDayDivider` | Parts of a thread | `name`; `date` |
+| `AttachmentPicker` | Files for tickets, chats, forms | `value` (`{ uri, name, size, type, status: 'uploading' \| 'uploaded' \| 'error', progress, error }`), `onChange`, `pickFile` or `sources: [{ key, label, icon, pick }]`, `maxFiles`, `maxSize`, `onReject`, `onRetry`, `onPreview`, `layout: 'list' \| 'grid'` |
+| `BarList` | Ranked bars (top endpoints, spend by category) | `items: [{ label, value, valueLabel, icon, tone, onPress }]`, `max`, `sorted`, `limit`, `formatValue` |
+| `BarChart` | Vertical bars per day / month | `items: [{ label, value }]`, `height`, `highlightIndex`, `showValues`, `onBarPress` |
+| `Sparkline` | Trend line in KPI tiles | `values`, `width` (default: fills), `height`, `tone`, `area`, `showLastPoint` |
+| `ChartLegend` | Dots + labels under a chart | `items: [{ label, tone, value }]` |
+| `DataTable` | Small data grids | `columns: [{ key, title, width, flex, numeric, align, value, render, sortable, sortValue }]`, `rows`, `onRowPress`, `sort` / `defaultSort` / `onSortChange` / `manualSort`, `striped`, `dense`, `loading` |
+| `TabBar` | Bottom tabs | `items: [{ key, icon, activeIcon, label, badge }]`, `activeKey`, `onChange`, `variant: 'default' \| 'floating'`, `showLabels`; `tabBarPropsFromNavigation(props, config)` for React Navigation |
+
+```tsx
+const tickets = useInfiniteQuery({ queryKey: ['tickets'], queryFn, initialPageParam: 1, getNextPageParam });
+<PagedList query={tickets} renderAs="ThreeLineCard" formatItem={toTicketRow} empty={{ title: 'No tickets yet', icon: 'inbox' }} />
+
+<ChatThread messages={messages} typing={agentTyping && agent.name} onRetry={resend} onLoadOlder={loadOlder} hasOlder={hasOlder} />
+<ChatComposer value={draft} onChangeText={setDraft} onSend={send} onAttach={attach} bottomInset={insets.bottom} />
+
+<Tab.Navigator tabBar={props => <TabBar {...tabBarPropsFromNavigation(props, {
+  Home: { icon: 'home' }, Inbox: { icon: 'inbox', badge: unread }, Account: { icon: 'user' },
+})} />} />
+```
+
+`BarList`, `BarChart`, `Sparkline` and `DataTable` are also `ScreenContent`
+block types. Don't put a `PagedList` or `ChatThread` inside `ScreenContent`
+(they scroll themselves).
+
+### Overlays and screens
+
+- **Toasts above modals:** `ToastProvider` now shows toasts inside the
+  top-most open Bunyan `Modal` / `BottomSheet` (and dialogs from
+  `useConfirm` / `usePrompt`). Turn it off with `aboveModals={false}`.
+- **BottomSheet:** `snapPoints={['40%', '90%']}` (drag the handle between
+  them; screen readers get an adjustable control), `initialSnap`,
+  `onSnapChange`, `height` (`'auto'` default, points or `'%'`), `draggable`
+  (drag down to close), `scrollable={false}` for lists that scroll
+  themselves, `footer` (pinned buttons), `title` is optional.
+- **DateTimePicker** (and `DatePicker mode="time" | "datetime"`), `label`,
+  `is24Hour`, `minuteInterval`; Android asks for the date, then the time.
+  Form field type `DateTimePicker`.
+- **Form focus chaining:** text fields get "Next" and the last one "Done",
+  which submits. `focusChain={false}` or `submitOnDone={false}` to opt out;
+  your own `returnKeyType` / `onSubmitEditing` win. Custom field types opt
+  in with `registerFormFieldType(type, component, { focusable: true })` and
+  spread `focus` onto their input.
+- **AuthenticationTemplate:** `header` (above the logo), `headerRight`,
+  `headerLeft`, `contentAccessibilityLabel`.
+- **ThemeProvider persistence:** `storage={AsyncStorage}` (any
+  `getItem` / `setItem`), `storageKey`; `useTheme().preferenceLoaded` is
+  false while reading.
 
 ## Built-in labels
 

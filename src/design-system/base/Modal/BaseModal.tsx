@@ -1,5 +1,6 @@
 import React, { createContext, memo, useContext, useEffect, useState } from 'react';
 import { Modal as NativeModal, type ModalProps as NativeModalProps } from '../../components/RNTheme/native';
+import { ModalLayerSlot } from './ModalLayer';
 
 export interface BaseModalProps extends Omit<
   NativeModalProps,
@@ -51,6 +52,8 @@ export const BaseModal = memo(function BaseModal({
     >
       <OverlayShownContext.Provider value={shown}>
         {children}
+        {/* Toasts shown while this modal is open render above it. */}
+        <ModalLayerSlot active={visible} />
       </OverlayShownContext.Provider>
     </NativeModal>
   );

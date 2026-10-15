@@ -1,4 +1,4 @@
-import React, { createContext, memo, useContext, useMemo } from 'react';
+import React, { createContext, memo, useContext, useMemo, useRef } from 'react';
 import { Formik, getIn, useFormikContext, type FormikProps, type FormikValues } from 'formik';
 import { View } from '../RNTheme';
 import { useTheme } from '../../hooks';
@@ -15,7 +15,7 @@ import { Text } from '../Text';
 import { useStrings } from '../../i18n/strings';
 import { DoubleButtons } from '../../presets/actions/Actions';
 import { controlProps, registerFormFieldType, resolveFieldType } from './fieldTypes';
-import type { FormButtonConfig, FormFieldComponent, FormFieldConfig, FormFieldEntry, FormProps } from './Form.types';
+import type { FormButtonConfig, FormFieldComponent, FormFieldConfig, FormFieldEntry, FormFieldFocusProps, FormProps } from './Form.types';
 
 const resolveSpacing = (theme: Theme, value: ListSpacing | undefined, fallback: number) =>
   value === undefined ? fallback : typeof value === 'number' ? value : theme.spacing[value];
@@ -38,6 +38,41 @@ interface FormSettings {
 
 const FormSettingsContext = createContext<FormSettings>({ fieldTypes: undefined, showOptional: false, optionalLabel: 'Optional' });
 
+interface FocusChain {
+  entries: readonly FormFieldEntry<any>[];
+  inputs: Map<string, { focus?: () => void }>;
+  submitOnDone: boolean;
+}
+
+const FocusChainContext = createContext<FocusChain | null>(null);
+
+/** Names of the visible, enabled text fields in screen order (into RepeatedControls items too). */
+function focusOrder(
+  entries: readonly FormFieldEntry<any>[],
+  values: FormikValues,
+  fieldTypes: FormSettings['fieldTypes'],
+  prefix?: string,
+): string[] {
+  const names: string[] = [];
+  const scope = prefix ? (getIn(values, prefix) as FormikValues | undefined) ?? {} : values;
+  for (const entry of entries) {
+    if (!entry || React.isValidElement(entry)) continue;
+    const field = entry as FormFieldConfig<FormikValues>;
+    if (field.visibleWhen && !field.visibleWhen(scope)) continue;
+    if (field.disabled) continue;
+    const name = joinName(prefix, field.name);
+    if (!name) continue;
+    if (field.type === 'RepeatedControls') {
+      const items = getIn(values, name);
+      const sub = (field as unknown as { fields: readonly FormFieldEntry<any>[] }).fields;
+      if (Array.isArray(items)) items.forEach((_, index) => names.push(...focusOrder(sub, values, fieldTypes, `${name}.${index}`)));
+      continue;
+    }
+    if (resolveFieldType(field.type, fieldTypes)?.focusable) names.push(name);
+  }
+  return names;
+}
+
 const joinName = (prefix: string | undefined, name: string | undefined) =>
   prefix ? (name ? `${prefix}.${name}` : prefix) : name;
 
@@ -45,6 +80,7 @@ const joinName = (prefix: string | undefined, name: string | undefined) =>
 const FormFieldItem = memo(function FormFieldItem({ field, prefix }: { field: FormFieldConfig<FormikValues>; prefix?: string | undefined }) {
   const form = useFormikContext<FormikValues>();
   const { fieldTypes, showOptional, optionalLabel } = useContext(FormSettingsContext);
+  const chain = useContext(FocusChainContext);
   const t = useText();
   const registration = resolveFieldType(field.type, fieldTypes);
   const name = joinName(prefix, field.name);
@@ -66,6 +102,24 @@ const FormFieldItem = memo(function FormFieldItem({ field, prefix }: { field: Fo
   const disabled = Boolean(field.disabled) || form.isSubmitting;
   const Control = registration.component;
 
+  let focus: FormFieldFocusProps | undefined;
+  if (chain && registration.focusable && name && !disabled) {
+    const order = focusOrder(chain.entries, form.values, fieldTypes);
+    const nextName = order[order.indexOf(name) + 1];
+    focus = {
+      ref: instance => {
+        if (instance) chain.inputs.set(name, instance);
+        else chain.inputs.delete(name);
+      },
+      returnKeyType: nextName ? 'next' : 'done',
+      submitBehavior: nextName ? 'submit' : 'blurAndSubmit',
+      onSubmitEditing: () => {
+        if (nextName) chain.inputs.get(nextName)?.focus?.();
+        else if (chain.submitOnDone) form.handleSubmit();
+      },
+    };
+  }
+
   const control = (
     <Control
       field={field}
@@ -84,6 +138,7 @@ const FormFieldItem = memo(function FormFieldItem({ field, prefix }: { field: Fo
       disabled={disabled}
       t={t}
       form={form}
+      {...(focus ? { focus } : {})}
     />
   );
 
@@ -255,6 +310,8 @@ function FormInner<Values extends FormikValues>({
   resetButton = false,
   cancelButton = false,
   footerLayout = 'stacked',
+  focusChain = true,
+  submitOnDone = true,
   spacing: spacingProp,
   showOptional = false,
   optionalLabel,
@@ -273,6 +330,11 @@ function FormInner<Values extends FormikValues>({
     () => ({ fieldTypes, showOptional, optionalLabel: t(optionalLabel) ?? strings('optional') }),
     [fieldTypes, optionalLabel, showOptional, strings, t],
   );
+  const inputs = useRef(new Map<string, { focus?: () => void }>()).current;
+  const chain = useMemo<FocusChain | null>(
+    () => (focusChain ? { entries: fields, inputs, submitOnDone } : null),
+    [fields, focusChain, inputs, submitOnDone],
+  );
 
   return (
     <Formik<Values>
@@ -283,6 +345,7 @@ function FormInner<Values extends FormikValues>({
     >
       {form => (
         <FormSettingsContext.Provider value={settings}>
+        <FocusChainContext.Provider value={chain}>
         <View testID={testID} style={[{ gap }, style]}>
           <FormEntries entries={fields} />
           {typeof children === 'function' ? children(form) : children}
@@ -290,6 +353,7 @@ function FormInner<Values extends FormikValues>({
             <FormButtons form={form} submitButton={submitButton} resetButton={resetButton} cancelButton={cancelButton} footerLayout={footerLayout} initialValues={initialValues} />
           )}
         </View>
+        </FocusChainContext.Provider>
         </FormSettingsContext.Provider>
       )}
     </Formik>

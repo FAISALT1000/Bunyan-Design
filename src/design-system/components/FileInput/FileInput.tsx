@@ -8,6 +8,7 @@ import { Icon } from '../Icon';
 import { IconButton } from '../IconButton';
 import { Spinner } from '../Spinner';
 import { Text } from '../Text';
+import { useStrings } from '../../i18n/strings';
 
 export interface PickedFile {
   uri: string;
@@ -37,6 +38,9 @@ let defaultPicker: FilePicker | undefined;
 export const setDefaultFilePicker = (picker: FilePicker | undefined) => {
   defaultPicker = picker;
 };
+
+/** The picker set with `setDefaultFilePicker`, if any. */
+export const getDefaultFilePicker = (): FilePicker | undefined => defaultPicker;
 
 export interface FileInputProps {
   value?: readonly PickedFile[] | null;
@@ -70,9 +74,9 @@ export const FileInput = memo(function FileInput({
   maxFiles = multiple ? Infinity : 1,
   maxSize,
   onReject,
-  title = 'Upload file',
+  title: titleProp,
   hint,
-  removeLabel = 'Remove',
+  removeLabel: removeLabelProp,
   disabled = false,
   status = 'default',
   accessibilityLabel,
@@ -80,6 +84,9 @@ export const FileInput = memo(function FileInput({
 }: FileInputProps) {
   const { theme, direction } = useTheme();
   const t = useText();
+  const strings = useStrings();
+  const title = titleProp ?? strings('addFile');
+  const removeLabel = removeLabelProp ?? strings('remove');
   const [busy, setBusy] = useState(false);
   const files = value ?? [];
   const canAdd = !disabled && !busy && files.length < maxFiles;
@@ -135,7 +142,7 @@ export const FileInput = memo(function FileInput({
             opacity: disabled ? theme.opacity.disabled : theme.opacity.opaque,
           })}
         >
-          {busy ? <Spinner label="" /> : <Icon name="upload" size="lg" tone="secondary" />}
+          {busy ? <Spinner label={strings('loading')} /> : <Icon name="upload" size="lg" tone="secondary" />}
           <Text weight="semibold" internalColor={theme.color.text.link} align="center" value={t(title) ?? ""} />
           {hintText ? <Text variant="caption" tone="tertiary" align="center" value={hintText} /> : null}
         </Pressable>

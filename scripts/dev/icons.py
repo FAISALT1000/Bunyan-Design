@@ -38,6 +38,7 @@ CATEGORIES = {
         'minus': '<line x1="5" y1="12" x2="19" y2="12"/>',
         'close': '<line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/>',
         'check': '<polyline points="5 12 10 17 19 7"/>',
+        'check-double': '<polyline points="2 12.5 6.5 17 15 8"/><polyline points="11 15.5 12.5 17 21 8"/>',
         'edit': '<path d="M4 20h4L19 9l-4-4L4 16v4z"/><line x1="13" y1="7" x2="17" y2="11"/>',
         'trash': '<polyline points="3 6 5 6 21 6"/><path d="M8 6V4h8v2M19 6l-1 15H6L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>',
         'copy': '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 00-1-1H5a1 1 0 00-1 1v10a1 1 0 001 1h3"/>',

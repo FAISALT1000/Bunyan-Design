@@ -14,6 +14,10 @@ export const AuthenticationTemplate = memo(function AuthenticationTemplate({
   title,
   description,
   logo,
+  header,
+  headerRight,
+  headerLeft,
+  contentAccessibilityLabel,
   form,
   error,
   primaryAction,
@@ -37,9 +41,12 @@ export const AuthenticationTemplate = memo(function AuthenticationTemplate({
       keyboardAvoiding
       loading={loading}
       background={background}
-      contentAccessibilityLabel={`${mode} authentication`}
+      contentAccessibilityLabel={contentAccessibilityLabel ?? title}
+      {...(headerRight ? { headerRight } : {})}
+      {...(headerLeft ? { headerLeft } : {})}
     >
-      <View style={styles.content}>
+      <View style={styles.content} testID={testID ? `${testID}-${mode}` : undefined}>
+        {header ? <View>{header}</View> : null}
         {logo ? <View style={styles.logo}>{logo}</View> : null}
         <View style={styles.heading}>
           <Heading title={title} level={2} align="center" />

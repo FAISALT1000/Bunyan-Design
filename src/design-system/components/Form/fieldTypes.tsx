@@ -58,7 +58,7 @@ const testIdOf = (field: { testID?: string | undefined }) => (field.testID ? { t
 function textControl<K extends 'Input' | 'PasswordInput' | 'SearchInput' | 'TextArea'>(
   Control: React.ComponentType<any>,
 ): FormFieldComponent<FormFieldConfig<FormikValues, K>> {
-  return function TextControl({ field, value, setValue, setTouched, invalid, disabled, t }: Props<K>) {
+  return function TextControl({ field, value, setValue, setTouched, invalid, disabled, t, focus }: Props<K>) {
     const { placeholder, ...rest } = controlProps(field) as { placeholder?: Parameters<typeof t>[0] } & Record<string, unknown>;
     const placeholderText = t(placeholder);
     return (
@@ -72,15 +72,29 @@ function textControl<K extends 'Input' | 'PasswordInput' | 'SearchInput' | 'Text
         status={invalid ? 'error' : 'default'}
         accessibilityLabel={t(field.label) ?? field.name}
         {...(placeholderText ? { placeholder: placeholderText } : {})}
+        {...focusPropsOf(focus, rest)}
       />
     );
   };
 }
 
-const InputFieldControl: FormFieldComponent<FormFieldConfig<FormikValues, 'InputField'>> = ({ field, value, setValue, setTouched, error, disabled, t }) => {
+/** Focus chaining props, unless the field config sets its own `returnKeyType` / `onSubmitEditing`. */
+function focusPropsOf(focus: FormFieldControlProps['focus'], own: Record<string, unknown>) {
+  if (!focus) return {};
+  return {
+    ref: focus.ref,
+    ...(own.returnKeyType === undefined ? { returnKeyType: focus.returnKeyType } : {}),
+    ...(own.onSubmitEditing === undefined ? { onSubmitEditing: focus.onSubmitEditing } : {}),
+    ...(own.submitBehavior === undefined ? { submitBehavior: focus.submitBehavior } : {}),
+  };
+}
+
+const InputFieldControl: FormFieldComponent<FormFieldConfig<FormikValues, 'InputField'>> = ({ field, value, setValue, setTouched, error, disabled, t, focus }) => {
   const { inputType = 'text', placeholder, helperText, ...rest } = controlProps(field);
+  const multiline = (rest as { numberOfLines?: number }).numberOfLines !== undefined && ((rest as { numberOfLines?: number }).numberOfLines ?? 1) > 1;
   const common = {
     ...rest,
+    ...(multiline ? {} : focusPropsOf(focus, rest as Record<string, unknown>)),
     ...testIdOf(field),
     label: t(field.label) ?? field.name ?? '',
     value: asString(value),
@@ -252,11 +266,12 @@ const ChipsGroupField: FormFieldComponent<FormFieldConfig<FormikValues, 'ChipsGr
 };
 
 
-const AmountInputField: FormFieldComponent<FormFieldConfig<FormikValues, 'AmountInput'>> = ({ field, value, setValue, setTouched, invalid, disabled, t }) => {
+const AmountInputField: FormFieldComponent<FormFieldConfig<FormikValues, 'AmountInput'>> = ({ field, value, setValue, setTouched, invalid, disabled, t, focus }) => {
   const { placeholder, ...rest } = controlProps(field);
   return (
     <AmountInput
       {...rest}
+      {...focusPropsOf(focus, rest as Record<string, unknown>)}
       {...testIdOf(field)}
       value={typeof value === 'number' ? value : null}
       onChangeValue={setValue}
@@ -439,24 +454,25 @@ const ActionTextField: FormFieldComponent<FormFieldConfig<FormikValues, 'ActionT
 };
 
 const registry = new Map<string, FormFieldRegistration<any>>([
-  ['InputField', { component: InputFieldControl, wrap: false }],
-  ['Input', { component: textControl<'Input'>(Input) }],
-  ['PasswordInput', { component: textControl<'PasswordInput'>(PasswordInput) }],
+  ['InputField', { component: InputFieldControl, wrap: false, focusable: true }],
+  ['Input', { component: textControl<'Input'>(Input), focusable: true }],
+  ['PasswordInput', { component: textControl<'PasswordInput'>(PasswordInput), focusable: true }],
   ['SearchInput', { component: textControl<'SearchInput'>(SearchInput) }],
   ['TextArea', { component: textControl<'TextArea'>(TextArea) }],
   ['Select', { component: SelectField }],
   ['DatePicker', { component: DatePickerField }],
+  ['DateTimePicker', { component: ((props: Props<'DatePicker'>) => <DatePickerField {...props} field={{ mode: 'datetime', ...props.field }} />) as FormFieldComponent<any> }],
   ['DateRangePicker', { component: DateRangePickerField }],
   ['Checkbox', { component: CheckboxField, wrap: false }],
   ['Switch', { component: SwitchField, wrap: false }],
   ['RadioGroup', { component: RadioGroupField }],
   ['ChipsGroup', { component: ChipsGroupField }],
   // Aliases (names used by other projects)
-  ['TextInput', { component: textControl<'Input'>(Input) }],
+  ['TextInput', { component: textControl<'Input'>(Input), focusable: true }],
   ['Picker', { component: SelectField }],
   ['Toggle', { component: SwitchField, wrap: false }],
   // Specialised inputs
-  ['AmountInput', { component: AmountInputField }],
+  ['AmountInput', { component: AmountInputField, focusable: true }],
   ['AmountWithCurrencyInput', { component: AmountWithCurrencyField }],
   ['PhoneWithCountryInput', { component: PhoneField }],
   ['PhoneInput', { component: PhoneField }],

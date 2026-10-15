@@ -34,7 +34,7 @@ they fit:
   composition of cards and sections; the existing screen templates
   (BaseScreenTemplate, ListScreenTemplate, ResultScreenTemplate,
   FormScreenTemplate, OTPTemplate, …) and <Form fields> for forms.
-- Icons: Bunyan's Icon set (165 icons in categories). Delete local SVG
+- Icons: Bunyan's Icon set (166 icons in categories). Delete local SVG
   icons that have a Bunyan equivalent; register the rest with
   registerIcons() so everything goes through <Icon name>.
 Recommend a preset wherever one fits, even if the current code works.

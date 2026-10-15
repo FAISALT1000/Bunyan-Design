@@ -13,7 +13,7 @@ export interface AvatarProps {
 }
 
 const initialsFor = (name: string) =>
-  name.trim().split(/\s+/).slice(0, 2).map(part => part[0]?.toLocaleUpperCase()).join('');
+  name.trim().split(/\s+/).filter(part => /\p{L}|\p{N}/u.test(part[0] ?? '')).slice(0, 2).map(part => part[0]?.toLocaleUpperCase()).join('');
 
 export const Avatar = memo(function Avatar({
   source,

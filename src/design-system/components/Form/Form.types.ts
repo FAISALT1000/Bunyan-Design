@@ -72,6 +72,8 @@ export interface FormFieldTypes {
     noneOption?: TextValue;
   };
   DatePicker: Translated<Omit<DatePickerProps, 'value' | 'onChange' | 'status' | 'disabled' | 'accessibilityLabel'>, 'placeholder' | 'title' | 'clearLabel' | 'confirmLabel'>;
+  /** `DatePicker` with `mode: 'datetime'` by default. Value: `Date`. */
+  DateTimePicker: FormFieldTypes['DatePicker'];
   DateRangePicker: Omit<DateRangePickerProps, 'value' | 'onChange' | 'status' | 'disabled'>;
   Checkbox: { indeterminate?: boolean };
   Switch: Record<never, never>;
@@ -204,6 +206,19 @@ export interface FormFieldControlProps<C = FormFieldConfig> {
   /** Resolves `TextValue`s with the app translate function. */
   t: (value: TextValue | null | undefined) => string | undefined;
   form: FormikProps<FormikValues>;
+  /**
+   * Keyboard chaining for text fields (registrations with `focusable: true`):
+   * spread onto the input. "Next" moves to the next text field, "Done" on the
+   * last one submits the form.
+   */
+  focus?: FormFieldFocusProps;
+}
+
+export interface FormFieldFocusProps {
+  ref: (instance: { focus?: () => void } | null) => void;
+  returnKeyType: 'next' | 'done';
+  onSubmitEditing: () => void;
+  submitBehavior: 'submit' | 'blurAndSubmit';
 }
 
 export type FormFieldComponent<C = FormFieldConfig> = React.ComponentType<FormFieldControlProps<C>>;
@@ -215,6 +230,8 @@ export interface FormFieldRegistration<C = FormFieldConfig> {
    * Set `false` for controls that render their own label (Checkbox, Switch).
    */
   wrap?: boolean;
+  /** The control is a single-line text input that accepts `focus` props (keyboard Next / Done). */
+  focusable?: boolean;
 }
 
 export type FormButtonConfig = Omit<ButtonProps, 'children' | 'onPress' | 'title'> & { text?: TextValue };
@@ -241,6 +258,13 @@ export interface FormProps<Values extends FormikValues> {
   footerLayout?: 'stacked' | 'row';
   /** Gap between fields: points, a spacing token or per breakpoint. Default `'lg'`. */
   spacing?: Responsive<ThemeBreakpoint, ListSpacing>;
+  /**
+   * Keyboard "Next" moves between text fields in order and "Done" on the last
+   * one submits. Default true.
+   */
+  focusChain?: boolean;
+  /** Submit when "Done" is pressed on the last text field. Default true. */
+  submitOnDone?: boolean;
   /** Show `(Optional)` next to labels of fields that are not `required`. Default `false`. */
   showOptional?: boolean;
   /** Text of the optional marker. Default `'Optional'`. */

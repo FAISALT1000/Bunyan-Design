@@ -67,11 +67,43 @@ list). Nothing was removed or renamed.
   Form submit button are now Arabic. Tests or snapshots that matched the
   English defaults in Arabic need updating.
 
-### Next (phase 2)
+### Added (phase 2)
 
-PagedList, chat kit (bubbles, composer), AttachmentPicker, BarList /
-Sparkline, DateTimePicker, toasts above modals, BottomSheet snap points and
-height.
+- `PagedList`: infinite list for `useInfiniteQuery` or your own
+  `data` / `onLoadMore`, with skeletons, empty and error states, pull to
+  refresh, a bottom spinner or retry row and `endMessage`.
+- Chat kit: `ChatThread` (inverted, day dividers, grouped bubbles, load
+  older, typing), `ChatBubble` (status ticks, failed + retry, attachments),
+  `ChatComposer`, `TypingIndicator`, `ChatDayDivider`, `buildChatRows`.
+- `AttachmentPicker`: sources sheet, size / count limits, thumbnails,
+  upload progress, failed + retry, list or grid. `getDefaultFilePicker()`.
+- Charts: `BarList`, `BarChart`, `Sparkline`, `ChartLegend`.
+- `DataTable`: sortable columns, numeric columns, striped rows, row press,
+  loading and empty states, sideways scroll with fixed widths.
+- `TabBar` with badges and a floating variant, `tabBarPropsFromNavigation`
+  for React Navigation, `TAB_BAR_HEIGHT`.
+- `DateTimePicker`; `DatePicker` `mode` (`date` / `time` / `datetime`),
+  `label`, `is24Hour`, `minuteInterval`; Form field `DateTimePicker`.
+- Toasts render above open modals and bottom sheets
+  (`ToastProvider aboveModals`, default true).
+- `BottomSheet`: `snapPoints`, `initialSnap`, `onSnapChange`, `height`,
+  `draggable` (drag down to close), `scrollable`, `footer`; `title` optional.
+- `Form`: keyboard Next / Done chaining between text fields
+  (`focusChain`, `submitOnDone`; `focusable` registrations and the `focus`
+  control prop for custom fields).
+- `AuthenticationTemplate`: `header`, `headerRight`, `headerLeft`,
+  `contentAccessibilityLabel`.
+- `ThemeProvider`: `storage` and `storageKey` to save the theme choice;
+  `preferenceLoaded` in `useTheme()`.
+- `ScreenContent` blocks `BarList`, `BarChart`, `Sparkline`, `DataTable`.
+- Icon `check-double` (166 icons).
+
+### Fixed (phase 2)
+
+- `FileInput` default texts are translated; `Avatar` initials skip
+  punctuation ("Sara (Support)" → "S").
+- `AuthenticationTemplate` no longer announces an English
+  "login authentication" label.
 
 ## 0.1.0
 

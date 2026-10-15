@@ -7,6 +7,7 @@ import { Icon, type IconName } from '../Icon';
 import { Text } from '../Text';
 import { StatusIcon, type StatusKind } from '../../presets/status/StatusIcon';
 import { useStrings } from '../../i18n/strings';
+import { ModalLayerContext, type ModalLayerValue } from '../../base/Modal/ModalLayer';
 
 export type ToastTone = 'neutral' | 'success' | 'warning' | 'error' | 'information';
 export interface ToastOptions {
@@ -49,6 +50,11 @@ export interface ToastProviderProps {
   bottomOffset?: number;
   /** Screen edge the toasts stack from. Default `'bottom'`. */
   placement?: ToastPlacement;
+  /**
+   * Show toasts above open Bunyan modals and bottom sheets (they render inside
+   * the top-most one). Default true.
+   */
+  aboveModals?: boolean;
   testID?: string;
 }
 
@@ -57,6 +63,7 @@ export function ToastProvider({
   maxVisible = 3,
   bottomOffset = 0,
   placement = 'bottom',
+  aboveModals = true,
   testID,
 }: ToastProviderProps) {
   const { theme } = useTheme();
@@ -64,13 +71,17 @@ export function ToastProvider({
   const keyboard = useKeyboard();
   // Bottom toasts clear the navigation bar / home indicator and the app's tab
   // bar; while the keyboard is open they sit just above it instead.
-  const edgeStyle = placement === 'top'
+  const edgeStyle = (inModal: boolean) => placement === 'top'
     ? { top: safeArea.top + theme.spacing.xxl }
     : {
         bottom: keyboard.isVisible
           ? keyboard.height + theme.spacing.lg
-          : safeArea.bottom + theme.spacing.xxl + bottomOffset,
+          // Inside a modal there is no tab bar, so `bottomOffset` does not apply.
+          : safeArea.bottom + theme.spacing.xxl + (inModal ? 0 : bottomOffset),
       };
+  const [hosts, setHosts] = useState<number[]>([]);
+  const registerHost = useCallback((id: number) => setHosts(current => (current.includes(id) ? current : [...current, id])), []);
+  const unregisterHost = useCallback((id: number) => setHosts(current => current.filter(host => host !== id)), []);
   const [items, setItems] = useState<ToastItem[]>([]);
   // Latest items for synchronous reads in updateToast.
   const itemsRef = useRef(items);
@@ -128,9 +139,7 @@ export function ToastProvider({
   }, []);
 
   const contextValue = useMemo(() => ({ showToast, updateToast, dismissToast }), [dismissToast, showToast, updateToast]);
-  return (
-    <ToastContext.Provider value={contextValue}>
-      {children}
+  const renderStack = (inModal: boolean) => (inModal && items.length === 0 ? null : (
       <View
         pointerEvents="box-none"
         accessibilityLiveRegion="polite"
@@ -139,7 +148,7 @@ export function ToastProvider({
           position: 'absolute',
           start: theme.spacing.lg,
           end: theme.spacing.lg,
-          ...edgeStyle,
+          ...edgeStyle(inModal),
           zIndex: theme.zIndex.toast,
           gap: theme.spacing.sm,
           alignItems: 'center',
@@ -147,6 +156,18 @@ export function ToastProvider({
       >
         {items.map(item => <ToastItemView key={item.id} item={item} onDismiss={() => dismissToast(item.id)} />)}
       </View>
+  ));
+  const layer = useMemo<ModalLayerValue | null>(
+    () => (aboveModals ? { hosts, register: registerHost, unregister: unregisterHost, content: renderStack(true) } : null),
+    // renderStack reads items, the keyboard, safe area and theme.
+    [aboveModals, hosts, items, registerHost, unregisterHost, keyboard.isVisible, keyboard.height, safeArea.bottom, safeArea.top, theme],
+  );
+  return (
+    <ToastContext.Provider value={contextValue}>
+      <ModalLayerContext.Provider value={layer}>
+        {children}
+      </ModalLayerContext.Provider>
+      {aboveModals && hosts.length > 0 ? null : renderStack(false)}
     </ToastContext.Provider>
   );
 }

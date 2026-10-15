@@ -45,6 +45,8 @@ import {
   type StepperHeaderProps,
   type TimelineEventProps,
 } from '../display/Display';
+import { DataTable, type DataTableProps } from '../display/DataTable';
+import { BarChart, BarList, Sparkline, type BarChartProps, type BarListProps, type SparklineProps } from '../charts/Charts';
 
 /** Item presets a `List` block can repeat. */
 export type ListRenderAs = 'OneLineCard' | 'TwoLineCard' | 'ThreeLineCard' | 'ProductCard' | 'ActionCard' | 'StatCard';
@@ -76,6 +78,10 @@ export interface ScreenBlockTypes {
   CodeBlock: CodeBlockProps;
   TimelineEvent: TimelineEventProps;
   StepperHeader: StepperHeaderProps;
+  BarList: BarListProps;
+  BarChart: BarChartProps;
+  Sparkline: SparklineProps;
+  DataTable: DataTableProps<any>;
   Section: Omit<SectionProps, 'children'> & { blocks: ScreenBlockEntry[] };
   Grid: Omit<GridProps, 'children'> & { blocks: ScreenBlockEntry[] };
   Row: { blocks: ScreenBlockEntry[]; gap?: SpacingToken };
@@ -125,6 +131,10 @@ const registry = new Map<string, BlockComponent>([
   ['CodeBlock', CodeBlock],
   ['TimelineEvent', TimelineEvent],
   ['StepperHeader', StepperHeader],
+  ['BarList', BarList],
+  ['BarChart', BarChart],
+  ['Sparkline', Sparkline],
+  ['DataTable', DataTable],
 ]);
 
 /** Registers a custom block type (augment `ScreenBlockTypes` for typing). */

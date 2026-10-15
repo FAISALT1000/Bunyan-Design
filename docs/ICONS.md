@@ -1,6 +1,6 @@
 # Icons
 
-165 icons in 12 categories, all on a 24×24 grid with a 2px round stroke, so
+166 icons in 12 categories, all on a 24×24 grid with a 2px round stroke, so
 they sit well together. Every app that uses Bunyan imports them from the
 package; there are no SVG files to copy.
 
@@ -50,7 +50,7 @@ enabled, or webpack on web) drop the unused ones.
 | Key | Icons |
 | --- | --- |
 | `navigation` | chevron-left, chevron-right, chevron-up, chevron-down, arrow-left, arrow-right, arrow-up, arrow-down, arrow-up-right, arrow-down-left, external-link, chevron-end, backspace, menu, more-horizontal, more-vertical, home, grid |
-| `actions` | paste, reply, undo, redo, plus, minus, close, check, edit, trash, copy, share, download, upload, refresh, search, filter, sort, link, send |
+| `actions` | paste, reply, undo, redo, plus, minus, close, check, check-double, edit, trash, copy, share, download, upload, refresh, search, filter, sort, link, send |
 | `status` | activity, zap, success, error, warning, info, alert-circle, pending, help, bell, bell-off, shield-check, flag, loader |
 | `settings` | server, database, settings, sliders, sun, moon, contrast, globe, language, monitor, smartphone, wifi, battery, power, toggle, layers, palette, accessibility |
 | `users` | user, users, user-plus, user-check, user-x, user-circle, id-card, contacts, team, crown, heart, smile |

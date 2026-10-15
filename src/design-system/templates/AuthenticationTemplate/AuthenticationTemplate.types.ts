@@ -14,6 +14,14 @@ export interface AuthenticationTemplateProps {
   title: string;
   description?: string;
   logo?: React.ReactNode;
+  /** Content above the logo, e.g. a language switch or a "Need help?" link. */
+  header?: React.ReactNode;
+  /** Element at the end of the top bar (language, help). */
+  headerRight?: React.ReactNode;
+  /** Element at the start of the top bar (replaces the back button). */
+  headerLeft?: React.ReactNode;
+  /** Screen reader label of the content area. Default: the title. */
+  contentAccessibilityLabel?: string;
   form: React.ReactNode;
   error?: string;
   primaryAction?: TemplateAction;

@@ -27,6 +27,7 @@ export const PlusIcon = createIcon('plus');
 export const MinusIcon = createIcon('minus');
 export const CloseIcon = createIcon('close');
 export const CheckIcon = createIcon('check');
+export const CheckDoubleIcon = createIcon('check-double');
 export const EditIcon = createIcon('edit');
 export const TrashIcon = createIcon('trash');
 export const CopyIcon = createIcon('copy');

@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { Appearance, I18nManager, type ColorSchemeName } from '../components/RNTheme/native';
@@ -17,6 +18,15 @@ import type { Direction, Theme, ThemeMode } from '../themes/types';
 
 export type ThemePreference = ThemeMode | 'system';
 
+/**
+ * Where the theme choice is saved between launches. AsyncStorage, MMKV
+ * (wrap `getString` / `set`) and `localStorage` all fit.
+ */
+export interface ThemePreferenceStorage {
+  getItem: (key: string) => string | null | undefined | Promise<string | null | undefined>;
+  setItem: (key: string, value: string) => void | Promise<void>;
+}
+
 export interface ThemeContextValue {
   theme: Theme;
   mode: ThemeMode;
@@ -29,6 +39,8 @@ export interface ThemeContextValue {
   locale: string;
   platform: DesignSystemPlatform;
   platformTokens: PlatformTokens;
+  /** `false` while a saved preference is being read from `storage`. */
+  preferenceLoaded: boolean;
 }
 
 const defaultContext: ThemeContextValue = {
@@ -42,6 +54,7 @@ const defaultContext: ThemeContextValue = {
   locale: 'en',
   platform: 'default',
   platformTokens: resolvePlatformTokens('default'),
+  preferenceLoaded: true,
 };
 
 export const ThemeContext = createContext<ThemeContextValue>(defaultContext);
@@ -56,7 +69,14 @@ export interface ThemeProviderProps {
   blackForSystemDark?: boolean;
   themes?: Partial<Record<ThemeMode, Theme>>;
   platform?: DesignSystemPlatform;
+  /** Saves the user's choice (`setPreference`) and restores it on launch. Ignored when `preference` is controlled. */
+  storage?: ThemePreferenceStorage;
+  /** Storage key. Default `'bunyan.themePreference'`. */
+  storageKey?: string;
 }
+
+const isPreference = (value: unknown): value is ThemePreference =>
+  value === 'system' || (typeof value === 'string' && value in defaultThemes);
 
 const resolveSystemMode = (scheme: ColorSchemeName | null, blackForSystemDark: boolean): ThemeMode =>
   scheme === 'dark' ? (blackForSystemDark ? 'black' : 'dark') : 'light';
@@ -71,17 +91,45 @@ export function ThemeProvider({
   blackForSystemDark = false,
   themes,
   platform: platformOverride,
+  storage,
+  storageKey = 'bunyan.themePreference',
 }: ThemeProviderProps) {
   const [internalPreference, setInternalPreference] = useState<ThemePreference>(
     initialPreference,
   );
+  const persist = Boolean(storage) && controlledPreference === undefined;
+  const [preferenceLoaded, setPreferenceLoaded] = useState(!persist);
+  const userChanged = useRef(false);
+  useEffect(() => {
+    if (!persist || !storage) return undefined;
+    let active = true;
+    Promise.resolve()
+      .then(() => storage.getItem(storageKey))
+      .then(saved => {
+        // A choice made while loading wins over the saved one.
+        if (active && !userChanged.current && isPreference(saved)) setInternalPreference(saved);
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        if (active) setPreferenceLoaded(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, [persist, storage, storageKey]);
   const preference = controlledPreference ?? internalPreference;
   const setPreference = useCallback((nextPreference: ThemePreference) => {
     if (controlledPreference === undefined) {
+      userChanged.current = true;
       setInternalPreference(nextPreference);
+      if (storage) {
+        Promise.resolve()
+          .then(() => storage.setItem(storageKey, nextPreference))
+          .catch(() => undefined);
+      }
     }
     onPreferenceChange?.(nextPreference);
-  }, [controlledPreference, onPreferenceChange]);
+  }, [controlledPreference, onPreferenceChange, storage, storageKey]);
   const [systemScheme, setSystemScheme] = useState<ColorSchemeName | null>(
     Appearance.getColorScheme() ?? null,
   );
@@ -113,8 +161,10 @@ export function ThemeProvider({
       locale,
       platform,
       platformTokens,
+      preferenceLoaded,
     }),
     [
+      preferenceLoaded,
       activeTheme,
       locale,
       mode,

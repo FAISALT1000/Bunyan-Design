@@ -32,6 +32,7 @@ export const glyphs = {
   minus: <Line x1="5" y1="12" x2="19" y2="12" />,
   close: <><Line x1="6" y1="6" x2="18" y2="18" /><Line x1="18" y1="6" x2="6" y2="18" /></>,
   check: <Polyline points="5 12 10 17 19 7" />,
+  'check-double': <><Polyline points="2 12.5 6.5 17 15 8" /><Polyline points="11 15.5 12.5 17 21 8" /></>,
   edit: <><Path d="M4 20h4L19 9l-4-4L4 16v4z" /><Line x1="13" y1="7" x2="17" y2="11" /></>,
   trash: <><Polyline points="3 6 5 6 21 6" /><Path d="M8 6V4h8v2M19 6l-1 15H6L5 6" /><Line x1="10" y1="11" x2="10" y2="17" /><Line x1="14" y1="11" x2="14" y2="17" /></>,
   copy: <><Rect x="8" y="8" width="12" height="12" rx="2" /><Path d="M16 8V5a1 1 0 00-1-1H5a1 1 0 00-1 1v10a1 1 0 001 1h3" /></>,
@@ -188,7 +189,7 @@ export type BuiltInIconName = keyof typeof glyphs;
 /** Icon names grouped by category, e.g. for icon pickers or settings screens. */
 export const iconCategories = {
   navigation: ['chevron-left', 'chevron-right', 'chevron-up', 'chevron-down', 'arrow-left', 'arrow-right', 'arrow-up', 'arrow-down', 'arrow-up-right', 'arrow-down-left', 'external-link', 'chevron-end', 'backspace', 'menu', 'more-horizontal', 'more-vertical', 'home', 'grid'],
-  actions: ['paste', 'reply', 'undo', 'redo', 'plus', 'minus', 'close', 'check', 'edit', 'trash', 'copy', 'share', 'download', 'upload', 'refresh', 'search', 'filter', 'sort', 'link', 'send'],
+  actions: ['paste', 'reply', 'undo', 'redo', 'plus', 'minus', 'close', 'check', 'check-double', 'edit', 'trash', 'copy', 'share', 'download', 'upload', 'refresh', 'search', 'filter', 'sort', 'link', 'send'],
   status: ['activity', 'zap', 'success', 'error', 'warning', 'info', 'alert-circle', 'pending', 'help', 'bell', 'bell-off', 'shield-check', 'flag', 'loader'],
   settings: ['server', 'database', 'settings', 'sliders', 'sun', 'moon', 'contrast', 'globe', 'language', 'monitor', 'smartphone', 'wifi', 'battery', 'power', 'toggle', 'layers', 'palette', 'accessibility'],
   users: ['user', 'users', 'user-plus', 'user-check', 'user-x', 'user-circle', 'id-card', 'contacts', 'team', 'crown', 'heart', 'smile'],

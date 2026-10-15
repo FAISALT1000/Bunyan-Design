@@ -8,6 +8,16 @@ import { ToastProvider } from '../components/Toast';
 import { View } from '../components/RNTheme';
 import { iconCategories } from '../icons/glyphs';
 import {
+  AttachmentPicker,
+  BarChart,
+  BarList,
+  ChatComposer,
+  ChatThread,
+  DataTable,
+  Sparkline,
+  TabBar,
+  type Attachment,
+  type ChatMessage,
   CodeBlock,
   CodeField,
   ConfirmPhraseInput,
@@ -258,3 +268,46 @@ function NewInV006() {
 }
 
 export const NewInV006Story: Story = { name: 'New in 0.0.6', render: () => <NewInV006 /> };
+
+function ChatDemo() {
+  const [draft, setDraft] = useState('');
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    { id: '1', side: 'incoming', createdAt: Date.now() - 3_600_000, text: 'Hi! How can we help?', author: { name: 'Sara' } },
+    { id: '2', side: 'outgoing', createdAt: Date.now() - 3_500_000, text: 'The app closes after I enter the code.', status: 'read' },
+  ]);
+  return (
+    <View style={{ height: 520 }}>
+      <ChatThread messages={messages} typing="Sara" showAvatars />
+      <ChatComposer value={draft} onChangeText={setDraft} onAttach={noop} onSend={text => {
+        setMessages(current => [...current, { id: String(current.length + 1), side: 'outgoing', createdAt: Date.now(), text, status: 'sent' }]);
+        setDraft('');
+      }} />
+    </View>
+  );
+}
+
+export const Chat: Story = { render: () => <ChatDemo /> };
+
+function DataDemo() {
+  const [tab, setTab] = useState('home');
+  const [files, setFiles] = useState<Attachment[]>([{ uri: 'file://a.pdf', name: 'invoice.pdf', size: 182_000, type: 'application/pdf' }]);
+  return (
+    <Stack gap="lg" padding="lg">
+      <Sparkline values={[4, 6, 5, 8, 7, 9, 12]} tone="success" />
+      <BarChart items={[{ label: 'Sun', value: 40 }, { label: 'Mon', value: 72 }, { label: 'Tue', value: 55 }]} highlightIndex={1} showValues />
+      <BarList sorted items={[{ label: '/v1/streams', value: 1240 }, { label: '/v1/users', value: 620 }]} />
+      <DataTable
+        columns={[{ key: 'region', title: 'Region', sortable: true }, { key: 'calls', title: 'Calls', numeric: true, sortable: true }]}
+        rows={[{ id: 1, region: 'Riyadh', calls: 5400 }, { id: 2, region: 'Jeddah', calls: 3100 }]}
+      />
+      <AttachmentPicker value={files} onChange={setFiles} maxFiles={3} pickFile={async () => ({ uri: 'file://b.png', name: 'photo.png', size: 920_000, type: 'image/png' })} />
+      <TabBar safeArea={false} activeKey={tab} onChange={setTab} items={[
+        { key: 'home', icon: 'home', label: 'Home' },
+        { key: 'inbox', icon: 'inbox', label: 'Inbox', badge: 3 },
+        { key: 'me', icon: 'user', label: 'Account' },
+      ]} />
+    </Stack>
+  );
+}
+
+export const ChartsTablesTabs: Story = { name: 'Charts, tables, tabs, attachments', render: () => <DataDemo /> };
