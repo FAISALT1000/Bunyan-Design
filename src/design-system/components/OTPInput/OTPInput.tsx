@@ -1,11 +1,12 @@
 import React, { forwardRef, memo, useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import { Pressable, TextInput, View, type TextInputRef } from '../RNTheme';
-import { InteractionManager, Keyboard, StyleSheet } from '../RNTheme/native';
+import { InteractionManager, Keyboard, Platform, StyleSheet, type TextInputProps } from '../RNTheme/native';
 import { useOverlayShown } from '../../base/Modal';
 import { useTheme } from '../../hooks';
 import { normalizeDigits } from '../../utilities/numbers';
 import { NumPad } from '../../templates/NumPad';
 import { Text } from '../Text';
+import { useStrings } from '../../i18n/strings';
 
 export interface OTPInputProps {
   value: string;
@@ -25,6 +26,10 @@ export interface OTPInputProps {
   /** Screen-reader label of the slot row; receives entered/total counts. */
   slotsLabel?: (entered: number, length: number) => string;
   inputAccessibilityLabel?: string;
+  /** Autofill hint. Default `'sms-otp'` on Android, `'one-time-code'` elsewhere. */
+  autoComplete?: TextInputProps['autoComplete'];
+  /** iOS autofill hint. Default `'oneTimeCode'`. */
+  textContentType?: TextInputProps['textContentType'];
   testID?: string;
 }
 
@@ -58,10 +63,15 @@ export const OTPInput = memo(forwardRef<OTPInputHandle, OTPInputProps>(function 
   disabled = false,
   useNumPad = false,
   autoFocus = false,
-  slotsLabel = (entered, total) => `Verification code, ${entered} of ${total} digits entered`,
-  inputAccessibilityLabel = 'Verification code input',
+  slotsLabel: slotsLabelProp,
+  inputAccessibilityLabel: inputAccessibilityLabelProp,
+  autoComplete,
+  textContentType = 'oneTimeCode',
   testID,
 }, ref) {
+  const strings = useStrings();
+  const inputAccessibilityLabel = inputAccessibilityLabelProp ?? strings('codeInput');
+  const slotsLabel = slotsLabelProp ?? ((entered: number, total: number) => strings('codeSlots', { entered, total }));
   const { theme } = useTheme();
   const inputRef = useRef<TextInputRef>(null);
   const overlayShown = useOverlayShown();
@@ -163,8 +173,8 @@ export const OTPInput = memo(forwardRef<OTPInputHandle, OTPInputProps>(function 
           onChangeText={update}
           keyboardType="number-pad"
           inputMode="numeric"
-          textContentType="oneTimeCode"
-          autoComplete="one-time-code"
+          textContentType={textContentType}
+          autoComplete={autoComplete ?? (Platform.OS === 'android' ? 'sms-otp' : 'one-time-code')}
           accessibilityLabel={inputAccessibilityLabel}
           accessibilityState={{ disabled }}
           editable={!disabled}

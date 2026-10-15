@@ -6,6 +6,7 @@ import { logicalRow } from '../../utilities/styles';
 import { Icon, type IconName } from '../Icon';
 import { Text } from '../Text';
 import { StatusIcon, type StatusKind } from '../../presets/status/StatusIcon';
+import { useStrings } from '../../i18n/strings';
 
 export type ToastTone = 'neutral' | 'success' | 'warning' | 'error' | 'information';
 export interface ToastOptions {
@@ -156,6 +157,7 @@ const ToastItemView = memo(function ToastItemView({ item, onDismiss }: { item: T
   React.useEffect(() => {
     Animated.timing(opacity, { toValue: theme.opacity.opaque, duration: theme.motion.duration.normal, useNativeDriver: true }).start();
   }, [opacity, theme]);
+  const strings = useStrings();
   const icons: Record<ToastTone, IconName> = { neutral: 'info', success: 'success', warning: 'warning', error: 'error', information: 'info' };
   return (
     <Animated.View
@@ -187,7 +189,7 @@ const ToastItemView = memo(function ToastItemView({ item, onDismiss }: { item: T
           <Text value={item.actionLabel} tone="inverse" weight="semibold" />
         </Pressable>
       ) : null}
-      <Pressable accessibilityRole="button" accessibilityLabel="Dismiss notification" onPress={onDismiss}>
+      <Pressable accessibilityRole="button" accessibilityLabel={strings('dismissNotification')} onPress={onDismiss}>
         <Icon name="close" size="sm" tone="inverse" />
       </Pressable>
     </Animated.View>

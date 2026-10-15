@@ -20,6 +20,7 @@ const shared = {
   borderWidth: tokens.borderWidth,
   shadow: tokens.shadow,
   iconSize: tokens.iconSize,
+  tileSize: tokens.tileSize,
   componentHeight: tokens.componentHeight,
   breakpoint: tokens.breakpoint,
   motion: tokens.motion,

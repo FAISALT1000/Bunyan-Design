@@ -43,7 +43,7 @@ both.
 
 Shared prop shapes:
 
-- `icon`: `'transfer'` or `{ name: 'transfer', tone: 'primary' }` (tones: primary, neutral, success, warning, error, info).
+- `icon`: `'transfer'` or `{ name: 'transfer', tone: 'primary' }` (tones: primary, secondary, neutral, success, warning, error, info / information, inverse).
 - `avatar`: `{ name, image, status: 'online' | 'busy' | 'offline' }`.
 - `badge`: `'New'` or `{ label: 'Admin', tone: 'primary' }`.
 - `toggle`: `{ value, onChange, disabled }`.
@@ -181,13 +181,78 @@ A screen described as data, in the same style as `<Form fields>`:
 />
 ```
 
-- Block types: every card above, `StatusBanner`, `Section`, `Grid`, `Row`,
+- Block types: every card above, `StatusBanner`, `DoubleButtons`,
+  `CodeBlock`, `TimelineEvent`, `StepperHeader`, `Section`, `Grid`, `Row`,
   `List` (`renderAs` + `formatItem`, with DataState), `Heading`, `Text`,
   `Button`, `Spacer`, `Divider`.
 - Falsy entries are skipped; React elements render as they are.
 - Custom blocks: `registerBlockType('PromoBanner', PromoBanner)` and augment
   `ScreenBlockTypes` for typing.
 - `scroll` (default true), `gap`, `padding`.
+
+## Actions, forms and display (0.0.6)
+
+| Component | Use it for | Key props |
+| --- | --- | --- |
+| `DoubleButtons` | The primary + secondary button pair at the bottom of forms and sheets | `primary`, `secondary`, `tertiary` (actions), `layout: 'stacked' \| 'row'`, `size` |
+| `CountdownButton` | "Resend in 42s" buttons | action props + `seconds`, `startOnMount`, `retryAfterSeconds` (server Retry-After), `countdownTitle` / `countdownLocalize` (`%{seconds}`) |
+| `useCountdown(seconds, { autoStart })` | Your own countdown UI | returns `{ remaining, running, start(seconds?), stop }` |
+| `CodeField` | One-time codes: OTP slots + error + resend | OTPInput props (default `length` 6, autofill on iOS and Android), `errorText`, `resend: { onPress, cooldownSeconds, startOnMount, retryAfterSeconds, label, labelLocalize, countdownLocalize }` |
+| `ConfirmPhraseInput` | "Type DELETE to confirm" | `phrase`, `value`, `onChangeText`, `onMatchChange`, `caseSensitive`, `label`, `helperText`; `phraseMatches()` helper |
+| `FilterChips` | Inbox / category / audit filters | `items: [{ value, label \| labelLocalize, count, icon, disabled }]`, `value` + `onChange`, or `multiple` with `values`; `scrollable` |
+| `Rating` | Stars, interactive or read-only | `value`, `onChange` (omit for read-only, half stars shown), `max`, `size`, `compact` + `count` ("★ 4.6 (120)") |
+| `CodeBlock` | Logs, JSON, request IDs | `value`, `title`, `copyable` (default true), `onCopy`, `wrap`, `maxLines`; always monospace and left-to-right |
+| `TimelineEvent` | Centred activity lines in tickets and chats | `text`, `icon`, `meta`, `tone`, `onPress` (adds an arrow) |
+| `StepperHeader` | Multi-step flows | `step`, `total`, `title`, `subtitle`, `onBack` |
+| `CountBadge` | Unread counts and dots | `count`, `max` (99+), `dot`, `tone` |
+
+```tsx
+<CodeField value={code} onChange={setCode} onComplete={verify} errorText={error}
+  resend={{ onPress: resend, cooldownSeconds: 60 }} />
+
+<DoubleButtons layout="row"
+  primary={{ titleLocalize: 'common.save', onPress: save, loading: saving }}
+  secondary={{ titleLocalize: 'common.cancel', onPress: close }} />
+
+<FilterChips value={filter} onChange={setFilter} scrollable items={[
+  { value: 'all', labelLocalize: 'inbox.all' },
+  { value: 'mine', labelLocalize: 'inbox.mine', count: 4 },
+]} />
+```
+
+`DoubleButtons`, `CodeBlock`, `TimelineEvent` and `StepperHeader` are also
+`ScreenContent` block types.
+
+### New props on existing presets
+
+- `LineCard` / `OneLineCard` / `TwoLineCard` / `ThreeLineCard`: `badges[]`,
+  `unreadCount`, `onLongPress`, `tone`, `selectable`, `footer`, `actions[]`
+  (only the row is pressable when these are set); `ThreeLineCard`
+  `descriptionLines`.
+- `DetailsCard` rows: `onPress`. `ActionCard`: `loading`. `Section`: `right`
+  slot. `IconBox`: tones `secondary`, `information`, `inverse`; `size` is a
+  tile token (`xs`…`hero`) or a number; `iconRatio`.
+- Layout: `bg` adds `successSubtle`, `warningSubtle`, `errorSubtle`,
+  `infoSubtle`; `style` on `Row` / `Column` / `Center` / `Grid`; new `Fill`
+  (flex 1).
+- `useConfirm`: `children` (custom body), `onConfirm` (async; shows a spinner,
+  keeps the dialog open and shows the error if it throws), `errorMessage`.
+- `usePrompt`: `label` optional (defaults to the title), `helperText`,
+  `secureTextEntry`, `autoCapitalize`, `numberOfLines`, `danger`,
+  `confirmPhrase` (`'DELETE'` or `{ phrase, caseSensitive }`).
+- `DataState`: `renderError(error, retry)`, `loadingLabel`, `refreshing`
+  (defaults to `query.isRefetching`); `skeleton` adds `'card'` and `'field'`.
+- Action objects (`PresetAction`): `title` optional when `titleLocalize` is
+  set; `accessibilityLabel`.
+
+## Built-in labels
+
+Bunyan's own labels ("Loading", "Try again", "Close", "Optional", "Show
+password", "Resend in %{seconds}s"…) ship in English and Arabic and follow
+the locale. To change one, add the key under `bunyan.` in your app
+translations (`bunyan.tryAgain`), or merge `bunyanTranslations` into your
+i18n resources and edit them. `useStrings()` returns the lookup function, and
+`bunyanDefaultStrings` lists every key. See LOCALIZATION.md.
 
 ## Wrapping presets in your app
 

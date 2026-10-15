@@ -8,6 +8,15 @@ import { ToastProvider } from '../components/Toast';
 import { View } from '../components/RNTheme';
 import { iconCategories } from '../icons/glyphs';
 import {
+  CodeBlock,
+  CodeField,
+  ConfirmPhraseInput,
+  CountdownButton,
+  DoubleButtons,
+  FilterChips,
+  Rating,
+  StepperHeader,
+  TimelineEvent,
   ActionCard,
   AmountCard,
   DataState,
@@ -221,3 +230,31 @@ export const Icons: Story = {
     </Stack>
   ),
 };
+
+function NewInV006() {
+  const [code, setCode] = useState('');
+  const [filter, setFilter] = useState<string | null>('all');
+  const [stars, setStars] = useState(3);
+  const [phrase, setPhrase] = useState('');
+  return (
+    <Stack gap="lg" padding="lg">
+      <StepperHeader step={2} total={3} title="Describe the problem" subtitle="We reply within a day" onBack={noop} />
+      <FilterChips value={filter} onChange={setFilter} scrollable items={[
+        { value: 'all', label: 'All' },
+        { value: 'mine', label: 'Mine', count: 4, icon: 'user' },
+        { value: 'closed', label: 'Closed' },
+      ]} />
+      <CodeField value={code} onChange={setCode} resend={{ onPress: noop, cooldownSeconds: 30 }} />
+      <Rating value={stars} onChange={setStars} />
+      <Rating value={4.5} />
+      <Rating value={4.6} count={120} compact />
+      <CodeBlock title="Request ID" value={'{\n  "id": "req_7f3a9c",\n  "status": 429\n}'} />
+      <TimelineEvent icon="activity" text="Status: Waiting for you" meta="10:42" />
+      <ConfirmPhraseInput phrase="DELETE" value={phrase} onChangeText={setPhrase} />
+      <CountdownButton title="Resend code" seconds={30} startOnMount onPress={noop} variant="outline" />
+      <DoubleButtons layout="row" primary={{ title: 'Save', onPress: noop }} secondary={{ title: 'Cancel', onPress: noop }} />
+    </Stack>
+  );
+}
+
+export const NewInV006Story: Story = { name: 'New in 0.0.6', render: () => <NewInV006 /> };

@@ -60,7 +60,7 @@ for (const file of files) {
   inspect(locale, resource);
 }
 
-const allKeys = new Set(Object.values(resources).flatMap(flatten));
+const allKeys = new Set(Object.values(resources).flatMap(resource => flatten(resource)));
 const missingByLocale = Object.fromEntries(
   Object.entries(resources).map(([locale, resource]) => {
     const keys = new Set(flatten(resource));

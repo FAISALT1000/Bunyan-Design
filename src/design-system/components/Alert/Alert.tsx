@@ -8,8 +8,10 @@ import { Button } from '../Button';
 import { Icon, type IconName } from '../Icon';
 import { IconButton } from '../IconButton';
 import { Text, type TextTone } from '../Text';
+import { useStrings } from '../../i18n/strings';
 
-export type AlertTone = 'information' | 'success' | 'warning' | 'error';
+/** `'info'` is an alias of `'information'`. */
+export type AlertTone = 'information' | 'info' | 'success' | 'warning' | 'error';
 
 export interface AlertProps {
   title: string;
@@ -17,6 +19,9 @@ export interface AlertProps {
   tone?: AlertTone;
   actionLabel?: string;
   onAction?: () => void;
+  /** Second action next to the first one, e.g. "Discard" / "Keep". */
+  secondaryActionLabel?: string;
+  onSecondaryAction?: () => void;
   onDismiss?: () => void;
   accessibilityLabel?: string;
   dismissAccessibilityLabel?: string;
@@ -29,14 +34,18 @@ export const Alert = memo(function Alert({
   tone = 'information',
   actionLabel,
   onAction,
+  secondaryActionLabel,
+  onSecondaryAction,
   onDismiss,
   accessibilityLabel,
-  dismissAccessibilityLabel = 'Dismiss alert',
+  dismissAccessibilityLabel: dismissAccessibilityLabelProp,
   testID,
 }: AlertProps) {
+  const strings = useStrings();
+  const dismissAccessibilityLabel = dismissAccessibilityLabelProp ?? strings('dismissAlert');
   const { theme } = useTheme();
   const toneMap: Record<
-    AlertTone,
+    Exclude<AlertTone, 'info'>,
     { background: string; border: string; icon: IconName; textTone: TextTone }
   > = {
     information: {
@@ -64,11 +73,14 @@ export const Alert = memo(function Alert({
       textTone: 'error',
     },
   };
-  const current = toneMap[tone];
+  const resolvedTone = tone === 'info' ? 'information' : tone;
+  const current = toneMap[resolvedTone];
+  const interactive = Boolean((actionLabel && onAction) || (secondaryActionLabel && onSecondaryAction) || onDismiss);
 
   return (
     <Box
-      accessible
+      // Grouping hides inner buttons from screen readers, so only group static alerts.
+      accessible={!interactive}
       accessibilityRole={tone === 'error' || tone === 'warning' ? 'alert' : 'summary'}
       accessibilityLabel={
         accessibilityLabel ?? createAccessibilityLabel([title, description])
@@ -84,7 +96,7 @@ export const Alert = memo(function Alert({
       }}
     >
       <Inline gap="md" alignItems="flex-start">
-        <Icon name={current.icon} size="lg" tone={tone} />
+        <Icon name={current.icon} size="lg" tone={resolvedTone} />
         <Stack flex={1} gap="xs">
           <Text value={title} weight="semibold" tone={current.textTone} />
           {description ? (
@@ -94,13 +106,15 @@ export const Alert = memo(function Alert({
               tone={current.textTone}
             />
           ) : null}
-          {actionLabel && onAction ? (
-            <Button
-              title={actionLabel}
-              variant="ghost"
-              size="small"
-              onPress={onAction}
-            />
+          {(actionLabel && onAction) || (secondaryActionLabel && onSecondaryAction) ? (
+            <Inline gap="sm" alignItems="center">
+              {actionLabel && onAction ? (
+                <Button title={actionLabel} variant="ghost" size="small" onPress={onAction} />
+              ) : null}
+              {secondaryActionLabel && onSecondaryAction ? (
+                <Button title={secondaryActionLabel} variant="ghost" size="small" onPress={onSecondaryAction} />
+              ) : null}
+            </Inline>
           ) : null}
         </Stack>
         {onDismiss ? (

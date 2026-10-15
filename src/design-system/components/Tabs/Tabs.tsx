@@ -7,13 +7,19 @@ import {
   createAccessibilityLabel,
   createAccessibilityState,
 } from '../../utilities/accessibility';
+import { CountBadge } from '../CountBadge';
 import { Text } from '../Text';
+import { useStrings } from '../../i18n/strings';
 
 export interface TabItem {
   value: string;
   label: string;
   disabled?: boolean;
-  badge?: string;
+  /**
+   * A string renders as quiet text (as before); a number renders a count pill;
+   * `{ dot: true }` an unread dot.
+   */
+  badge?: string | number | { count?: number; dot?: boolean; tone?: 'primary' | 'error' | 'neutral' };
 }
 
 export interface TabsProps {
@@ -30,9 +36,11 @@ export const Tabs = memo(function Tabs({
   value,
   onValueChange,
   variant = 'line',
-  accessibilityLabel = 'Tabs',
+  accessibilityLabel: accessibilityLabelProp,
   testID,
 }: TabsProps) {
+  const strings = useStrings();
+  const accessibilityLabel = accessibilityLabelProp ?? strings('tabs');
   const { theme } = useTheme();
   const id = useId();
 
@@ -52,7 +60,7 @@ export const Tabs = memo(function Tabs({
             key={item.value}
             nativeID={`${id}-${item.value}-tab`}
             accessibilityRole="tab"
-            accessibilityLabel={createAccessibilityLabel([item.label, item.badge])}
+            accessibilityLabel={createAccessibilityLabel([item.label, typeof item.badge === 'object' ? item.badge.count : item.badge])}
             accessibilityState={createAccessibilityState({
               selected,
               disabled: item.disabled ?? false,
@@ -91,8 +99,16 @@ export const Tabs = memo(function Tabs({
                 weight={selected ? 'semibold' : 'medium'}
                 tone={selected ? 'info' : 'secondary'}
               />
-              {item.badge ? (
+              {typeof item.badge === 'string' && item.badge ? (
                 <Text value={item.badge} variant="caption" tone="tertiary" />
+              ) : typeof item.badge === 'number' ? (
+                <CountBadge count={item.badge} tone={selected ? 'primary' : 'neutral'} />
+              ) : item.badge && typeof item.badge === 'object' ? (
+                <CountBadge
+                  {...(item.badge.count !== undefined ? { count: item.badge.count } : {})}
+                  {...(item.badge.dot ? { dot: true } : {})}
+                  {...(item.badge.tone ? { tone: item.badge.tone } : {})}
+                />
               ) : null}
             </Inline>
           </BasePressable>

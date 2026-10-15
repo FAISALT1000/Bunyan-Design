@@ -4,6 +4,75 @@ All notable changes to `@bunyan/design-system`. Versions follow semantic
 versioning; until 1.0.0, minor changes may still add props but never rename or
 remove public ones without a deprecation.
 
+## 0.0.6
+
+Fixes and additions requested while building StreamSpy (phase 1 of the gaps
+list). Nothing was removed or renamed.
+
+### Fixed
+
+- `SettingsGroup` no longer spreads a `key` prop into `LineCard` (React
+  warning).
+- `validate-translations` checks keys of every locale (the prefix check
+  compared against the wrong object).
+- `formatDate` with `intl: { dateStyle }` or `timeStyle` no longer throws
+  (presets' own fields are dropped when those are given; Hijri calendar kept).
+- `IconButton` mirrors only directional icons in Arabic (it mirrored every
+  icon).
+- `CodeBlock` keeps code left-aligned in Arabic.
+
+### Added
+
+- **Built-in labels in English and Arabic** for everything Bunyan writes on
+  its own (loading, errors, close / dismiss, optional, password toggle,
+  form buttons, OTP, countdown…). Override with `bunyan.<key>` translations;
+  `useStrings()`, `bunyanTranslations`, `bunyanDefaultStrings`.
+- **Components and presets:** `DoubleButtons`, `CountdownButton`,
+  `useCountdown`, `CodeField`, `ConfirmPhraseInput` (`phraseMatches`),
+  `FilterChips`, `Rating`, `CodeBlock`, `TimelineEvent`, `StepperHeader`,
+  `CountBadge`, layout `Fill`.
+- **Props:**
+  - `Text`: `mono`, `transform`, `letterSpacing`, variant `micro`.
+    `Heading`: `localize`, `translationOptions`, `selectable`.
+  - `InputField`: `textAlign` (logical start/end), `selectTextOnFocus`,
+    `importantForAutofill`, `showPasswordLabel`, `hidePasswordLabel`.
+  - `OTPInput`: `autoComplete` (default `one-time-code` on iOS, `sms-otp` on
+    Android) and `textContentType`.
+  - `Alert`: `secondaryActionLabel` / `onSecondaryAction`. `Badge`: `icon`.
+    `Tabs`: `badge` (count, dot, tone). `Skeleton`: `preset`. `Button`:
+    `fill`. `IconButton`: `variant="tonal"`, numeric `size`,
+    `accessibilityState`, `accessibilityRole`.
+  - Tone alias `info` on `Alert`, `Badge` and `Icon`.
+  - `Form`: OTP field `onComplete(code, form)`, Select `noneOption`,
+    repeated groups `reorderable`, `cancelButton`, `footerLayout`.
+  - Presets: LineCards `badges`, `unreadCount`, `onLongPress`, `tone`,
+    `selectable`, `footer`, `actions`, `descriptionLines`; `DetailsCard` row
+    `onPress`; `ActionCard` `loading`; `Section` `right`; `IconBox` tones
+    `secondary` / `information` / `inverse`, token or numeric `size`,
+    `iconRatio`; layout `style` and subtle status backgrounds.
+  - Dialogs: `useConfirm` `children`, async `onConfirm`, `errorMessage`;
+    `usePrompt` `helperText`, `secureTextEntry`, `autoCapitalize`,
+    `numberOfLines`, `danger`, `confirmPhrase`, optional `label`.
+  - `DataState`: `renderError`, `loadingLabel`, `refreshing`.
+- **Tokens:** `fontSize.xxs` (10), `opacity.pressed`, `tileSize`
+  (`xs` 32 … `hero` 72).
+- **Icons (165):** paste, reply, undo, redo, activity, zap, server,
+  database, book, pin, subtitles, playlist.
+- `ScreenContent` blocks: `DoubleButtons`, `CodeBlock`, `TimelineEvent`,
+  `StepperHeader`.
+
+### Changed
+
+- Default labels follow the locale: in Arabic, built-in texts such as the
+  Form submit button are now Arabic. Tests or snapshots that matched the
+  English defaults in Arabic need updating.
+
+### Next (phase 2)
+
+PagedList, chat kit (bubbles, composer), AttachmentPicker, BarList /
+Sparkline, DateTimePicker, toasts above modals, BottomSheet snap points and
+height.
+
 ## 0.1.0
 
 New presets so screens contain data instead of stacks of View / Text /

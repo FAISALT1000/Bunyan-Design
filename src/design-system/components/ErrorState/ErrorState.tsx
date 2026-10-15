@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { EmptyState, type EmptyStateProps } from '../EmptyState';
+import { useStrings } from '../../i18n/strings';
 
 export type ErrorStateProps = Omit<EmptyStateProps, 'icon'> & {
   retryLabel?: string;
@@ -9,10 +10,12 @@ export type ErrorStateProps = Omit<EmptyStateProps, 'icon'> & {
 export const ErrorState = memo(function ErrorState({
   title,
   description,
-  retryLabel = 'Try again',
+  retryLabel: retryLabelProp,
   onRetry,
   ...props
 }: ErrorStateProps) {
+  const strings = useStrings();
+  const retryLabel = retryLabelProp ?? strings('tryAgain');
   return (
     <EmptyState
       title={title}

@@ -36,6 +36,15 @@ import { Section, type SectionProps } from '../layout/Section';
 import { DataState, type DataStateProps } from '../state/DataState';
 import { StatusBanner, type StatusBannerProps } from '../status/StatusViews';
 import type { PresetAction } from '../shared';
+import { DoubleButtons, type DoubleButtonsProps } from '../actions/Actions';
+import {
+  CodeBlock,
+  StepperHeader,
+  TimelineEvent,
+  type CodeBlockProps,
+  type StepperHeaderProps,
+  type TimelineEventProps,
+} from '../display/Display';
 
 /** Item presets a `List` block can repeat. */
 export type ListRenderAs = 'OneLineCard' | 'TwoLineCard' | 'ThreeLineCard' | 'ProductCard' | 'ActionCard' | 'StatCard';
@@ -63,6 +72,10 @@ export interface ScreenBlockTypes {
   StatusCard: StatusCardProps;
   ActionCard: ActionCardProps;
   StatusBanner: StatusBannerProps;
+  DoubleButtons: DoubleButtonsProps;
+  CodeBlock: CodeBlockProps;
+  TimelineEvent: TimelineEventProps;
+  StepperHeader: StepperHeaderProps;
   Section: Omit<SectionProps, 'children'> & { blocks: ScreenBlockEntry[] };
   Grid: Omit<GridProps, 'children'> & { blocks: ScreenBlockEntry[] };
   Row: { blocks: ScreenBlockEntry[]; gap?: SpacingToken };
@@ -108,6 +121,10 @@ const registry = new Map<string, BlockComponent>([
   ['StatusCard', StatusCard],
   ['ActionCard', ActionCard],
   ['StatusBanner', StatusBanner],
+  ['DoubleButtons', DoubleButtons],
+  ['CodeBlock', CodeBlock],
+  ['TimelineEvent', TimelineEvent],
+  ['StepperHeader', StepperHeader],
 ]);
 
 /** Registers a custom block type (augment `ScreenBlockTypes` for typing). */

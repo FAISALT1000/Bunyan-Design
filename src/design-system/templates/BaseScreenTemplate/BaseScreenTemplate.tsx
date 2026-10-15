@@ -11,6 +11,7 @@ import { isDarkMode } from '../../themes/themes';
 import { renderScreenState } from '../utilities';
 import type { BaseScreenTemplateProps } from './BaseScreenTemplate.types';
 import { createBaseScreenTemplateStyles } from './BaseScreenTemplate.styles';
+import { useStrings } from '../../i18n/strings';
 
 export const BaseScreenTemplate = memo(function BaseScreenTemplate({
   children,
@@ -27,7 +28,7 @@ export const BaseScreenTemplate = memo(function BaseScreenTemplate({
   keyboardBehavior,
   keyboardVerticalOffset = 0,
   loading = false,
-  loadingLabel = 'Loading',
+  loadingLabel: loadingLabelProp,
   state = { type: 'content' },
   errorBanner,
   bottomContent,
@@ -41,6 +42,8 @@ export const BaseScreenTemplate = memo(function BaseScreenTemplate({
   contentAccessibilityLabel,
   testID,
 }: BaseScreenTemplateProps) {
+  const strings = useStrings();
+  const loadingLabel = loadingLabelProp ?? strings('loading');
   const { theme, direction } = useTheme();
   const styles = useMemo(
     () => createBaseScreenTemplateStyles(theme, direction, background, padding),

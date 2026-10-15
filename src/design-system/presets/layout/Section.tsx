@@ -15,6 +15,8 @@ export interface SectionProps {
   subtitle?: TextValue;
   /** Link-style action on the title row, e.g. "See all". */
   action?: { title: TextValue; onPress: () => void };
+  /** Custom element on the title row's end (status pill, switch…), after `action`. */
+  right?: React.ReactNode;
   /** Shows `skeletonCount` row skeletons instead of the children. */
   loading?: boolean;
   skeletonCount?: number;
@@ -40,6 +42,7 @@ export const Section = memo(function Section({
   title,
   subtitle,
   action,
+  right,
   loading = false,
   skeletonCount = 3,
   empty,
@@ -53,13 +56,14 @@ export const Section = memo(function Section({
   const subtitleText = t(subtitle);
   return (
     <Stack gap="sm" {...(testID ? { testID } : {})}>
-      {titleText || action ? (
+      {titleText || action || right ? (
         <Inline gap="md" alignItems="center" justifyContent="space-between">
           <Stack flex={1} gap="none">
             {titleText ? <Text value={titleText} variant="headingSmall" weight="bold" accessibilityRole="header" /> : null}
             {subtitleText ? <Text value={subtitleText} variant="caption" tone="tertiary" /> : null}
           </Stack>
           {action ? <Button title={t(action.title) ?? ''} variant="link" size="small" onPress={action.onPress} /> : null}
+          {right}
         </Inline>
       ) : null}
       {loading ? (

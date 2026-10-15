@@ -3,18 +3,26 @@ import {
   BasePressable,
   type BasePressableHandle,
 } from '../../base/Pressable';
+import type { AccessibilityState } from '../RNTheme/native';
 import { useTheme } from '../../hooks';
 import { createAccessibilityState } from '../../utilities/accessibility';
 import { heightForSize, type ComponentSize } from '../../utilities/styles';
-import { Icon, type IconName, type IconTone } from '../Icon';
+import { Icon, isDirectionalIcon, type IconName, type IconTone } from '../Icon';
 
 export interface IconButtonProps {
   icon: IconName;
   accessibilityLabel: string;
   accessibilityHint?: string | undefined;
   onPress?: (() => void) | undefined;
-  variant?: 'filled' | 'outline' | 'ghost';
-  size?: ComponentSize;
+  /** `'tonal'` = subtle primary background with a primary glyph. */
+  variant?: 'filled' | 'outline' | 'ghost' | 'tonal';
+  /** Component size, or the touch target side in points. */
+  size?: ComponentSize | number;
+  /** Flip the glyph in RTL. Default: only for directional icons (arrows, chevrons, send…). */
+  mirroredInRTL?: boolean;
+  /** Extra screen-reader state, e.g. `{ checked: true }` for a rating star. */
+  accessibilityState?: AccessibilityState;
+  accessibilityRole?: 'button' | 'radio' | 'checkbox' | 'switch' | 'tab' | 'link';
   tone?: IconTone;
   selected?: boolean;
   disabled?: boolean;
@@ -33,25 +41,32 @@ export const IconButton = memo(forwardRef<BasePressableHandle, IconButtonProps>(
       tone = 'primary',
       selected = false,
       disabled = false,
+      mirroredInRTL,
+      accessibilityState,
+      accessibilityRole = 'button',
       testID,
     },
     ref,
   ) {
     const { theme } = useTheme();
-    const dimension = heightForSize(theme, size);
-    const iconSize = size === 'small' ? 'sm' : size === 'large' ? 'lg' : 'md';
+    const dimension = typeof size === 'number' ? size : heightForSize(theme, size);
+    const iconSize = typeof size === 'number'
+      ? Math.round(size * 0.5)
+      : size === 'small' ? 'sm' : size === 'large' ? 'lg' : 'md';
     const selectedBackground = theme.color.primary.subtle;
     const defaultBackground = variant === 'filled'
       ? theme.color.neutral.subtle
-      : theme.color.overlay.transparent;
+      : variant === 'tonal'
+        ? theme.color.primary.subtle
+        : theme.color.overlay.transparent;
 
     return (
       <BasePressable
         ref={ref}
-        accessibilityRole="button"
+        accessibilityRole={accessibilityRole}
         accessibilityLabel={accessibilityLabel}
         accessibilityHint={accessibilityHint}
-        accessibilityState={createAccessibilityState({ disabled, selected })}
+        accessibilityState={{ ...createAccessibilityState({ disabled, selected }), ...accessibilityState }}
         testID={testID}
         disabled={disabled}
         onPress={onPress}
@@ -76,7 +91,7 @@ export const IconButton = memo(forwardRef<BasePressableHandle, IconButtonProps>(
         }}
         disabledStyle={{ opacity: theme.opacity.disabled }}
       >
-        <Icon name={icon} size={iconSize} tone={tone} mirroredInRTL />
+        <Icon name={icon} size={iconSize} tone={tone} {...(variant === 'tonal' && tone === 'primary' ? { color: theme.color.primary.default } : {})} mirroredInRTL={mirroredInRTL ?? isDirectionalIcon(icon)} />
       </BasePressable>
     );
   },

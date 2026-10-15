@@ -5,6 +5,7 @@ import { normalizeDigits } from '../../utilities/numbers';
 import { InlinePicker } from '../InlinePicker';
 import { BaseInput, type BaseInputHandle, type BaseInputProps } from '../../base/Input';
 import { DEFAULT_PHONE_COUNTRIES, flagEmoji, type PhoneCountry, type PhoneValue } from './countries';
+import { useStrings } from '../../i18n/strings';
 
 export interface PhoneInputProps extends Omit<BaseInputProps, 'value' | 'defaultValue' | 'onChangeText' | 'onChange' | 'keyboardType' | 'leading'> {
   value?: PhoneValue | null;
@@ -40,6 +41,7 @@ export const PhoneInput = memo(forwardRef<BaseInputHandle, PhoneInputProps>(func
 ) {
   const { isRTL } = useTheme();
   const t = useText();
+  const strings = useStrings();
   const country = value?.country ?? defaultCountry ?? countries[0]?.code ?? 'SA';
   const number = value?.number ?? '';
   const maxLength = Math.max(...(countries.find(item => item.code === country)?.lengths ?? [15]));
@@ -64,7 +66,7 @@ export const PhoneInput = memo(forwardRef<BaseInputHandle, PhoneInputProps>(func
           disabled={!editable}
           title={t(countryTitle) ?? 'Country code'}
           accessibilityLabel={t(countryAccessibilityLabel) ?? 'Country code'}
-          searchPlaceholder={t(searchPlaceholder) ?? 'Search'}
+          searchPlaceholder={t(searchPlaceholder) ?? strings('search')}
           searchable
           options={countries.map(item => ({
             value: item.code,

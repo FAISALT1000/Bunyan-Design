@@ -18,6 +18,14 @@ export interface CustomIcons {}
 
 export type IconName = BuiltInIconName | Extract<keyof CustomIcons, string>;
 
+/** Icons whose meaning follows the reading direction (flip them in RTL). */
+export const DIRECTIONAL_ICONS: ReadonlySet<string> = new Set([
+  'chevron-left', 'chevron-right', 'chevron-end', 'arrow-left', 'arrow-right', 'arrow-up-right', 'arrow-down-left',
+  'external-link', 'backspace', 'send', 'log-in', 'log-out', 'return', 'reply', 'undo', 'redo',
+]);
+
+export const isDirectionalIcon = (name: string) => DIRECTIONAL_ICONS.has(name);
+
 const customGlyphs = new Map<string, React.ReactNode>();
 
 /**
@@ -35,7 +43,8 @@ const glyphFor = (name: string): React.ReactNode =>
   customGlyphs.get(name) ?? (glyphs as Record<string, React.ReactNode>)[name] ?? null;
 
 export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
-export type IconTone = 'primary' | 'secondary' | 'tertiary' | 'inverse' | 'success' | 'warning' | 'error' | 'information';
+/** `'info'` is an alias of `'information'`. */
+export type IconTone = 'primary' | 'secondary' | 'tertiary' | 'inverse' | 'success' | 'warning' | 'error' | 'information' | 'info';
 
 export interface IconProps {
   name: IconName;
@@ -67,6 +76,7 @@ export const Icon = memo(function Icon({
     warning: theme.color.warning.default,
     error: theme.color.error.default,
     information: theme.color.information.default,
+    info: theme.color.information.default,
   };
   const dimension = typeof size === 'number' ? size : theme.iconSize[size];
 

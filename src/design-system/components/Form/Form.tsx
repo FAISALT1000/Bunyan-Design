@@ -12,6 +12,8 @@ import { IconButton } from '../IconButton';
 import { FormField } from '../FormField';
 import type { ListSpacing } from '../List';
 import { Text } from '../Text';
+import { useStrings } from '../../i18n/strings';
+import { DoubleButtons } from '../../presets/actions/Actions';
 import { controlProps, registerFormFieldType, resolveFieldType } from './fieldTypes';
 import type { FormButtonConfig, FormFieldComponent, FormFieldConfig, FormFieldEntry, FormProps } from './Form.types';
 
@@ -129,7 +131,15 @@ function FormEntries({ entries, prefix }: { entries: readonly FormFieldEntry<any
 const RepeatedControlsField: FormFieldComponent<FormFieldConfig<FormikValues, 'RepeatedControls'>> = ({ field, name, value, form, disabled, t }) => {
   const { theme, direction } = useTheme();
   const items = Array.isArray(value) ? (value as unknown[]) : [];
-  const { fields, itemLabel, addText = 'Add', removeText = 'Remove', min = 0, max = Infinity, newItem = {} } = controlProps(field);
+  const strings = useStrings();
+  const { fields, itemLabel, addText = strings('add'), removeText = strings('remove'), min = 0, max = Infinity, newItem = {}, reorderable = false } = controlProps(field);
+  const move = (from: number, to: number) => {
+    if (to < 0 || to >= items.length) return;
+    const next = [...items];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    void form.setFieldValue(name, next);
+  };
   const labelOf = (index: number) => t(typeof itemLabel === 'function' ? itemLabel(index) : itemLabel) ?? `#${index + 1}`;
   return (
     <View style={{ gap: theme.spacing.md }}>
@@ -138,16 +148,26 @@ const RepeatedControlsField: FormFieldComponent<FormFieldConfig<FormikValues, 'R
           <View style={{ gap: theme.spacing.md }}>
             <View style={[logicalRow(direction), { alignItems: 'center', justifyContent: 'space-between' }]}>
               <Text weight="semibold" value={labelOf(index)} />
+              <View style={[logicalRow(direction), { alignItems: 'center' }]}>
+              {reorderable ? (
+                <>
+                  <IconButton icon="chevron-up" size="small" tone="secondary" disabled={disabled || index === 0}
+                    accessibilityLabel={`${strings('moveUp')} ${labelOf(index)}`} onPress={() => move(index, index - 1)} />
+                  <IconButton icon="chevron-down" size="small" tone="secondary" disabled={disabled || index === items.length - 1}
+                    accessibilityLabel={`${strings('moveDown')} ${labelOf(index)}`} onPress={() => move(index, index + 1)} />
+                </>
+              ) : null}
               {items.length > min ? (
                 <IconButton
                   icon="trash"
                   size="small"
                   tone="error"
                   disabled={disabled}
-                  accessibilityLabel={`${t(removeText) ?? 'Remove'} ${labelOf(index)}`}
+                  accessibilityLabel={`${t(removeText) ?? strings('remove')} ${labelOf(index)}`}
                   onPress={() => void form.setFieldValue(name, items.filter((__, i) => i !== index))}
                 />
               ) : null}
+              </View>
             </View>
             <FormEntries entries={fields} prefix={`${name}.${index}`} />
           </View>
@@ -157,7 +177,7 @@ const RepeatedControlsField: FormFieldComponent<FormFieldConfig<FormikValues, 'R
         <Button
           variant="outline"
           leftIcon="plus"
-          title={t(addText) ?? 'Add'}
+          title={t(addText) ?? strings('add')}
           disabled={disabled}
           onPress={() => void form.setFieldValue(name, [...items, typeof newItem === 'function' ? newItem() : { ...newItem }])}
         />
@@ -171,28 +191,54 @@ function FormButtons<Values extends FormikValues>({
   form,
   submitButton,
   resetButton,
+  cancelButton,
+  footerLayout,
   initialValues,
 }: {
   form: FormikProps<Values>;
   submitButton: FormButtonConfig | false;
   resetButton: FormButtonConfig | false;
+  cancelButton: (FormButtonConfig & { onPress: () => void }) | false;
+  footerLayout: 'stacked' | 'row';
   initialValues: Values;
 }) {
   const { theme, direction } = useTheme();
   const t = useText();
+  const strings = useStrings();
+  if (cancelButton && submitButton) {
+    const { text: submitLabel, ...submitRest } = submitButton;
+    const { text: cancelLabel, onPress: onCancel, ...cancelRest } = cancelButton;
+    return (
+      <DoubleButtons
+        layout={footerLayout}
+        primary={{
+          ...(submitRest as object),
+          title: submitLabel ?? strings('submit'),
+          loading: form.isSubmitting || Boolean(submitRest.loading),
+          onPress: () => form.handleSubmit(),
+        }}
+        secondary={{
+          ...(cancelRest as object),
+          title: cancelLabel ?? strings('cancel'),
+          disabled: form.isSubmitting || Boolean(cancelRest.disabled),
+          onPress: onCancel,
+        }}
+      />
+    );
+  }
   if (!submitButton && !resetButton) return null;
-  const { text: submitText = 'Submit', ...submitProps } = submitButton || {};
-  const { text: resetText = 'Reset', ...resetProps } = resetButton || {};
+  const { text: submitText = strings('submit'), ...submitProps } = submitButton || {};
+  const { text: resetText = strings('reset'), ...resetProps } = resetButton || {};
   return (
     <View style={[logicalRow(direction), { gap: theme.spacing.md, flexWrap: 'wrap' }]}>
       {resetButton ? (
         <View style={{ flex: 1 }}>
-          <Button variant="outline" fullWidth {...resetProps} disabled={form.isSubmitting || Boolean(resetProps.disabled)} onPress={() => form.resetForm({ values: initialValues })} title={t(resetText) ?? 'Reset'} />
+          <Button variant="outline" fullWidth {...resetProps} disabled={form.isSubmitting || Boolean(resetProps.disabled)} onPress={() => form.resetForm({ values: initialValues })} title={t(resetText) ?? strings('reset')} />
         </View>
       ) : null}
       {submitButton ? (
         <View style={{ flex: 1 }}>
-          <Button fullWidth {...submitProps} loading={form.isSubmitting || Boolean(submitProps.loading)} onPress={() => form.handleSubmit()} title={t(submitText) ?? 'Submit'} />
+          <Button fullWidth {...submitProps} loading={form.isSubmitting || Boolean(submitProps.loading)} onPress={() => form.handleSubmit()} title={t(submitText) ?? strings('submit')} />
         </View>
       ) : null}
     </View>
@@ -207,9 +253,11 @@ function FormInner<Values extends FormikValues>({
   formProps,
   submitButton = {},
   resetButton = false,
+  cancelButton = false,
+  footerLayout = 'stacked',
   spacing: spacingProp,
   showOptional = false,
-  optionalLabel = 'Optional',
+  optionalLabel,
   fieldTypes,
   children,
   renderFooter,
@@ -218,11 +266,12 @@ function FormInner<Values extends FormikValues>({
 }: FormProps<Values>) {
   const { theme } = useTheme();
   const t = useText();
+  const strings = useStrings();
   const r = useResponsive();
   const gap = resolveSpacing(theme, r.resolve(spacingProp), theme.spacing.lg);
   const settings = useMemo<FormSettings>(
-    () => ({ fieldTypes, showOptional, optionalLabel: t(optionalLabel) ?? 'Optional' }),
-    [fieldTypes, optionalLabel, showOptional, t],
+    () => ({ fieldTypes, showOptional, optionalLabel: t(optionalLabel) ?? strings('optional') }),
+    [fieldTypes, optionalLabel, showOptional, strings, t],
   );
 
   return (
@@ -238,7 +287,7 @@ function FormInner<Values extends FormikValues>({
           <FormEntries entries={fields} />
           {typeof children === 'function' ? children(form) : children}
           {renderFooter ? renderFooter(form) : (
-            <FormButtons form={form} submitButton={submitButton} resetButton={resetButton} initialValues={initialValues} />
+            <FormButtons form={form} submitButton={submitButton} resetButton={resetButton} cancelButton={cancelButton} footerLayout={footerLayout} initialValues={initialValues} />
           )}
         </View>
         </FormSettingsContext.Provider>

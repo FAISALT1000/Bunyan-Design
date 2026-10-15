@@ -8,7 +8,13 @@ import {
   useOptionalLocalization,
 } from '../../localization';
 import { warnDeprecated } from '../../utilities/deprecations';
+import { logicalRow } from '../../utilities/styles';
+import { Icon, type IconName, type IconTone } from '../Icon';
 import { Text, type TextTone } from '../Text';
+
+const iconToneFor: Partial<Record<TextTone, IconTone>> = {
+  secondary: 'secondary', info: 'information', success: 'success', warning: 'warning', error: 'error',
+};
 
 export type BadgeTone =
   | 'neutral'
@@ -16,7 +22,9 @@ export type BadgeTone =
   | 'success'
   | 'warning'
   | 'error'
-  | 'information';
+  | 'information'
+  /** Alias of `'information'`. */
+  | 'info';
 
 interface SharedBadgeProps {
   tone?: BadgeTone;
@@ -27,6 +35,8 @@ interface SharedBadgeProps {
    * `'flex-start'` inside a stretching column to keep the old placement.
    */
   alignSelf?: ViewStyle['alignSelf'];
+  /** Small leading icon in the badge's text colour. */
+  icon?: IconName;
   accessibilityLabel?: string;
   testID?: string;
   labelLocalize?: string;
@@ -52,10 +62,11 @@ export const Badge = memo(function Badge({
   tone = 'neutral',
   size = 'medium',
   alignSelf = 'auto',
+  icon,
   accessibilityLabel,
   testID,
 }: BadgeProps) {
-  const { theme } = useTheme();
+  const { theme, direction } = useTheme();
   const localization = useOptionalLocalization();
   const labelFallback = label ?? children;
   const resolvedLabel = resolveLocalizedText({
@@ -76,6 +87,7 @@ export const Badge = memo(function Badge({
     warning: { background: theme.color.warning.subtle, textTone: 'warning' },
     error: { background: theme.color.error.subtle, textTone: 'error' },
     information: { background: theme.color.information.subtle, textTone: 'info' },
+    info: { background: theme.color.information.subtle, textTone: 'info' },
   };
   const current = toneMap[tone];
 
@@ -87,11 +99,13 @@ export const Badge = memo(function Badge({
       flexGrow={0}
       flexShrink={0}
       alignItems="center"
+      gap="xxs"
       paddingHorizontal={size === 'small' ? 'sm' : 'md'}
       paddingVertical={size === 'small' ? 'xxs' : 'xs'}
       radius="pill"
-      internalStyle={{ backgroundColor: current.background }}
+      internalStyle={[{ backgroundColor: current.background }, logicalRow(direction)]}
     >
+      {icon ? <Icon name={icon} size="xs" tone={iconToneFor[current.textTone] ?? 'secondary'} /> : null}
       <Text
         value={labelFallback}
         {...(labelLocalize ? { localize: labelLocalize } : {})}

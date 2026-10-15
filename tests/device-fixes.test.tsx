@@ -144,7 +144,7 @@ describe('5. OTPInput', () => {
 
   it('lays slots out left-to-right in Arabic', () => {
     renderWithTheme(<OTPInput value="12" onChange={jest.fn()} length={6} />, { direction: 'rtl', locale: 'ar' });
-    const row = screen.getByRole('button', { name: /Verification code/ });
+    const row = screen.getByRole('button', { name: /رمز التحقق/ });
     expect(flat(row).direction).toBe('ltr');
   });
 

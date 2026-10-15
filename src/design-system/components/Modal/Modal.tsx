@@ -14,6 +14,7 @@ import { Button, type ButtonVariant } from '../Button';
 import { Heading } from '../Heading';
 import { IconButton } from '../IconButton';
 import { Text } from '../Text';
+import { useStrings } from '../../i18n/strings';
 
 export interface ModalAction {
   label: string;
@@ -48,10 +49,12 @@ export const Modal = memo(function Modal({
   secondaryAction,
   dismissible = true,
   size = 'medium',
-  closeAccessibilityLabel = 'Close modal',
+  closeAccessibilityLabel: closeAccessibilityLabelProp,
   accessibilityLabel,
   testID,
 }: ModalProps) {
+  const strings = useStrings();
+  const closeAccessibilityLabel = closeAccessibilityLabelProp ?? strings('closeModal');
   const { theme } = useTheme();
   const closeRef = useRef<BasePressableHandle>(null);
 

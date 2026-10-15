@@ -45,6 +45,8 @@ type TextInputOverrides = Pick<
   | 'secureTextEntry'
   | 'submitBehavior'
   | 'textContentType'
+  | 'selectTextOnFocus'
+  | 'importantForAutofill'
 >;
 
 export interface BaseInputFieldProps extends TextInputOverrides {
@@ -88,6 +90,11 @@ export interface BaseInputFieldProps extends TextInputOverrides {
   accessibilityLabelledBy?: BaseTextInputProps['accessibilityLabelledBy'];
   accessibilityRole?: BaseTextInputProps['accessibilityRole'];
   'aria-describedby'?: string;
+  /**
+   * Alignment of the typed text. `'start'` / `'end'` follow the reading
+   * direction; `'left'` / `'right'` are physical. Default: reading start.
+   */
+  textAlign?: 'start' | 'end' | 'center' | 'left' | 'right';
   testID?: string;
 }
 
@@ -95,6 +102,9 @@ export interface PasswordInputFieldProps extends BaseInputFieldProps {
   type: 'password';
   showPasswordToggle?: boolean;
   initiallyVisible?: boolean;
+  /** Accessibility labels of the eye button. Default: translated "Show / Hide password". */
+  showPasswordLabel?: string;
+  hidePasswordLabel?: string;
 }
 
 export interface SearchInputFieldProps extends BaseInputFieldProps {

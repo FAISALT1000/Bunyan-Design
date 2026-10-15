@@ -129,7 +129,13 @@ export function formatDate(value: Date | string | number, options: DateFormatOpt
     month: { year: 'numeric', month: 'long' },
     hijri: { year: 'numeric', month: 'long', day: 'numeric', calendar: 'islamic-umalqura' },
   };
-  const formatted = new Intl.DateTimeFormat(withDigits(locale, digits), { ...presets[format], ...intl }).format(date);
+  // `dateStyle` / `timeStyle` cannot be combined with field options (Intl throws),
+  // so they replace the preset fields instead of merging with them.
+  const usesStyles = Boolean(intl && ('dateStyle' in intl || 'timeStyle' in intl));
+  const intlOptions: Intl.DateTimeFormatOptions = usesStyles
+    ? { ...(format === 'hijri' ? { calendar: 'islamic-umalqura' } : {}), ...intl }
+    : { ...presets[format], ...intl };
+  const formatted = new Intl.DateTimeFormat(withDigits(locale, digits), intlOptions).format(date);
   return applyDigits(formatted, locale, digits);
 }
 

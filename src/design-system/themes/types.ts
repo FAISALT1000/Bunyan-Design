@@ -68,6 +68,7 @@ export interface Theme {
   borderWidth: WidenTokens<typeof tokens.borderWidth>;
   shadow: WidenTokens<typeof tokens.shadow>;
   iconSize: WidenTokens<typeof tokens.iconSize>;
+  tileSize: WidenTokens<typeof tokens.tileSize>;
   componentHeight: WidenTokens<typeof tokens.componentHeight>;
   breakpoint: WidenTokens<typeof tokens.breakpoint>;
   motion: WidenTokens<typeof tokens.motion>;

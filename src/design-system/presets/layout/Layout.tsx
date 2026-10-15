@@ -5,7 +5,7 @@ import { useResponsive } from '../../responsive';
 import type { Responsive } from '../../responsive/createResponsive';
 import type { Theme, ThemeBreakpoint } from '../../themes/types';
 import { logicalRow } from '../../utilities/styles';
-import type { ViewStyle } from '../../components/RNTheme/native';
+import type { StyleProp, ViewStyle } from '../../components/RNTheme/native';
 
 /** Theme background names usable as `bg`. */
 export type LayoutBackground =
@@ -15,6 +15,10 @@ export type LayoutBackground =
   | 'surfaceSecondary'
   | 'elevated'
   | 'primarySubtle'
+  | 'successSubtle'
+  | 'warningSubtle'
+  | 'errorSubtle'
+  | 'infoSubtle'
   | 'transparent';
 
 export interface LayoutProps {
@@ -36,6 +40,8 @@ export interface LayoutProps {
   wrap?: boolean;
   flex?: number;
   width?: ViewStyle['width'];
+  /** Layout-only extras (margins, min sizes…). Prefer the token props. */
+  style?: StyleProp<ViewStyle>;
   testID?: string;
   accessibilityLabel?: string;
 }
@@ -47,6 +53,10 @@ const backgrounds = (theme: Theme): Record<LayoutBackground, string> => ({
   surfaceSecondary: theme.color.surface.secondary,
   elevated: theme.color.surface.elevated,
   primarySubtle: theme.color.primary.subtle,
+  successSubtle: theme.color.success.subtle,
+  warningSubtle: theme.color.warning.subtle,
+  errorSubtle: theme.color.error.subtle,
+  infoSubtle: theme.color.information.subtle,
   transparent: theme.color.overlay.transparent,
 });
 
@@ -88,7 +98,7 @@ export const Row = memo(function Row(props: LayoutProps) {
   const { direction } = useTheme();
   const surface = useSurface(props);
   return (
-    <Box {...boxProps({ gap: 'md', ...props })} internalStyle={[logicalRow(direction), surface]}>
+    <Box {...boxProps({ gap: 'md', ...props })} internalStyle={[logicalRow(direction), surface, props.style as ViewStyle]}>
       {props.children}
     </Box>
   );
@@ -98,7 +108,7 @@ export const Row = memo(function Row(props: LayoutProps) {
 export const Column = memo(function Column(props: LayoutProps) {
   const surface = useSurface(props);
   return (
-    <Box {...boxProps({ gap: 'md', ...props })} internalStyle={[{ flexDirection: 'column' }, surface]}>
+    <Box {...boxProps({ gap: 'md', ...props })} internalStyle={[{ flexDirection: 'column' }, surface, props.style as ViewStyle]}>
       {props.children}
     </Box>
   );
@@ -108,10 +118,21 @@ export const Column = memo(function Column(props: LayoutProps) {
 export const Center = memo(function Center(props: LayoutProps) {
   const surface = useSurface(props);
   return (
-    <Box {...boxProps({ align: 'center', justify: 'center', ...props })} internalStyle={surface}>
+    <Box {...boxProps({ align: 'center', justify: 'center', ...props })} internalStyle={[surface, props.style as ViewStyle]}>
       {props.children}
     </Box>
   );
+});
+
+/**
+ * Takes the remaining space in a `Row` / `Column` (`flex: 1`, can shrink).
+ *
+ * ```tsx
+ * <Row><Fill><InputField … /></Fill><Button title="Send" /></Row>
+ * ```
+ */
+export const Fill = memo(function Fill({ children, testID }: { children?: React.ReactNode; testID?: string }) {
+  return <Box flex={1} {...(testID ? { testID } : {})} internalStyle={{ minWidth: 0 }}>{children}</Box>;
 });
 
 export interface GridProps extends Omit<LayoutProps, 'align' | 'justify' | 'wrap'> {
@@ -136,7 +157,7 @@ export const Grid = memo(function Grid({ columns = 2, children, ...props }: Grid
   const gap = props.gap ?? 'md';
   const surface = useSurface(props);
   return (
-    <Box {...boxProps({ ...props, gap })} internalStyle={[{ flexDirection: 'column' }, surface]}>
+    <Box {...boxProps({ ...props, gap })} internalStyle={[{ flexDirection: 'column' }, surface, props.style as ViewStyle]}>
       {rows.map((row, rowIndex) => (
         <Box key={rowIndex} gap={gap} internalStyle={[logicalRow(direction), { alignItems: 'stretch' }]}>
           {Array.from({ length: count }, (_, column) => (

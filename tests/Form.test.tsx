@@ -158,7 +158,7 @@ describe('Form', () => {
       </Localized>,
     );
     await act(async () => {
-      fireEvent.press(screen.getByRole('button', { name: 'Submit' }));
+      fireEvent.press(screen.getByRole('button', { name: 'إرسال' }));
     });
     expect(await screen.findByText('هذا الحقل مطلوب')).toBeTruthy();
     expect(onSubmit).not.toHaveBeenCalled();
@@ -231,7 +231,7 @@ describe('Form shows Bunyan rule messages', () => {
       </Localized>,
     );
     await act(async () => {
-      fireEvent.press(screen.getByRole('button', { name: 'Submit' }));
+      fireEvent.press(screen.getByRole('button', { name: 'إرسال' }));
     });
     expect(await screen.findByText('يجب أن يكون بين 2 و 4 حروف')).toBeTruthy();
   });

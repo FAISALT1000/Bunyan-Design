@@ -29,6 +29,12 @@ export interface BaseTextProps {
   nativeID?: string | undefined;
   testID?: string | undefined;
   decoration?: 'none' | 'underline';
+  /** Monospace font (`theme.typography.fontFamily.mono`), always left-to-right. For codes, IDs and logs. */
+  mono?: boolean;
+  /** Letter case transform, e.g. section titles in `'uppercase'`. */
+  transform?: 'none' | 'uppercase' | 'lowercase' | 'capitalize';
+  /** Token letter spacing. */
+  letterSpacing?: 'tight' | 'normal' | 'wide';
   /**
    * Internal composition escape hatch for semantic components.
    */
@@ -95,6 +101,7 @@ const variantStyle = (
     labelMedium: { fontSize: fontSize.sm, lineHeight: lineHeight.sm },
     labelSmall: { fontSize: fontSize.xs, lineHeight: lineHeight.xs },
     caption: { fontSize: fontSize.xs, lineHeight: lineHeight.xs },
+    micro: { fontSize: fontSize.xxs, lineHeight: lineHeight.xxs },
   };
   return variants[variant];
 };
@@ -114,6 +121,9 @@ export const Text = memo(forwardRef<
     align = 'start',
     weight = 'regular',
     decoration = 'none',
+    mono = false,
+    transform,
+    letterSpacing,
     internalColor,
     internalStyle,
     ...props
@@ -171,9 +181,14 @@ export const Text = memo(forwardRef<
         variantStyle(theme, variant),
         {
           color: internalColor ?? tones[tone],
-          fontFamily: resolvedDirection === 'rtl'
-            ? theme.typography.fontFamily.arabic
-            : theme.typography.fontFamily.sans,
+          fontFamily: mono
+            ? theme.typography.fontFamily.mono
+            : resolvedDirection === 'rtl'
+              ? theme.typography.fontFamily.arabic
+              : theme.typography.fontFamily.sans,
+          ...(mono ? { writingDirection: 'ltr' as const } : {}),
+          ...(transform ? { textTransform: transform } : {}),
+          ...(letterSpacing ? { letterSpacing: theme.typography.letterSpacing[letterSpacing] } : {}),
           fontWeight: theme.typography.fontWeight[weight],
           textAlign,
           textDecorationLine: decoration,

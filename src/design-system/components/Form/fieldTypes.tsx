@@ -96,13 +96,14 @@ const InputFieldControl: FormFieldComponent<FormFieldConfig<FormikValues, 'Input
 };
 
 const SelectField: FormFieldComponent<FormFieldConfig<FormikValues, 'Select'>> = ({ field, value, setValue, setTouched, invalid, disabled, t }) => {
-  const { options, placeholder, title, searchPlaceholder, emptyMessage, ...rest } = controlProps(field);
+  const { options, placeholder, title, searchPlaceholder, emptyMessage, noneOption, ...rest } = controlProps(field);
   const optional = (key: string, text: string | undefined) => (text ? { [key]: text } : {});
+  const allOptions = noneOption !== undefined ? [{ value: '', label: noneOption }, ...options] : options;
   return (
     <Select
       {...rest}
       {...testIdOf(field)}
-      options={options.map(option => ({
+      options={allOptions.map(option => ({
         value: option.value,
         label: t(option.label) ?? String(option.value),
         ...(option.description ? { description: t(option.description) ?? '' } : {}),
@@ -333,15 +334,16 @@ const AmountFieldField: FormFieldComponent<FormFieldConfig<FormikValues, 'Amount
 );
 
 const OTPField: FormFieldComponent<FormFieldConfig<FormikValues, 'OTP'>> = ({ field, value, setValue, setTouched, error, disabled, form }) => {
-  const { submitOnComplete, ...rest } = controlProps(field);
+  const { submitOnComplete, onComplete, ...rest } = controlProps(field);
   return (
     <OTPInput
       {...rest}
       {...testIdOf(field)}
       value={asString(value)}
       onChange={setValue}
-      onComplete={() => {
+      onComplete={code => {
         setTouched();
+        onComplete?.(code, form);
         // Let Formik apply the last digit before submitting.
         if (submitOnComplete) setTimeout(() => void form.submitForm(), 0);
       }}

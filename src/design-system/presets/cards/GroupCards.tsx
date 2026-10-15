@@ -4,12 +4,15 @@ import { Inline } from '../../base/Inline';
 import { Stack } from '../../base/Stack';
 import { useClipboard, useTheme } from '../../hooks';
 import { isTextValue, useText, type TextValue } from '../../i18n';
+import { BasePressable } from '../../base/Pressable';
 import { Divider } from '../../components/Divider';
+import { Icon } from '../../components/Icon';
 import { IconButton } from '../../components/IconButton';
 import { Skeleton } from '../../components/Skeleton';
 import { Text, type TextTone } from '../../components/Text';
 import { cardSurface, useBadge, type PresetBadge } from '../shared';
 import { LineCard, type LineCardBaseProps } from './LineCard';
+import { useStrings } from '../../i18n/strings';
 
 export interface SettingsItem extends Omit<LineCardBaseProps, 'variant' | 'loading'> {
   subtitle?: TextValue;
@@ -56,7 +59,8 @@ export const SettingsGroup = memo(function SettingsGroup({ title, footer, items,
           <React.Fragment key={item?.key ?? index}>
             {index > 0 ? <Divider inset="large" /> : null}
             {item ? (
-              <LineCard {...item} lines={item.subtitle ? 2 : 1} variant="plain" />
+              // `key` is a React key, not a prop: never spread it into JSX.
+              (({ key: _key, ...row }) => <LineCard {...row} lines={row.subtitle ? 2 : 1} variant="plain" />)(item)
             ) : (
               <LineCard lines={1} title="" loading variant="plain" />
             )}
@@ -82,6 +86,33 @@ export interface DetailsRow {
   tone?: TextTone;
   /** Bold value. */
   emphasis?: boolean;
+  /** Makes the row tappable (adds a chevron). */
+  onPress?: () => void;
+}
+
+function DetailsRowView({ row, label, children }: { row: DetailsRow; label: string; children: React.ReactNode }) {
+  const { theme } = useTheme();
+  const content = (
+    <Inline gap="md" justifyContent="space-between" alignItems="center">
+      <Text value={label} variant="bodySmall" tone="secondary" />
+      <Inline gap="xs" alignItems="center" flexShrink={1} justifyContent="flex-end">
+        {children}
+        {row.onPress ? <Icon name="chevron-right" size="sm" tone="tertiary" mirroredInRTL /> : null}
+      </Inline>
+    </Inline>
+  );
+  return row.onPress ? (
+    <BasePressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={row.onPress}
+      minTouchTarget={false}
+      baseStyle={{ borderRadius: theme.radius.sm }}
+      pressedStyle={{ opacity: theme.opacity.pressed }}
+    >
+      {content}
+    </BasePressable>
+  ) : content;
 }
 
 export interface DetailsCardProps {
@@ -111,6 +142,7 @@ export const DetailsCard = memo(function DetailsCard({ title, rows, total, onCop
   const t = useText();
   const renderBadge = useBadge();
   const clipboard = useClipboard();
+  const strings = useStrings();
   const titleText = t(title);
   const visible = rows.filter(Boolean) as DetailsRow[];
 
@@ -155,16 +187,13 @@ export const DetailsCard = memo(function DetailsCard({ title, rows, total, onCop
         : visible.map((row, index) => {
           const labelText = t(row.label) ?? '';
           return (
-            <Inline key={index} gap="md" justifyContent="space-between" alignItems="center">
-              <Text value={labelText} variant="bodySmall" tone="secondary" />
-              <Inline gap="xs" alignItems="center" flexShrink={1} justifyContent="flex-end">
-                {renderValue(row.value, row.tone, row.emphasis)}
-                {renderBadge(row.badge)}
-                {row.copyable && (clipboard.isSupported || onCopy) ? (
-                  <IconButton icon="copy" size="small" tone="tertiary" accessibilityLabel={`Copy ${labelText}`} onPress={() => void copy(row)} />
-                ) : null}
-              </Inline>
-            </Inline>
+            <DetailsRowView key={index} row={row} label={labelText}>
+              {renderValue(row.value, row.tone, row.emphasis)}
+              {renderBadge(row.badge)}
+              {row.copyable && (clipboard.isSupported || onCopy) ? (
+                <IconButton icon="copy" size="small" tone="tertiary" accessibilityLabel={strings('copy', { label: labelText })} onPress={() => void copy(row)} />
+              ) : null}
+            </DetailsRowView>
           );
         })}
       {total && !loading ? (

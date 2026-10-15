@@ -123,6 +123,8 @@ export const typography = {
     mono: 'Courier',
   },
   fontSize: {
+    /** Tab badges, tiny counters. */
+    xxs: 10,
     xs: 12,
     sm: 14,
     md: 16,
@@ -139,6 +141,7 @@ export const typography = {
     bold: '700',
   },
   lineHeight: {
+    xxs: 14,
     xs: 16,
     sm: 20,
     md: 24,
@@ -231,7 +234,20 @@ export const opacity = {
   muted: 0.4,
   disabled: 0.5,
   strong: 0.72,
+  /** Pressed state of surfaces and tiles. */
+  pressed: 0.85,
   opaque: 1,
+} as const;
+
+/** Square surfaces (icon tiles, avatars, hero marks), separate from glyph sizes. */
+export const tileSize = {
+  xs: 32,
+  sm: 36,
+  md: 40,
+  lg: 48,
+  xl: 56,
+  xxl: 64,
+  hero: 72,
 } as const;
 
 export const zIndex = {
@@ -284,6 +300,7 @@ export const tokens = {
   borderWidth,
   shadow,
   iconSize,
+  tileSize,
   componentHeight,
   breakpoint,
   motion,

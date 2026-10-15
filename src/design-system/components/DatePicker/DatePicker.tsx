@@ -7,6 +7,7 @@ import type { FeedbackStatus } from '../../utilities/styles';
 import { BottomSheet } from '../BottomSheet';
 import { Button } from '../Button';
 import { InputField } from '../InputField';
+import { useStrings } from '../../i18n/strings';
 
 export interface DatePickerProps {
   value?: Date;
@@ -35,16 +36,20 @@ export const DatePicker = memo(function DatePicker({
   minimumDate,
   maximumDate,
   locale,
-  placeholder = 'Select date',
+  placeholder: placeholderProp,
   disabled = false,
   status = 'default',
   accessibilityLabel = 'Date',
   clearable = true,
   title,
-  clearLabel = 'Clear date',
-  confirmLabel = 'Confirm',
+  clearLabel: clearLabelProp,
+  confirmLabel: confirmLabelProp,
   formatOptions,
 }: DatePickerProps) {
+  const strings = useStrings();
+  const confirmLabel = confirmLabelProp ?? strings('confirm');
+  const clearLabel = clearLabelProp ?? strings('clearDate');
+  const placeholder = placeholderProp ?? strings('selectDate');
   const { theme, locale: themeLocale } = useTheme();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(value ?? new Date());

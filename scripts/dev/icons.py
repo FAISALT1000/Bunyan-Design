@@ -30,6 +30,10 @@ CATEGORIES = {
         'grid': '<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/>',
     },
     'Actions': {
+        'paste': '<rect x="6" y="4" width="12" height="17" rx="2"/><rect x="9" y="2.5" width="6" height="3" rx="1"/><polyline points="9.5 13 11.5 15 14.5 11.5"/>',
+        'reply': '<polyline points="9 7 4 12 9 17"/><path d="M4 12h10a6 6 0 016 6v1"/>',
+        'undo': '<polyline points="9 5 4 10 9 15"/><path d="M4 10h11a5 5 0 010 10h-3"/>',
+        'redo': '<polyline points="15 5 20 10 15 15"/><path d="M20 10H9a5 5 0 000 10h3"/>',
         'plus': '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
         'minus': '<line x1="5" y1="12" x2="19" y2="12"/>',
         'close': '<line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/>',
@@ -48,6 +52,8 @@ CATEGORIES = {
         'send': '<path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4 18-7z"/>',
     },
     'Status & alerts': {
+        'activity': '<polyline points="3 12 7 12 10 5 14 19 17 12 21 12"/>',
+        'zap': '<polygon points="13 2 4 14 11 14 10 22 20 9 13 9 13 2"/>',
         'success': '<circle cx="12" cy="12" r="9"/><polyline points="7.5 12 10.5 15 16.5 9"/>',
         'error': '<circle cx="12" cy="12" r="9"/><line x1="8.5" y1="8.5" x2="15.5" y2="15.5"/><line x1="15.5" y1="8.5" x2="8.5" y2="15.5"/>',
         'warning': '<path d="M12 3L2.5 20h19L12 3z"/><line x1="12" y1="9" x2="12" y2="14"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
@@ -62,6 +68,8 @@ CATEGORIES = {
         'loader': '<line x1="12" y1="3" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="21"/><line x1="5.6" y1="5.6" x2="7.8" y2="7.8"/><line x1="16.2" y1="16.2" x2="18.4" y2="18.4"/><line x1="3" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="21" y2="12"/><line x1="5.6" y1="18.4" x2="7.8" y2="16.2"/><line x1="16.2" y1="7.8" x2="18.4" y2="5.6"/>',
     },
     'Settings & system': {
+        'server': '<rect x="3" y="4" width="18" height="7" rx="1.5"/><rect x="3" y="13" width="18" height="7" rx="1.5"/><line x1="7" y1="7.5" x2="7.01" y2="7.5"/><line x1="7" y1="16.5" x2="7.01" y2="16.5"/>',
+        'database': '<ellipse cx="12" cy="5.5" rx="8" ry="2.5"/><path d="M4 5.5v13c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5v-13"/><path d="M4 12c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5"/>',
         'settings': '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.6V21h-4v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 00.3-1.9A1.7 1.7 0 003 14v-4a1.7 1.7 0 001.6-1 1.7 1.7 0 00-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 009 4.6 1.7 1.7 0 0010 3h4a1.7 1.7 0 001 1.6 1.7 1.7 0 001.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 00-.3 1.9A1.7 1.7 0 0021 10v4a1.7 1.7 0 00-1.6 1z"/>',
         'sliders': '<line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="9" cy="6" r="2" fill="var(--bgc)"/><circle cx="15" cy="12" r="2" fill="var(--bgc)"/><circle cx="7" cy="18" r="2" fill="var(--bgc)"/>',
         'sun': '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
@@ -126,6 +134,7 @@ CATEGORIES = {
         'return': '<polyline points="9 14 4 9 9 4"/><path d="M4 9h10a6 6 0 010 12h-3"/>',
     },
     'Files & documents': {
+        'book': '<path d="M4 19V5a2 2 0 012-2h14v16H6a2 2 0 00-2 2zm0 0a2 2 0 002 2h14"/><line x1="9" y1="7" x2="16" y2="7"/>',
         'file': '<path d="M14 3H6a1 1 0 00-1 1v16a1 1 0 001 1h12a1 1 0 001-1V8l-5-5z"/><polyline points="14 3 14 8 19 8"/>',
         'file-text': '<path d="M14 3H6a1 1 0 00-1 1v16a1 1 0 001 1h12a1 1 0 001-1V8l-5-5z"/><polyline points="14 3 14 8 19 8"/><line x1="8.5" y1="13" x2="15.5" y2="13"/><line x1="8.5" y1="17" x2="13" y2="17"/>',
         'file-pdf': '<path d="M14 3H6a1 1 0 00-1 1v16a1 1 0 001 1h12a1 1 0 001-1V8l-5-5z"/><polyline points="14 3 14 8 19 8"/><path d="M8 17v-4h1.3a1.2 1.2 0 010 2.4H8M12 17v-4h1a2 2 0 010 4h-1zM16.5 13H15v4M15 15h1.3"/>',
@@ -165,6 +174,7 @@ CATEGORIES = {
         'otp': '<rect x="3" y="7" width="18" height="10" rx="2"/><line x1="7" y1="12" x2="7.01" y2="12"/><line x1="10.5" y1="12" x2="10.51" y2="12"/><line x1="14" y1="12" x2="14.01" y2="12"/><line x1="17.5" y1="12" x2="17.51" y2="12"/>',
     },
     'Time, place & travel': {
+        'pin': '<path d="M9 3h6l-1 6 3 3v2H7v-2l3-3-1-6z"/><line x1="12" y1="14" x2="12" y2="21"/>',
         'calendar': '<rect x="3" y="5" width="18" height="16" rx="2"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="3" y1="10" x2="21" y2="10"/>',
         'clock': '<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/>',
         'history': '<path d="M3.5 12a8.5 8.5 0 102.5-6"/><polyline points="3 3 3 7.5 7.5 7.5"/><polyline points="12 8 12 12 15 14"/>',
@@ -177,6 +187,8 @@ CATEGORIES = {
         'building': '<rect x="5" y="3" width="14" height="18" rx="1"/><line x1="9" y1="7" x2="9.01" y2="7"/><line x1="15" y1="7" x2="15.01" y2="7"/><line x1="9" y1="11" x2="9.01" y2="11"/><line x1="15" y1="11" x2="15.01" y2="11"/><path d="M10 21v-4h4v4"/>',
     },
     'Media': {
+        'subtitles': '<rect x="3" y="5" width="18" height="14" rx="2"/><line x1="7" y1="12" x2="11" y2="12"/><line x1="13" y1="12" x2="17" y2="12"/><line x1="7" y1="15.5" x2="14" y2="15.5"/>',
+        'playlist': '<line x1="4" y1="6" x2="15" y2="6"/><line x1="4" y1="11" x2="15" y2="11"/><line x1="4" y1="16" x2="11" y2="16"/><polygon points="16 14 21 17 16 20 16 14"/>',
         'image': '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><polyline points="21 16 16 11 6 20"/>',
         'camera': '<path d="M4 7h3l1.5-2.5h7L17 7h3a1 1 0 011 1v11a1 1 0 01-1 1H4a1 1 0 01-1-1V8a1 1 0 011-1z"/><circle cx="12" cy="13" r="3.5"/>',
         'play': '<polygon points="7 4 20 12 7 20 7 4"/>',

@@ -8,6 +8,7 @@ import { Skeleton } from '../Skeleton';
 import { ListRoot } from './ListRoot';
 import { ListRow, ListRowCell } from './ListRow';
 import type { ListItemComponent, ListProps, ListSpacing } from './List.types';
+import { useStrings } from '../../i18n/strings';
 
 const resolveSpacing = (theme: Theme, value: ListSpacing | undefined, fallback: number) => {
   if (value === undefined) return fallback;
@@ -65,6 +66,7 @@ function ListInner<T extends object, D = T>(props: ListProps<T, D>) {
     testID,
   } = props;
   const { theme } = useTheme();
+  const strings = useStrings();
   const responsive = useResponsive();
   const columns = Math.max(1, Math.floor(responsive.resolve(columnsProp) ?? 1));
   const spacing = resolveSpacing(theme, responsive.resolve(spacingProp), theme.spacing.md);
@@ -135,7 +137,7 @@ function ListInner<T extends object, D = T>(props: ListProps<T, D>) {
   };
 
   if (loading) {
-    const { count = 3, renderItem, accessibilityLabel: loadingLabel = 'Loading content', ...skeletonProps } = loadingConfig ?? {};
+    const { count = 3, renderItem, accessibilityLabel: loadingLabel = strings('loadingContent'), ...skeletonProps } = loadingConfig ?? {};
     const placeholders = Array.from({ length: Math.max(1, count) }, (_, i) =>
       renderItem ? renderItem(i) : <Skeleton {...skeletonProps} />);
     return (

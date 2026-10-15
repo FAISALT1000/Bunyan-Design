@@ -27,11 +27,23 @@ import { Icon } from '../Icon';
 import { IconButton } from '../IconButton';
 import { Text } from '../Text';
 import type {
+  BaseInputFieldProps,
   InputFieldHandle,
   InputFieldProps,
   InputFieldState,
 } from './InputField.types';
 import { getInputFieldTypeDefaults } from './InputField.utils';
+import { useStrings } from '../../i18n/strings';
+import { logicalTextAlign, nativeDirection } from '../../utilities/styles';
+import type { Direction } from '../../themes/types';
+
+/** `start`/`end` follow the reading direction; `left`/`right` stay physical (RN swaps them in native RTL). */
+const resolveTextAlign = (align: NonNullable<BaseInputFieldProps['textAlign']>, direction: Direction) => {
+  if (align === 'center') return 'center' as const;
+  if (align === 'start' || align === 'end') return logicalTextAlign(direction, align);
+  if (nativeDirection() === 'rtl') return align === 'left' ? 'right' as const : 'left' as const;
+  return align;
+};
 
 const resolveLocalizedValue = (
   fallback: string | undefined,
@@ -78,8 +90,8 @@ export const InputField = memo(forwardRef<InputFieldHandle, InputFieldProps>(
       rightIcon,
       onLeftIconPress,
       onRightIconPress,
-      leftIconAccessibilityLabel = 'Input leading action',
-      rightIconAccessibilityLabel = 'Input trailing action',
+      leftIconAccessibilityLabel: leftIconAccessibilityLabelProp,
+      rightIconAccessibilityLabel: rightIconAccessibilityLabelProp,
       maxLength,
       numberOfLines = 1,
       accessibilityLabel,
@@ -92,11 +104,15 @@ export const InputField = memo(forwardRef<InputFieldHandle, InputFieldProps>(
       onFocus,
       onBlur,
       onSubmitEditing,
+      textAlign,
       ...overrides
     },
     ref,
   ) {
     const { direction, theme } = useTheme();
+    const strings = useStrings();
+    const rightIconAccessibilityLabel = rightIconAccessibilityLabelProp ?? strings('trailingAction');
+    const leftIconAccessibilityLabel = leftIconAccessibilityLabelProp ?? strings('leadingAction');
     const { reduceMotionEnabled } = useAccessibility();
     const localization = useOptionalLocalization();
     const [focused, setFocused] = useState(false);
@@ -112,6 +128,8 @@ export const InputField = memo(forwardRef<InputFieldHandle, InputFieldProps>(
     const clearAccessibilityLabel = 'clearAccessibilityLabel' in overrides
       ? overrides.clearAccessibilityLabel
       : undefined;
+    const showPasswordLabel = ('showPasswordLabel' in overrides ? overrides.showPasswordLabel : undefined) ?? strings('showPassword');
+    const hidePasswordLabel = ('hidePasswordLabel' in overrides ? overrides.hidePasswordLabel : undefined) ?? strings('hidePassword');
     const codeLength = 'length' in overrides ? overrides.length : undefined;
     const onComplete = 'onComplete' in overrides
       ? overrides.onComplete
@@ -206,7 +224,7 @@ export const InputField = memo(forwardRef<InputFieldHandle, InputFieldProps>(
         icon={passwordVisible ? 'eye-off' : 'eye'}
         size="small"
         accessibilityLabel={
-          passwordVisible ? 'Hide password' : 'Show password'
+          passwordVisible ? hidePasswordLabel : showPasswordLabel
         }
         onPress={() => setPasswordVisible(current => !current)}
       />
@@ -214,7 +232,7 @@ export const InputField = memo(forwardRef<InputFieldHandle, InputFieldProps>(
       <IconButton
         icon="close"
         size="small"
-        accessibilityLabel={clearAccessibilityLabel ?? 'Clear search'}
+        accessibilityLabel={clearAccessibilityLabel ?? strings('clearSearch')}
         onPress={() => onChangeText('')}
       />
     ) : rightIcon && onRightIconPress ? (
@@ -321,6 +339,8 @@ export const InputField = memo(forwardRef<InputFieldHandle, InputFieldProps>(
                   : defaults.secureTextEntry)
               }
               submitBehavior={overrides.submitBehavior}
+              {...(overrides.selectTextOnFocus !== undefined ? { selectTextOnFocus: overrides.selectTextOnFocus } : {})}
+              {...(overrides.importantForAutofill ? { importantForAutofill: overrides.importantForAutofill } : {})}
               textContentType={
                 overrides.textContentType ?? defaults.textContentType
               }
@@ -343,6 +363,7 @@ export const InputField = memo(forwardRef<InputFieldHandle, InputFieldProps>(
                 writingDirection: defaults.forceLTR
                   ? 'ltr'
                   : direction,
+                ...(textAlign ? { textAlign: resolveTextAlign(textAlign, direction) } : {}),
               }}
             />
             {trailing}

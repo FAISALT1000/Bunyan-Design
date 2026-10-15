@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import type { TranslationOptions } from '../../localization';
 import { warnDeprecated } from '../../utilities/deprecations';
 import {
   Text,
@@ -13,14 +14,25 @@ interface SharedHeadingProps {
   tone?: TextTone;
   align?: 'start' | 'center' | 'end';
   numberOfLines?: number;
+  /** Allow copying the text (long press). */
+  selectable?: boolean;
   accessibilityLabel?: string;
   testID?: string;
 }
 
 export type HeadingProps = SharedHeadingProps & (
-  | { title: string | number; children?: never }
+  | { title: string | number; localize?: string; translationOptions?: TranslationOptions; children?: never }
+  | {
+      /** Translation key; `title` (if given) is the fallback text. */
+      localize: string;
+      translationOptions?: TranslationOptions;
+      title?: string | number;
+      children?: never;
+    }
   | {
       title?: never;
+      localize?: never;
+      translationOptions?: never;
       /**
        * @deprecated Use the title prop. Scheduled for removal in 1.0.0.
        */
@@ -41,6 +53,8 @@ export const Heading = memo(function Heading({
   title,
   children,
   level = 2,
+  localize,
+  translationOptions,
   ...props
 }: HeadingProps) {
   const resolvedTitle = title ?? children;
@@ -50,7 +64,14 @@ export const Heading = memo(function Heading({
 
   return (
     <Text
-      value={resolvedTitle as string | number}
+      {...(localize
+        ? {
+            localize,
+            ...(resolvedTitle !== undefined ? { value: resolvedTitle } : {}),
+            ...(translationOptions ? { translationOptions } : {}),
+          }
+        : { value: resolvedTitle as string | number })}
+      {...(props.selectable ? { selectable: true } : {})}
       variant={variantForLevel[level]}
       weight="bold"
       accessibilityRole="header"

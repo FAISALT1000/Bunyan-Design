@@ -11,8 +11,12 @@ import { Icon } from '../../components/Icon';
 import { IconButton } from '../../components/IconButton';
 import { Image, type ImageSourcePropType } from '../../components/RNTheme';
 import { Skeleton } from '../../components/Skeleton';
+import { Spinner } from '../../components/Spinner';
 import { Text } from '../../components/Text';
 import { Money } from '../format/FormatText';
+import { useActionButton, useActionTitle } from './useActionButton';
+
+export { useActionButton, useActionTitle };
 import { formatMoney } from '../format/format';
 import {
   IconBox,
@@ -27,22 +31,7 @@ import {
   type PresetIcon,
   type PresetToggle,
 } from '../shared';
-
-export function useActionButton() {
-  const t = useText();
-  return (action: PresetAction, overrides: Partial<React.ComponentProps<typeof Button>> = {}) => (
-    <Button
-      title={t(action.title) ?? ''}
-      onPress={action.onPress}
-      {...(action.variant ? { variant: action.variant } : {})}
-      {...(action.icon ? { leftIcon: action.icon } : {})}
-      {...(action.disabled !== undefined ? { disabled: action.disabled } : {})}
-      {...(action.loading !== undefined ? { loading: action.loading } : {})}
-      {...(action.testID ? { testID: action.testID } : {})}
-      {...(overrides as object)}
-    />
-  );
-}
+import { useStrings } from '../../i18n/strings';
 
 export interface Trend {
   value: TextValue;
@@ -97,6 +86,8 @@ export const AmountCard = memo(function AmountCard({
 }: AmountCardProps) {
   const { theme } = useTheme();
   const t = useText();
+  const strings = useStrings();
+  const actionTitle = useActionTitle();
   const [hiddenState, setHiddenState] = useState(false);
   const hidden = hiddenProp ?? hiddenState;
   const filled = variant === 'primary';
@@ -131,7 +122,7 @@ export const AmountCard = memo(function AmountCard({
               icon={hidden ? 'eye-off' : 'eye'}
               size="small"
               tone={filled ? 'inverse' : 'secondary'}
-              accessibilityLabel={hidden ? 'Show amount' : 'Hide amount'}
+              accessibilityLabel={hidden ? strings('showAmount') : strings('hideAmount')}
               onPress={toggleHidden}
             />
           ) : null}
@@ -152,7 +143,7 @@ export const AmountCard = memo(function AmountCard({
             <BasePressable
               key={index}
               accessibilityRole="button"
-              accessibilityLabel={t(action.title) ?? ''}
+              accessibilityLabel={action.accessibilityLabel ?? actionTitle(action)}
               onPress={action.onPress}
               disabled={action.disabled}
               {...(action.testID ? { testID: action.testID } : {})}
@@ -168,7 +159,7 @@ export const AmountCard = memo(function AmountCard({
             >
               <Inline gap="xs" alignItems="center">
                 {action.icon ? <Icon name={action.icon} size="sm" color={filled ? theme.color.primary.contrast : theme.color.primary.default} /> : null}
-                <Text value={t(action.title) ?? ''} variant="labelMedium" weight="semibold" internalColor={filled ? theme.color.primary.contrast : theme.color.text.link} />
+                <Text value={actionTitle(action)} variant="labelMedium" weight="semibold" internalColor={filled ? theme.color.primary.contrast : theme.color.text.link} />
               </Inline>
             </BasePressable>
           ))}
@@ -387,12 +378,14 @@ export interface ActionCardProps {
   badge?: PresetBadge;
   selected?: boolean;
   disabled?: boolean;
+  /** Shows a spinner and blocks presses while an action runs. */
+  loading?: boolean;
   onPress: () => void;
   testID?: string;
 }
 
 /** A large tappable tile for menus, dashboards and onboarding choices. */
-export const ActionCard = memo(function ActionCard({ icon, title, description, badge, selected = false, disabled = false, onPress, testID }: ActionCardProps) {
+export const ActionCard = memo(function ActionCard({ icon, title, description, badge, selected = false, disabled = false, loading = false, onPress, testID }: ActionCardProps) {
   const { theme } = useTheme();
   const t = useText();
   const renderBadge = useBadge();
@@ -403,9 +396,9 @@ export const ActionCard = memo(function ActionCard({ icon, title, description, b
     <BasePressable
       accessibilityRole="button"
       accessibilityLabel={createAccessibilityLabel([titleText, descriptionText])}
-      accessibilityState={createAccessibilityState({ selected, disabled })}
+      accessibilityState={createAccessibilityState({ selected, disabled, busy: loading })}
       onPress={onPress}
-      disabled={disabled}
+      disabled={disabled || loading}
       {...(testID ? { testID } : {})}
       baseStyle={{
         ...cardSurface(theme),
@@ -414,11 +407,11 @@ export const ActionCard = memo(function ActionCard({ icon, title, description, b
         ...(selected ? { borderColor: theme.color.primary.default, borderWidth: theme.borderWidth.medium } : {}),
       }}
       pressedStyle={{ backgroundColor: theme.color.overlay.subtle }}
-      disabledStyle={{ opacity: theme.opacity.disabled }}
+      {...(disabled ? { disabledStyle: { opacity: theme.opacity.disabled } } : {})}
     >
       <Inline gap="sm" alignItems="flex-start" justifyContent="space-between">
         <IconBox name={resolved.name} tone={resolved.tone} size={40} />
-        {renderBadge(badge)}
+        {loading ? <Spinner size="small" accessible={false} /> : renderBadge(badge)}
       </Inline>
       <Stack gap="xxs">
         <Text value={titleText} variant="bodyMedium" weight="semibold" />
@@ -491,6 +484,7 @@ export const ProductCard = memo(function ProductCard({
   testID,
 }: ProductCardProps) {
   const { theme, locale } = useTheme();
+  const strings = useStrings();
   const t = useText();
   const renderBadge = useBadge();
   const renderAction = useActionButton();
@@ -544,16 +538,16 @@ export const ProductCard = memo(function ProductCard({
       size="small"
       tone={favorite.value ? 'error' : 'tertiary'}
       selected={favorite.value}
-      accessibilityLabel={favorite.value ? 'Remove from favourites' : 'Add to favourites'}
+      accessibilityLabel={favorite.value ? strings('removeFavourite') : strings('addFavourite')}
       onPress={() => favorite.onChange(!favorite.value)}
     />
   ) : null;
   const stepper = quantity ? (
     <Inline gap="xs" alignItems="center">
-      <IconButton icon="minus" size="small" variant="outline" accessibilityLabel="Decrease quantity"
+      <IconButton icon="minus" size="small" variant="outline" accessibilityLabel={strings('decreaseQuantity')}
         disabled={quantity.value <= (quantity.min ?? 0)} onPress={() => quantity.onChange(quantity.value - 1)} />
       <Text value={String(quantity.value)} weight="bold" />
-      <IconButton icon="plus" size="small" variant="outline" accessibilityLabel="Increase quantity"
+      <IconButton icon="plus" size="small" variant="outline" accessibilityLabel={strings('increaseQuantity')}
         disabled={quantity.max !== undefined && quantity.value >= quantity.max} onPress={() => quantity.onChange(quantity.value + 1)} />
     </Inline>
   ) : null;

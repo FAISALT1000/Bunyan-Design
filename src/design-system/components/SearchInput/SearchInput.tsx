@@ -5,6 +5,7 @@ import {
   InputField,
   type SearchInputFieldProps,
 } from '../InputField';
+import { useStrings } from '../../i18n/strings';
 
 /**
  * @deprecated Use `InputField` with `type="search"`.
@@ -43,13 +44,14 @@ export const SearchInput = memo(forwardRef<
     'SearchInput is deprecated. Use <InputField type="search" ... />. It will be removed in 1.0.0.',
   );
   // Uncontrolled when `value` is omitted, so the clear button still works.
+  const strings = useStrings();
   const [innerValue, setInnerValue] = useState('');
   const currentValue = value ?? innerValue;
   return (
     <InputField
       ref={ref}
       type="search"
-      label={label ?? accessibilityLabel ?? placeholder ?? 'Search'}
+      label={label ?? accessibilityLabel ?? placeholder ?? strings('search')}
       value={currentValue}
       onChangeText={nextValue => {
         if (value === undefined) setInnerValue(nextValue);

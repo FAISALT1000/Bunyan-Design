@@ -13,6 +13,7 @@ export * from './Card';
 export * from './Checkbox';
 export * from './CheckboxGroup';
 export * from './Chip';
+export * from './CountBadge';
 export * from './ChipsGroup';
 export * from './createThemedComponent';
 export * from './DatePicker';

@@ -13,6 +13,7 @@ import { Text } from '../../components/Text';
 import { useActionButton } from '../cards/ValueCards';
 import type { PresetAction } from '../shared';
 import { StatusIcon, statusColors, type StatusKind } from './StatusIcon';
+import { useStrings } from '../../i18n/strings';
 
 interface StatusContentProps {
   status: StatusKind;
@@ -134,6 +135,7 @@ export interface StatusModalProps extends StatusContentProps {
 /** The same status content in a dialog over the current screen. */
 export const StatusModal = memo(function StatusModal({ visible, onClose, dismissible, showClose = false, ...props }: StatusModalProps) {
   const { theme } = useTheme();
+  const strings = useStrings();
   const canDismiss = (dismissible ?? props.status !== 'pending') && Boolean(onClose);
   return (
     <BaseModal
@@ -171,7 +173,7 @@ export const StatusModal = memo(function StatusModal({ visible, onClose, dismiss
         >
           {showClose && canDismiss ? (
             <Box alignSelf="flex-end" internalStyle={{ marginBottom: -theme.spacing.lg }}>
-              <IconButton icon="close" size="small" tone="secondary" accessibilityLabel="Close" onPress={() => onClose?.()} />
+              <IconButton icon="close" size="small" tone="secondary" accessibilityLabel={strings('close')} onPress={() => onClose?.()} />
             </Box>
           ) : null}
           <StatusBody {...props} iconSize={64} />
@@ -200,6 +202,7 @@ export interface StatusBannerProps {
 export const StatusBanner = memo(function StatusBanner({ status, title, subtitle, action, onDismiss, animated = true, testID }: StatusBannerProps) {
   const { theme } = useTheme();
   const t = useText();
+  const strings = useStrings();
   const colors = statusColors(theme, status);
   return (
     <Box
@@ -217,7 +220,7 @@ export const StatusBanner = memo(function StatusBanner({ status, title, subtitle
           {subtitle ? <Text value={t(subtitle) ?? ''} variant="caption" tone="secondary" /> : null}
         </Stack>
         {action ? <Button title={t(action.title) ?? ''} variant="link" size="small" onPress={action.onPress} /> : null}
-        {onDismiss ? <IconButton icon="close" size="small" tone="secondary" accessibilityLabel="Dismiss" onPress={onDismiss} /> : null}
+        {onDismiss ? <IconButton icon="close" size="small" tone="secondary" accessibilityLabel={strings('dismiss')} onPress={onDismiss} /> : null}
       </Inline>
     </Box>
   );

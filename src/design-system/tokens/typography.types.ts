@@ -10,7 +10,9 @@ export type TextVariant =
   | 'labelLarge'
   | 'labelMedium'
   | 'labelSmall'
-  | 'caption';
+  | 'caption'
+  /** 10pt, for tab badges and tiny counters. */
+  | 'micro';
 
 export type TextWeight = 'regular' | 'medium' | 'semibold' | 'bold';
 

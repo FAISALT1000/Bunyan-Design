@@ -1,6 +1,6 @@
 # Icons
 
-153 icons in 12 categories, all on a 24×24 grid with a 2px round stroke, so
+165 icons in 12 categories, all on a 24×24 grid with a 2px round stroke, so
 they sit well together. Every app that uses Bunyan imports them from the
 package; there are no SVG files to copy.
 
@@ -50,17 +50,17 @@ enabled, or webpack on web) drop the unused ones.
 | Key | Icons |
 | --- | --- |
 | `navigation` | chevron-left, chevron-right, chevron-up, chevron-down, arrow-left, arrow-right, arrow-up, arrow-down, arrow-up-right, arrow-down-left, external-link, chevron-end, backspace, menu, more-horizontal, more-vertical, home, grid |
-| `actions` | plus, minus, close, check, edit, trash, copy, share, download, upload, refresh, search, filter, sort, link, send |
-| `status` | success, error, warning, info, alert-circle, pending, help, bell, bell-off, shield-check, flag, loader |
-| `settings` | settings, sliders, sun, moon, contrast, globe, language, monitor, smartphone, wifi, battery, power, toggle, layers, palette, accessibility |
+| `actions` | paste, reply, undo, redo, plus, minus, close, check, edit, trash, copy, share, download, upload, refresh, search, filter, sort, link, send |
+| `status` | activity, zap, success, error, warning, info, alert-circle, pending, help, bell, bell-off, shield-check, flag, loader |
+| `settings` | server, database, settings, sliders, sun, moon, contrast, globe, language, monitor, smartphone, wifi, battery, power, toggle, layers, palette, accessibility |
 | `users` | user, users, user-plus, user-check, user-x, user-circle, id-card, contacts, team, crown, heart, smile |
 | `finance` | wallet, card, bank, transfer, cash, coins, receipt, invoice, chart-bar, chart-line, chart-pie, trending-up, trending-down, percent, piggy-bank, exchange, qr-code, scan |
 | `commerce` | cart, bag, store, tag, gift, truck, package, star, coupon, return |
-| `files` | file, file-text, file-pdf, file-plus, folder, folder-open, clipboard, attachment, archive, cloud-upload, signature, print |
+| `files` | book, file, file-text, file-pdf, file-plus, folder, folder-open, clipboard, attachment, archive, cloud-upload, signature, print |
 | `communication` | message, chat, mail, phone, video, mic, at-sign, megaphone, inbox, support |
 | `security` | lock, unlock, key, shield, fingerprint, face-id, eye, eye-off, log-in, log-out, otp |
-| `time` | calendar, clock, history, timer, map-pin, map, navigation, plane, car, building |
-| `media` | image, camera, play, pause, volume, music, stream, cast |
+| `time` | pin, calendar, clock, history, timer, map-pin, map, navigation, plane, car, building |
+| `media` | subtitles, playlist, image, camera, play, pause, volume, music, stream, cast |
 
 The Storybook story `Presets / Icons` shows every icon.
 

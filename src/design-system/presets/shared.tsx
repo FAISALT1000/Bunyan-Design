@@ -11,7 +11,11 @@ import { Icon, type IconName } from '../components/Icon';
 import type { ImageSourcePropType } from '../components/RNTheme/native';
 
 /** Colour family of a tinted icon box. */
-export type IconBoxTone = 'primary' | 'neutral' | 'success' | 'warning' | 'error' | 'info';
+/**
+ * Colour family of a tinted icon box. `'inverse'` is a solid brand tile;
+ * `'information'` is an alias of `'info'`.
+ */
+export type IconBoxTone = 'primary' | 'secondary' | 'neutral' | 'success' | 'warning' | 'error' | 'info' | 'information' | 'inverse';
 
 /** Leading icon of a preset: a name, or a name with a tone. */
 export type PresetIcon = IconName | { name: IconName; tone?: IconBoxTone };
@@ -33,8 +37,12 @@ export interface PresetToggle {
 
 /** A button rendered by a preset. */
 export interface PresetAction {
-  title: TextValue;
+  /** Text or `{ localeKey }`. Optional when `titleLocalize` is given. */
+  title?: TextValue;
+  /** Translation key (same name as Button's prop); `title` is the fallback. */
+  titleLocalize?: string;
   onPress: () => void;
+  accessibilityLabel?: string;
   icon?: IconName;
   variant?: 'primary' | 'secondary' | 'tertiary' | 'outline' | 'ghost' | 'link' | 'danger';
   disabled?: boolean;
@@ -44,6 +52,9 @@ export interface PresetAction {
 
 export const iconBoxColors = (theme: Theme, tone: IconBoxTone) => ({
   primary: { background: theme.color.primary.subtle, foreground: theme.color.primary.default },
+  secondary: { background: theme.color.secondary.subtle, foreground: theme.color.secondary.default },
+  inverse: { background: theme.color.primary.default, foreground: theme.color.primary.contrast },
+  information: { background: theme.color.information.subtle, foreground: theme.color.information.default },
   neutral: { background: theme.color.neutral.subtle, foreground: theme.color.text.secondary },
   success: { background: theme.color.success.subtle, foreground: theme.color.success.default },
   warning: { background: theme.color.warning.subtle, foreground: theme.color.warning.default },
@@ -54,16 +65,19 @@ export const iconBoxColors = (theme: Theme, tone: IconBoxTone) => ({
 export interface IconBoxProps {
   name: IconName;
   tone?: IconBoxTone;
-  /** Box side in points. Default 40. */
-  size?: number;
+  /** Box side: a `tileSize` token (`'md'` = 40) or points. Default `'md'`. */
+  size?: keyof Theme['tileSize'] | number;
+  /** Glyph size relative to the box. Default 0.5. */
+  iconRatio?: number;
   mirroredInRTL?: boolean;
   testID?: string;
 }
 
 /** An icon on a tinted rounded square, the leading element of most presets. */
-export const IconBox = memo(function IconBox({ name, tone = 'neutral', size = 40, mirroredInRTL, testID }: IconBoxProps) {
+export const IconBox = memo(function IconBox({ name, tone = 'neutral', size: sizeProp = 'md', iconRatio = 0.5, mirroredInRTL, testID }: IconBoxProps) {
   const { theme } = useTheme();
   const colors = iconBoxColors(theme, tone);
+  const size = typeof sizeProp === 'number' ? sizeProp : theme.tileSize[sizeProp];
   return (
     <Box
       width={size}
@@ -74,7 +88,7 @@ export const IconBox = memo(function IconBox({ name, tone = 'neutral', size = 40
       {...(testID ? { testID } : {})}
       internalStyle={{ borderRadius: Math.round(size * 0.3), backgroundColor: colors.background }}
     >
-      <Icon name={name} size={Math.round(size * 0.5)} color={colors.foreground} {...(mirroredInRTL ? { mirroredInRTL } : {})} />
+      <Icon name={name} size={Math.round(size * iconRatio)} color={colors.foreground} {...(mirroredInRTL ? { mirroredInRTL } : {})} />
     </Box>
   );
 });

@@ -38,6 +38,8 @@ export interface ThreeLineCardProps extends TwoLineCardProps {
   /** Top-end text such as a time. */
   meta?: TextValue;
   unread?: boolean;
+  /** Max lines of the description. Default 3. */
+  descriptionLines?: number;
 }
 
 /**

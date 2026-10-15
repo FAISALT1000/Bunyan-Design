@@ -5,8 +5,10 @@ import { useTheme } from '../../hooks';
 import { useText, type TextValue } from '../../i18n';
 import { EmptyState, type EmptyStateProps } from '../../components/EmptyState';
 import { ErrorState } from '../../components/ErrorState';
-import { LineCard } from '../cards/LineCard';
+import { Skeleton } from '../../components/Skeleton';
+import { Spinner } from '../../components/Spinner';
 import { cardSurface } from '../shared';
+import { useStrings } from '../../i18n/strings';
 
 /** The parts of a React Query (or SWR-like) result DataState reads. */
 export interface QueryLike<T> {
@@ -15,10 +17,11 @@ export interface QueryLike<T> {
   isLoading?: boolean;
   isPending?: boolean;
   isError?: boolean;
+  isRefetching?: boolean;
   refetch?: () => unknown;
 }
 
-export type DataStateSkeleton = 'OneLineCard' | 'TwoLineCard' | 'ThreeLineCard' | React.ReactElement;
+export type DataStateSkeleton = 'OneLineCard' | 'TwoLineCard' | 'ThreeLineCard' | 'card' | 'field' | React.ReactElement;
 
 export interface DataStateProps<T> {
   /** A React Query result, or pass `loading` / `error` / `data` yourself. */
@@ -37,6 +40,15 @@ export interface DataStateProps<T> {
   /** Error description; receives the error. Default: its message. */
   errorMessage?: (error: unknown) => TextValue | undefined;
   onRetry?: () => void;
+  /** Custom error view (e.g. with a request ID). Replaces the built-in ErrorState. */
+  renderError?: (error: unknown, retry: (() => void) | undefined) => React.ReactNode;
+  /** Announced while loading. Default: translated "Loading". */
+  loadingLabel?: TextValue;
+  /**
+   * Background refresh with data already on screen: keeps the content and
+   * shows a small spinner above it. Default: `query.isRefetching`.
+   */
+  refreshing?: boolean;
   children: (data: T) => React.ReactNode;
   testID?: string;
 }
@@ -65,12 +77,17 @@ export function DataState<T>({
   skeletonCount = 3,
   empty,
   isEmpty = defaultIsEmpty,
-  errorTitle = 'Something went wrong',
+  errorTitle: errorTitleProp,
   errorMessage = messageOf,
   onRetry,
+  renderError,
+  loadingLabel,
+  refreshing,
   children,
   testID,
 }: DataStateProps<T>) {
+  const strings = useStrings();
+  const errorTitle = errorTitleProp ?? strings('somethingWentWrong');
   const { theme } = useTheme();
   const t = useText();
   const isLoading = loading ?? Boolean(query?.isLoading ?? (query?.isPending && query.data === undefined));
@@ -79,12 +96,11 @@ export function DataState<T>({
   const retry = onRetry ?? (query?.refetch ? () => void query.refetch?.() : undefined);
 
   if (isLoading) {
-    const lines = skeleton === 'OneLineCard' ? 1 : skeleton === 'ThreeLineCard' ? 3 : 2;
     return (
-      <Stack gap="sm" {...(testID ? { testID } : {})} accessible accessibilityLabel="Loading">
+      <Stack gap="sm" {...(testID ? { testID } : {})} accessible accessibilityLabel={t(loadingLabel) ?? strings('loading')}>
         {Array.from({ length: skeletonCount }, (_, index) => (
           typeof skeleton === 'string'
-            ? <LineCard key={index} lines={lines} title="" loading />
+            ? <Skeleton key={index} preset={skeleton} />
             : <React.Fragment key={index}>{skeleton}</React.Fragment>
         ))}
       </Stack>
@@ -92,6 +108,7 @@ export function DataState<T>({
   }
 
   if (currentError) {
+    if (renderError) return <>{renderError(currentError, retry)}</>;
     const description = t(errorMessage(currentError));
     return (
       <Box {...(testID ? { testID } : {})} internalStyle={cardSurface(theme)}>
@@ -112,5 +129,14 @@ export function DataState<T>({
     ) : null;
   }
 
+  const isRefreshing = refreshing ?? Boolean(query?.isRefetching);
+  if (isRefreshing) {
+    return (
+      <Stack gap="sm" {...(testID ? { testID } : {})}>
+        <Box alignItems="center"><Spinner size="small" label={t(loadingLabel) ?? strings('loading')} showLabel={false} /></Box>
+        {children(currentData as T)}
+      </Stack>
+    );
+  }
   return <>{children(currentData as T)}</>;
 }

@@ -6,7 +6,10 @@ import { InputField } from '../../components/InputField';
 import type { StandardInputFieldProps } from '../../components/InputField';
 import { Modal } from '../../components/Modal';
 import type { IconName } from '../../components/Icon';
+import { Text } from '../../components/Text';
 import { LineCard } from '../cards/LineCard';
+import { ConfirmPhraseInput, phraseMatches } from '../forms/ConfirmPhraseInput';
+import { useStrings } from '../../i18n/strings';
 
 export interface ConfirmOptions {
   title: TextValue;
@@ -17,6 +20,16 @@ export interface ConfirmOptions {
   cancelText?: TextValue;
   /** Red confirm button for destructive actions. */
   danger?: boolean;
+  /** Extra content under the message (e.g. the list of changes). */
+  children?: React.ReactNode;
+  /**
+   * Runs when the user confirms. The confirm button shows a spinner until it
+   * finishes; the promise then resolves `true`. If it throws, the dialog stays
+   * open and shows the error, so the user can retry or cancel.
+   */
+  onConfirm?: () => unknown;
+  /** Message for a failed `onConfirm`. Default: the error's message. */
+  errorMessage?: (error: unknown) => TextValue | undefined;
 }
 
 export interface ActionSheetOption<V extends string = string> {
@@ -37,13 +50,23 @@ export interface ActionSheetOptions<V extends string = string> {
 export interface PromptOptions {
   title: TextValue;
   message?: TextValue;
-  label: TextValue;
+  /** Field label. Default: the title. */
+  label?: TextValue;
   initialValue?: string;
   placeholder?: TextValue;
-  /** `InputField` type. Default `'text'`. */
+  helperText?: TextValue;
+  /** `InputField` type. Default `'text'` (`'password'` with `secureTextEntry`). */
   type?: StandardInputFieldProps['type'];
+  secureTextEntry?: boolean;
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  /** Lines for a multiline answer. Default 1. */
+  numberOfLines?: number;
   confirmText?: TextValue;
   cancelText?: TextValue;
+  /** Red confirm button. */
+  danger?: boolean;
+  /** Confirm stays disabled until the user types this phrase ("DELETE"). */
+  confirmPhrase?: string | { phrase: string; caseSensitive?: boolean };
   /** Return an error message to block confirming. */
   validate?: (value: string) => TextValue | undefined;
 }
@@ -65,10 +88,14 @@ const OverlayContext = createContext<OverlayContextValue | null>(null);
 
 function PromptBody({ request, onDone }: { request: Extract<Request, { kind: 'prompt' }>; onDone: (value: string | null) => void }) {
   const t = useText();
+  const strings = useStrings();
   const { options } = request;
   const [value, setValue] = useState(options.initialValue ?? '');
   const [error, setError] = useState<string>();
+  const phrase = typeof options.confirmPhrase === 'string' ? { phrase: options.confirmPhrase } : options.confirmPhrase;
+  const matched = phrase ? phraseMatches(value, phrase.phrase, phrase.caseSensitive ?? true) : true;
   const submit = () => {
+    if (!matched) return;
     const message = options.validate?.(value);
     if (message) {
       setError(t(message));
@@ -77,29 +104,102 @@ function PromptBody({ request, onDone }: { request: Extract<Request, { kind: 'pr
     onDone(value);
   };
   const messageText = t(options.message);
+  const helper = t(options.helperText);
+  const titleText = t(options.title) ?? '';
+  return (
+    <Modal
+      visible
+      size="small"
+      title={titleText}
+      {...(messageText ? { description: messageText } : {})}
+      onClose={() => onDone(null)}
+      primaryAction={{
+        label: t(options.confirmText) ?? strings('ok'),
+        onPress: submit,
+        disabled: !matched,
+        ...(options.danger ? { variant: 'danger' as const } : {}),
+      }}
+      secondaryAction={{ label: t(options.cancelText) ?? strings('cancel'), onPress: () => onDone(null), variant: 'ghost' }}
+    >
+      {phrase ? (
+        <ConfirmPhraseInput
+          phrase={phrase.phrase}
+          caseSensitive={phrase.caseSensitive ?? true}
+          value={value}
+          onChangeText={next => {
+            setValue(next);
+            setError(undefined);
+          }}
+          {...(options.label ? { label: options.label } : {})}
+          {...(helper ? { helperText: helper } : {})}
+        />
+      ) : (
+        <InputField
+          type={options.secureTextEntry ? 'password' : options.type ?? 'text'}
+          label={t(options.label) ?? titleText}
+          value={value}
+          onChangeText={next => {
+            setValue(next);
+            setError(undefined);
+          }}
+          autoFocus
+          {...(options.numberOfLines && options.numberOfLines > 1 ? { numberOfLines: options.numberOfLines } : { onSubmitEditing: submit })}
+          {...(options.autoCapitalize ? { autoCapitalize: options.autoCapitalize } : {})}
+          {...(options.placeholder ? { placeholder: t(options.placeholder) ?? '' } : {})}
+          {...(helper ? { helperText: helper } : {})}
+          {...(error ? { errorText: error } : {})}
+        />
+      )}
+    </Modal>
+  );
+}
+
+function ConfirmBody({ request, onDone }: { request: Extract<Request, { kind: 'confirm' }>; onDone: (value: boolean) => void }) {
+  const t = useText();
+  const strings = useStrings();
+  const { options } = request;
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string>();
+  const messageText = t(options.message);
+  const confirm = async () => {
+    if (!options.onConfirm) {
+      onDone(true);
+      return;
+    }
+    setBusy(true);
+    setError(undefined);
+    try {
+      await options.onConfirm();
+      onDone(true);
+    } catch (failure) {
+      const message = options.errorMessage?.(failure)
+        ?? (failure instanceof Error ? failure.message : strings('somethingWentWrong'));
+      setError(t(message) ?? strings('somethingWentWrong'));
+      setBusy(false);
+    }
+  };
   return (
     <Modal
       visible
       size="small"
       title={t(options.title) ?? ''}
       {...(messageText ? { description: messageText } : {})}
-      onClose={() => onDone(null)}
-      primaryAction={{ label: t(options.confirmText ?? 'OK') ?? 'OK', onPress: submit }}
-      secondaryAction={{ label: t(options.cancelText ?? 'Cancel') ?? 'Cancel', onPress: () => onDone(null), variant: 'ghost' }}
+      dismissible={!busy}
+      onClose={() => onDone(false)}
+      primaryAction={{
+        label: t(options.confirmText) ?? strings('confirm'),
+        onPress: () => void confirm(),
+        loading: busy,
+        ...(options.danger ? { variant: 'danger' as const } : {}),
+      }}
+      secondaryAction={{ label: t(options.cancelText) ?? strings('cancel'), onPress: () => onDone(false), variant: 'ghost', disabled: busy }}
     >
-      <InputField
-        type={options.type ?? 'text'}
-        label={t(options.label) ?? ''}
-        value={value}
-        onChangeText={next => {
-          setValue(next);
-          setError(undefined);
-        }}
-        autoFocus
-        onSubmitEditing={submit}
-        {...(options.placeholder ? { placeholder: t(options.placeholder) ?? '' } : {})}
-        {...(error ? { errorText: error } : {})}
-      />
+      {options.children || error ? (
+        <Stack gap="md">
+          {options.children}
+          {error ? <Text value={error} variant="bodySmall" tone="error" accessibilityRole="alert" /> : null}
+        </Stack>
+      ) : null}
     </Modal>
   );
 }
@@ -110,6 +210,7 @@ function PromptBody({ request, onDone }: { request: Extract<Request, { kind: 'pr
  */
 export function OverlayProvider({ children }: { children: React.ReactNode }) {
   const t = useText();
+  const strings = useStrings();
   const [queue, setQueue] = useState<Request[]>([]);
   const queueRef = useRef(queue);
   queueRef.current = queue;
@@ -136,25 +237,7 @@ export function OverlayProvider({ children }: { children: React.ReactNode }) {
 
   let overlay: React.ReactNode = null;
   if (current?.kind === 'confirm') {
-    const { options } = current;
-    const messageText = t(options.message);
-    overlay = (
-      <Modal
-        visible
-        size="small"
-        title={t(options.title) ?? ''}
-        {...(messageText ? { description: messageText } : {})}
-        onClose={() => finish(false)}
-        primaryAction={{
-          label: t(options.confirmText ?? 'Confirm') ?? 'Confirm',
-          onPress: () => finish(true),
-          ...(options.danger ? { variant: 'danger' as const } : {}),
-        }}
-        secondaryAction={{ label: t(options.cancelText ?? 'Cancel') ?? 'Cancel', onPress: () => finish(false), variant: 'ghost' }}
-      >
-        {null}
-      </Modal>
-    );
+    overlay = <ConfirmBody key={current.id} request={current} onDone={finish} />;
   } else if (current?.kind === 'sheet') {
     const { options } = current;
     const messageText = t(options.message);

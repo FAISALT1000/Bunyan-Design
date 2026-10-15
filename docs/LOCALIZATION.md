@@ -108,6 +108,29 @@ key when no fallback is supplied. Providers may select `key`, `empty`, or
 `setLocale`, and the stable manager. It throws when used outside the provider.
 Static `<Text value="..." />` remains usable without localization setup.
 
+## Built-in labels
+
+Labels Bunyan renders by itself (loading and error states, Close / Dismiss
+buttons, "Optional", password toggle, search clear, OTP and countdown
+labels, form Submit / Reset / Add / Remove…) come in English and Arabic. The
+lookup order is:
+
+1. Your translation for `bunyan.<key>` (for example `bunyan.tryAgain`).
+2. Bunyan's Arabic text when the locale starts with `ar`.
+3. Bunyan's English text.
+
+```ts
+import { bunyanTranslations } from '@bunyan/design-system';
+
+const i18n = new I18n({
+  en: { ...bunyanTranslations.en, ...en },
+  ar: { ...bunyanTranslations.ar, ...ar },
+});
+```
+
+Parameters use `%{name}`, e.g. `bunyan.resendIn: 'Resend in %{seconds}s'`.
+Props passed to a component (`loadingLabel`, `showPasswordLabel`…) always win.
+
 ## Typed application keys
 
 Translation keys remain strings in the shared package because applications own

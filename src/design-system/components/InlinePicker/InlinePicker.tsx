@@ -8,6 +8,7 @@ import { List } from '../List';
 import { ListItem } from '../ListItem';
 import { SearchInput } from '../SearchInput';
 import { Text } from '../Text';
+import { useStrings } from '../../i18n/strings';
 
 export interface InlinePickerOption {
   value: string;
@@ -39,9 +40,11 @@ export const InlinePicker = memo(function InlinePicker({
   title,
   accessibilityLabel,
   searchable = options.length > 7,
-  searchPlaceholder = 'Search',
+  searchPlaceholder: searchPlaceholderProp,
   disabled = false,
 }: InlinePickerProps) {
+  const strings = useStrings();
+  const searchPlaceholder = searchPlaceholderProp ?? strings('search');
   const { theme, direction } = useTheme();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');

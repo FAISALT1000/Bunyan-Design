@@ -24,6 +24,7 @@ import { warnDeprecated } from '../../utilities/deprecations';
 import { Icon, type IconName, type IconTone } from '../Icon';
 import { Spinner } from '../Spinner';
 import { Text, type TextTone } from '../Text';
+import { useStrings } from '../../i18n/strings';
 
 export type ButtonVariant =
   | 'primary'
@@ -43,6 +44,8 @@ interface SharedButtonProps {
   disabled?: boolean;
   loading?: boolean;
   fullWidth?: boolean;
+  /** Grow to fill the free space of a row (`flex: 1`). */
+  fill?: boolean;
   leftIcon?: IconName;
   rightIcon?: IconName;
   accessibilityLabel?: string;
@@ -79,6 +82,7 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
     loading = false,
     disabled = false,
     fullWidth = false,
+    fill = false,
     leftIcon,
     rightIcon,
     accessibilityLabel,
@@ -91,6 +95,7 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
   ref,
 ) {
   const { platformTokens, theme } = useTheme();
+  const strings = useStrings();
   const localization = useOptionalLocalization();
   const titleFallback = title ?? children;
   const resolvedTitle = resolveLocalizedText({
@@ -180,7 +185,8 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
     borderWidth: theme.borderWidth.thin,
     borderColor: current.border,
     backgroundColor: current.background,
-    alignSelf: fullWidth ? 'stretch' : 'flex-start',
+    alignSelf: fullWidth || fill ? 'stretch' : 'flex-start',
+    ...(fill ? { flex: 1, minWidth: 0 } : {}),
     justifyContent: 'center',
   };
 
@@ -196,7 +202,7 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
         accessibilityLabel
         ?? createAccessibilityLabel([
           resolvedTitle,
-          loading ? 'Loading' : undefined,
+          loading ? strings('loading') : undefined,
         ])
       }
       accessibilityHint={accessibilityHint}

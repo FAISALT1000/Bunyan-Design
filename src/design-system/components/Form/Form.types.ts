@@ -68,6 +68,8 @@ export interface FormFieldTypes {
     title?: TextValue;
     searchPlaceholder?: TextValue;
     emptyMessage?: TextValue;
+    /** Adds a first "None" option with value `''` (label default: none, give your own). */
+    noneOption?: TextValue;
   };
   DatePicker: Translated<Omit<DatePickerProps, 'value' | 'onChange' | 'status' | 'disabled' | 'accessibilityLabel'>, 'placeholder' | 'title' | 'clearLabel' | 'confirmLabel'>;
   DateRangePicker: Omit<DateRangePickerProps, 'value' | 'onChange' | 'status' | 'disabled'>;
@@ -107,6 +109,8 @@ export interface FormFieldTypes {
   OTP: Omit<OTPInputProps, 'value' | 'onChange' | 'error' | 'errorText' | 'disabled' | 'onComplete'> & {
     /** Submit the form when all digits are entered. */
     submitOnComplete?: boolean;
+    /** Called with the code when all digits are entered (after the value is set). */
+    onComplete?: (code: string, form: FormikProps<FormikValues>) => void;
   };
   /** Value: number. */
   Slider: Omit<SliderProps, 'value' | 'onChange' | 'disabled' | 'label'>;
@@ -141,6 +145,8 @@ export interface FormFieldTypes {
     max?: number;
     /** Values of a new item. */
     newItem?: Record<string, unknown> | (() => Record<string, unknown>);
+    /** Adds move up / move down buttons to each item. */
+    reorderable?: boolean;
   };
   /** Display-only progress. `value` can be computed from the form values; `name` is optional. */
   Progress: Omit<ProgressBarProps, 'value' | 'label'> & { value?: number | ((values: any) => number) };
@@ -226,6 +232,13 @@ export interface FormProps<Values extends FormikValues> {
   submitButton?: FormButtonConfig | false;
   /** Optional reset button (`text` default `'Reset'`). Resets to `initialValues`. */
   resetButton?: FormButtonConfig | false;
+  /**
+   * Cancel button under (or beside) the submit button, e.g. in sheets.
+   * With it, the footer uses `DoubleButtons` and `footerLayout`.
+   */
+  cancelButton?: (FormButtonConfig & { onPress: () => void }) | false;
+  /** Footer layout with `cancelButton`: `'stacked'` (default) or `'row'`. */
+  footerLayout?: 'stacked' | 'row';
   /** Gap between fields: points, a spacing token or per breakpoint. Default `'lg'`. */
   spacing?: Responsive<ThemeBreakpoint, ListSpacing>;
   /** Show `(Optional)` next to labels of fields that are not `required`. Default `false`. */

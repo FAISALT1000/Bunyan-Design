@@ -48,7 +48,7 @@ See [docs/SETUP.md](docs/SETUP.md#generated-setup).
   (`Row`, `Grid`, `Section`), status feedback (`StatusScreen`, `StatusModal`,
   `useStatusToast`, `StatusBanner`), dialogs as functions (`useConfirm`…),
   `DataState`, formatters (`Money`, `DateText`…) and `ScreenContent`.
-- [docs/ICONS.md](docs/ICONS.md): 153 categorized icons, also as components
+- [docs/ICONS.md](docs/ICONS.md): 165 categorized icons, also as components
   from `@bunyan/design-system/icons`.
 - [docs/ADOPTION_PROMPT.md](docs/ADOPTION_PROMPT.md): a prompt for AI
   assistants that moves an app to the presets, wrapped in the app's own

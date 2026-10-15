@@ -24,6 +24,10 @@ export const glyphs = {
   home: <><Path d="M4 11l8-7 8 7" /><Path d="M6 9.5V20h12V9.5" /><Path d="M10 20v-5h4v5" /></>,
   grid: <><Rect x="4" y="4" width="6" height="6" rx="1" /><Rect x="14" y="4" width="6" height="6" rx="1" /><Rect x="4" y="14" width="6" height="6" rx="1" /><Rect x="14" y="14" width="6" height="6" rx="1" /></>,
   // Actions
+  paste: <><Rect x="6" y="4" width="12" height="17" rx="2" /><Rect x="9" y="2.5" width="6" height="3" rx="1" /><Polyline points="9.5 13 11.5 15 14.5 11.5" /></>,
+  reply: <><Polyline points="9 7 4 12 9 17" /><Path d="M4 12h10a6 6 0 016 6v1" /></>,
+  undo: <><Polyline points="9 5 4 10 9 15" /><Path d="M4 10h11a5 5 0 010 10h-3" /></>,
+  redo: <><Polyline points="15 5 20 10 15 15" /><Path d="M20 10H9a5 5 0 000 10h3" /></>,
   plus: <><Line x1="12" y1="5" x2="12" y2="19" /><Line x1="5" y1="12" x2="19" y2="12" /></>,
   minus: <Line x1="5" y1="12" x2="19" y2="12" />,
   close: <><Line x1="6" y1="6" x2="18" y2="18" /><Line x1="18" y1="6" x2="6" y2="18" /></>,
@@ -41,6 +45,8 @@ export const glyphs = {
   link: <><Path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7L11.5 6.8" /><Path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1.5-1.5" /></>,
   send: <><Path d="M21 3L10 14" /><Path d="M21 3l-7 18-4-7-7-4 18-7z" /></>,
   // Status & alerts
+  activity: <Polyline points="3 12 7 12 10 5 14 19 17 12 21 12" />,
+  zap: <Polygon points="13 2 4 14 11 14 10 22 20 9 13 9 13 2" />,
   success: <><Circle cx="12" cy="12" r="9" /><Polyline points="7.5 12 10.5 15 16.5 9" /></>,
   error: <><Circle cx="12" cy="12" r="9" /><Line x1="8.5" y1="8.5" x2="15.5" y2="15.5" /><Line x1="15.5" y1="8.5" x2="8.5" y2="15.5" /></>,
   warning: <><Path d="M12 3L2.5 20h19L12 3z" /><Line x1="12" y1="9" x2="12" y2="14" /><Line x1="12" y1="17" x2="12.01" y2="17" /></>,
@@ -54,6 +60,8 @@ export const glyphs = {
   flag: <><Path d="M5 21V4" /><Path d="M5 4h11l-2 4 2 4H5" /></>,
   loader: <><Line x1="12" y1="3" x2="12" y2="6" /><Line x1="12" y1="18" x2="12" y2="21" /><Line x1="5.6" y1="5.6" x2="7.8" y2="7.8" /><Line x1="16.2" y1="16.2" x2="18.4" y2="18.4" /><Line x1="3" y1="12" x2="6" y2="12" /><Line x1="18" y1="12" x2="21" y2="12" /><Line x1="5.6" y1="18.4" x2="7.8" y2="16.2" /><Line x1="16.2" y1="7.8" x2="18.4" y2="5.6" /></>,
   // Settings & system
+  server: <><Rect x="3" y="4" width="18" height="7" rx="1.5" /><Rect x="3" y="13" width="18" height="7" rx="1.5" /><Line x1="7" y1="7.5" x2="7.01" y2="7.5" /><Line x1="7" y1="16.5" x2="7.01" y2="16.5" /></>,
+  database: <><Ellipse cx="12" cy="5.5" rx="8" ry="2.5" /><Path d="M4 5.5v13c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5v-13" /><Path d="M4 12c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5" /></>,
   settings: <><Circle cx="12" cy="12" r="3" /><Path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.6V21h-4v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 00.3-1.9A1.7 1.7 0 003 14H3v-4h.1a1.7 1.7 0 001.6-1 1.7 1.7 0 00-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 009 4.6 1.7 1.7 0 0010 3V3h4v.1a1.7 1.7 0 001 1.6 1.7 1.7 0 001.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 00-.3 1.9 1.7 1.7 0 001.6 1H21v4h-.1a1.7 1.7 0 00-1.5 1z" /></>,
   sliders: <><Line x1="4" y1="6" x2="20" y2="6" /><Line x1="4" y1="12" x2="20" y2="12" /><Line x1="4" y1="18" x2="20" y2="18" /><Circle cx="9" cy="6" r="2" fill="currentColor" /><Circle cx="15" cy="12" r="2" fill="currentColor" /><Circle cx="7" cy="18" r="2" fill="currentColor" /></>,
   sun: <><Circle cx="12" cy="12" r="4" /><Line x1="12" y1="2" x2="12" y2="4" /><Line x1="12" y1="20" x2="12" y2="22" /><Line x1="4.9" y1="4.9" x2="6.3" y2="6.3" /><Line x1="17.7" y1="17.7" x2="19.1" y2="19.1" /><Line x1="2" y1="12" x2="4" y2="12" /><Line x1="20" y1="12" x2="22" y2="12" /><Line x1="4.9" y1="19.1" x2="6.3" y2="17.7" /><Line x1="17.7" y1="6.3" x2="19.1" y2="4.9" /></>,
@@ -114,6 +122,7 @@ export const glyphs = {
   coupon: <><Path d="M3 7a1 1 0 011-1h16a1 1 0 011 1v3a2 2 0 000 4v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3a2 2 0 000-4V7z" /><Line x1="14" y1="6" x2="14" y2="18" strokeDasharray="2 2" /></>,
   return: <><Polyline points="9 14 4 9 9 4" /><Path d="M4 9h10a6 6 0 010 12h-3" /></>,
   // Files & documents
+  book: <><Path d="M4 19V5a2 2 0 012-2h14v16H6a2 2 0 00-2 2zm0 0a2 2 0 002 2h14" /><Line x1="9" y1="7" x2="16" y2="7" /></>,
   file: <><Path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z" /><Polyline points="14 3 14 8 19 8" /></>,
   'file-text': <><Path d="M14 3H6a1 1 0 00-1 1v16a1 1 0 001 1h12a1 1 0 001-1V8l-5-5z" /><Polyline points="14 3 14 8 19 8" /><Line x1="8.5" y1="13" x2="15.5" y2="13" /><Line x1="8.5" y1="17" x2="13" y2="17" /></>,
   'file-pdf': <><Path d="M14 3H6a1 1 0 00-1 1v16a1 1 0 001 1h12a1 1 0 001-1V8l-5-5z" /><Polyline points="14 3 14 8 19 8" /><Path d="M8 17v-4h1.3a1.2 1.2 0 010 2.4H8M12 17v-4h1a2 2 0 010 4h-1zM16.5 13H15v4M15 15h1.3" /></>,
@@ -150,6 +159,7 @@ export const glyphs = {
   'log-out': <><Path d="M10 4H5a1 1 0 00-1 1v14a1 1 0 001 1h5" /><Polyline points="16 8 20 12 16 16" /><Line x1="20" y1="12" x2="9" y2="12" /></>,
   otp: <><Rect x="3" y="7" width="18" height="10" rx="2" /><Line x1="7" y1="12" x2="7.01" y2="12" /><Line x1="10.5" y1="12" x2="10.51" y2="12" /><Line x1="14" y1="12" x2="14.01" y2="12" /><Line x1="17.5" y1="12" x2="17.51" y2="12" /></>,
   // Time, place & travel
+  pin: <><Path d="M9 3h6l-1 6 3 3v2H7v-2l3-3-1-6z" /><Line x1="12" y1="14" x2="12" y2="21" /></>,
   calendar: <><Rect x="3" y="5" width="18" height="16" rx="2" /><Line x1="8" y1="3" x2="8" y2="7" /><Line x1="16" y1="3" x2="16" y2="7" /><Line x1="3" y1="10" x2="21" y2="10" /></>,
   clock: <><Circle cx="12" cy="12" r="9" /><Polyline points="12 7 12 12 15.5 14" /></>,
   history: <><Path d="M3.5 12a8.5 8.5 0 102.5-6" /><Polyline points="3 3 3 7.5 7.5 7.5" /><Polyline points="12 8 12 12 15 14" /></>,
@@ -161,6 +171,8 @@ export const glyphs = {
   car: <><Path d="M5 16V11l2-5h10l2 5v5" /><Rect x="3" y="11" width="18" height="6" rx="1.5" /><Circle cx="7" cy="17.5" r="1.5" /><Circle cx="17" cy="17.5" r="1.5" /></>,
   building: <><Rect x="5" y="3" width="14" height="18" rx="1" /><Line x1="9" y1="7" x2="9.01" y2="7" /><Line x1="15" y1="7" x2="15.01" y2="7" /><Line x1="9" y1="11" x2="9.01" y2="11" /><Line x1="15" y1="11" x2="15.01" y2="11" /><Path d="M10 21v-4h4v4" /></>,
   // Media
+  subtitles: <><Rect x="3" y="5" width="18" height="14" rx="2" /><Line x1="7" y1="12" x2="11" y2="12" /><Line x1="13" y1="12" x2="17" y2="12" /><Line x1="7" y1="15.5" x2="14" y2="15.5" /></>,
+  playlist: <><Line x1="4" y1="6" x2="15" y2="6" /><Line x1="4" y1="11" x2="15" y2="11" /><Line x1="4" y1="16" x2="11" y2="16" /><Polygon points="16 14 21 17 16 20 16 14" /></>,
   image: <><Rect x="3" y="4" width="18" height="16" rx="2" /><Circle cx="9" cy="10" r="2" /><Polyline points="21 16 15 11 5 20" /></>,
   camera: <><Path d="M4 7h3l1.5-2.5h7L17 7h3a1 1 0 011 1v11a1 1 0 01-1 1H4a1 1 0 01-1-1V8a1 1 0 011-1z" /><Circle cx="12" cy="13" r="3.5" /></>,
   play: <Polygon points="7 4 20 12 7 20 7 4" />,
@@ -176,17 +188,17 @@ export type BuiltInIconName = keyof typeof glyphs;
 /** Icon names grouped by category, e.g. for icon pickers or settings screens. */
 export const iconCategories = {
   navigation: ['chevron-left', 'chevron-right', 'chevron-up', 'chevron-down', 'arrow-left', 'arrow-right', 'arrow-up', 'arrow-down', 'arrow-up-right', 'arrow-down-left', 'external-link', 'chevron-end', 'backspace', 'menu', 'more-horizontal', 'more-vertical', 'home', 'grid'],
-  actions: ['plus', 'minus', 'close', 'check', 'edit', 'trash', 'copy', 'share', 'download', 'upload', 'refresh', 'search', 'filter', 'sort', 'link', 'send'],
-  status: ['success', 'error', 'warning', 'info', 'alert-circle', 'pending', 'help', 'bell', 'bell-off', 'shield-check', 'flag', 'loader'],
-  settings: ['settings', 'sliders', 'sun', 'moon', 'contrast', 'globe', 'language', 'monitor', 'smartphone', 'wifi', 'battery', 'power', 'toggle', 'layers', 'palette', 'accessibility'],
+  actions: ['paste', 'reply', 'undo', 'redo', 'plus', 'minus', 'close', 'check', 'edit', 'trash', 'copy', 'share', 'download', 'upload', 'refresh', 'search', 'filter', 'sort', 'link', 'send'],
+  status: ['activity', 'zap', 'success', 'error', 'warning', 'info', 'alert-circle', 'pending', 'help', 'bell', 'bell-off', 'shield-check', 'flag', 'loader'],
+  settings: ['server', 'database', 'settings', 'sliders', 'sun', 'moon', 'contrast', 'globe', 'language', 'monitor', 'smartphone', 'wifi', 'battery', 'power', 'toggle', 'layers', 'palette', 'accessibility'],
   users: ['user', 'users', 'user-plus', 'user-check', 'user-x', 'user-circle', 'id-card', 'contacts', 'team', 'crown', 'heart', 'smile'],
   finance: ['wallet', 'card', 'bank', 'transfer', 'cash', 'coins', 'receipt', 'invoice', 'chart-bar', 'chart-line', 'chart-pie', 'trending-up', 'trending-down', 'percent', 'piggy-bank', 'exchange', 'qr-code', 'scan'],
   commerce: ['cart', 'bag', 'store', 'tag', 'gift', 'truck', 'package', 'star', 'coupon', 'return'],
-  files: ['file', 'file-text', 'file-pdf', 'file-plus', 'folder', 'folder-open', 'clipboard', 'attachment', 'archive', 'cloud-upload', 'signature', 'print'],
+  files: ['book', 'file', 'file-text', 'file-pdf', 'file-plus', 'folder', 'folder-open', 'clipboard', 'attachment', 'archive', 'cloud-upload', 'signature', 'print'],
   communication: ['message', 'chat', 'mail', 'phone', 'video', 'mic', 'at-sign', 'megaphone', 'inbox', 'support'],
   security: ['lock', 'unlock', 'key', 'shield', 'fingerprint', 'face-id', 'eye', 'eye-off', 'log-in', 'log-out', 'otp'],
-  time: ['calendar', 'clock', 'history', 'timer', 'map-pin', 'map', 'navigation', 'plane', 'car', 'building'],
-  media: ['image', 'camera', 'play', 'pause', 'volume', 'music', 'stream', 'cast'],
+  time: ['pin', 'calendar', 'clock', 'history', 'timer', 'map-pin', 'map', 'navigation', 'plane', 'car', 'building'],
+  media: ['subtitles', 'playlist', 'image', 'camera', 'play', 'pause', 'volume', 'music', 'stream', 'cast'],
 } as const satisfies Record<string, readonly BuiltInIconName[]>;
 
 export type IconCategory = keyof typeof iconCategories;

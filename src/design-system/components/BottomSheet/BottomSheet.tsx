@@ -10,6 +10,7 @@ import { KeyboardAvoidingView } from '../RNTheme';
 import { Heading } from '../Heading';
 import { IconButton } from '../IconButton';
 import { Text } from '../Text';
+import { useStrings } from '../../i18n/strings';
 
 export interface BottomSheetProps {
   visible: boolean;
@@ -30,10 +31,12 @@ export const BottomSheet = memo(function BottomSheet({
   description,
   children,
   dismissible = true,
-  closeAccessibilityLabel = 'Close bottom sheet',
+  closeAccessibilityLabel: closeAccessibilityLabelProp,
   accessibilityLabel,
   testID,
 }: BottomSheetProps) {
+  const strings = useStrings();
+  const closeAccessibilityLabel = closeAccessibilityLabelProp ?? strings('closeSheet');
   const { theme } = useTheme();
   const { bottom } = useSafeArea();
   const keyboard = useKeyboard();

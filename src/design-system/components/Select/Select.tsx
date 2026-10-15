@@ -8,6 +8,7 @@ import { Icon } from '../Icon';
 import { ListItem } from '../ListItem';
 import { InputField } from '../InputField';
 import { Text } from '../Text';
+import { useStrings } from '../../i18n/strings';
 
 export interface SelectOption {
   value: string;
@@ -35,16 +36,21 @@ export const Select = memo(function Select({
   options,
   value,
   onValueChange,
-  placeholder = 'Select an option',
-  title = 'Select an option',
+  placeholder: placeholderProp,
+  title: titleProp,
   disabled = false,
   status = 'default',
   size = 'medium',
   searchable = false,
-  searchPlaceholder = 'Search options',
-  emptyMessage = 'No options found',
+  searchPlaceholder: searchPlaceholderProp,
+  emptyMessage: emptyMessageProp,
   accessibilityLabel,
 }: SelectProps) {
+  const strings = useStrings();
+  const emptyMessage = emptyMessageProp ?? strings('noOptions');
+  const searchPlaceholder = searchPlaceholderProp ?? strings('searchOptions');
+  const title = titleProp ?? strings('selectOption');
+  const placeholder = placeholderProp ?? strings('selectOption');
   const { theme, direction } = useTheme();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');

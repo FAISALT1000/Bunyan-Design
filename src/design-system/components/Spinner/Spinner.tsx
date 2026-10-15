@@ -3,6 +3,7 @@ import { View } from '../RNTheme';
 import { ActivityIndicator } from '../RNTheme/native';
 import { useTheme } from '../../hooks';
 import { Text } from '../Text';
+import { useStrings } from '../../i18n/strings';
 
 export interface SpinnerProps {
   size?: 'small' | 'large';
@@ -14,11 +15,13 @@ export interface SpinnerProps {
 
 export const Spinner = memo(function Spinner({
   size = 'small',
-  label = 'Loading',
+  label: labelProp,
   tone = 'primary',
   showLabel = true,
   accessible = true,
 }: SpinnerProps) {
+  const strings = useStrings();
+  const label = labelProp ?? strings('loading');
   const { theme } = useTheme();
   const color = tone === 'inverse' ? theme.color.text.inverse : theme.color.primary.default;
   return (

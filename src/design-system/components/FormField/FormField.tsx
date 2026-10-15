@@ -2,6 +2,7 @@ import React, { memo, useId } from 'react';
 import { Inline } from '../../base/Inline';
 import { Stack } from '../../base/Stack';
 import { Text } from '../Text';
+import { useStrings } from '../../i18n/strings';
 
 export interface FormFieldRenderProps {
   inputId: string;
@@ -30,10 +31,12 @@ export const FormField = memo(function FormField({
   error,
   success,
   required = false,
-  optionalLabel = 'Optional',
+  optionalLabel: optionalLabelProp,
   showOptional = true,
   testID,
 }: FormFieldProps) {
+  const strings = useStrings();
+  const optionalLabel = optionalLabelProp ?? strings('optional');
   const id = useId();
   const renderProps: FormFieldRenderProps = {
     inputId: `${id}-input`,

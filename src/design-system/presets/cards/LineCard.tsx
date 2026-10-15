@@ -9,8 +9,12 @@ import { createAccessibilityLabel, createAccessibilityState } from '../../utilit
 import { Icon } from '../../components/Icon';
 import { Skeleton } from '../../components/Skeleton';
 import { Text, type TextTone } from '../../components/Text';
+import { CountBadge } from '../../components/CountBadge';
+import { useActionButton } from './useActionButton';
 import {
   IconBox,
+  iconBoxColors,
+  type PresetAction,
   PresetAvatarView,
   PresetSwitch,
   cardSurface,
@@ -21,6 +25,7 @@ import {
   type PresetIcon,
   type PresetToggle,
 } from '../shared';
+import { useStrings } from '../../i18n/strings';
 
 /** Text or any element (e.g. `<Money />`) shown on the trailing side. */
 export type PresetValue = TextValue | number | React.ReactElement;
@@ -38,6 +43,10 @@ export interface LineCardBaseProps {
   /** Small text under the value (status, time). */
   subValue?: TextValue;
   badge?: PresetBadge;
+  /** Several badges (status + priority…), shown after `badge`. */
+  badges?: ReadonlyArray<PresetBadge | false | null | undefined>;
+  /** Count pill on the trailing side (unread messages…). */
+  unreadCount?: number;
   /** Switch on the trailing side. */
   toggle?: PresetToggle;
   /** Show a chevron (navigates somewhere). */
@@ -45,7 +54,16 @@ export interface LineCardBaseProps {
   /** Custom trailing element, rendered after value / badge. */
   trailing?: React.ReactNode;
   onPress?: () => void;
+  onLongPress?: () => void;
   disabled?: boolean;
+  /** Tinted card for flagged rows (suspicious, overdue, resolved…). */
+  tone?: 'default' | 'error' | 'warning' | 'success' | 'info';
+  /** Allow copying the title / subtitle / description (long press). */
+  selectable?: boolean;
+  /** Content under the row (inside the card): progress, notes, chips… */
+  footer?: React.ReactNode;
+  /** Buttons under the row (Accept / Decline). */
+  actions?: ReadonlyArray<PresetAction | false | null | undefined>;
   /** Red title for destructive rows ("Delete account"). */
   destructive?: boolean;
   /** Show a skeleton with the same shape. */
@@ -68,6 +86,8 @@ export interface LineCardProps extends LineCardBaseProps {
   meta?: TextValue;
   /** Unread dot (three-line cards). */
   unread?: boolean;
+  /** Max lines of the description. Default 3. */
+  descriptionLines?: number;
 }
 
 const LEADING_SIZE = 40;
@@ -101,11 +121,19 @@ export const LineCard = memo(function LineCard({
   valueTone = 'primary',
   subValue,
   badge,
+  badges,
+  unreadCount,
   toggle,
   chevron = false,
   trailing,
   onPress,
+  onLongPress,
   disabled = false,
+  tone = 'default',
+  selectable = false,
+  footer,
+  actions,
+  descriptionLines = 3,
   destructive = false,
   loading = false,
   variant = 'card',
@@ -116,6 +144,7 @@ export const LineCard = memo(function LineCard({
   const { theme } = useTheme();
   const t = useText();
   const renderBadge = useBadge();
+  const strings = useStrings();
   const titleText = t(title) ?? '';
   const subtitleText = lines > 1 ? t(subtitle) : undefined;
   const descriptionText = lines > 2 ? t(description) : undefined;
@@ -123,11 +152,17 @@ export const LineCard = memo(function LineCard({
   const valueIsText = value !== undefined && (typeof value === 'number' || isTextValue(value));
   const valueText = valueIsText ? (typeof value === 'number' ? String(value) : t(value as TextValue)) : undefined;
   const subValueText = t(subValue);
-  const surface = variant === 'card' ? cardSurface(theme) : { paddingVertical: theme.spacing.md };
+  const renderAction = useActionButton();
+  const tint = tone === 'default' ? undefined : iconBoxColors(theme, tone);
+  const surface = variant === 'card'
+    ? { ...cardSurface(theme), ...(tint ? { backgroundColor: tint.background, borderColor: tint.foreground } : {}) }
+    : { paddingVertical: theme.spacing.md };
+  const visibleActions = (actions ?? []).filter(Boolean) as PresetAction[];
+  const visibleBadges = [badge, ...(badges ?? [])].filter(item => item !== undefined && item !== null && item !== false) as PresetBadge[];
 
   if (loading) {
     return (
-      <Box testID={testID} accessibilityLabel="Loading" internalStyle={surface}>
+      <Box testID={testID} accessibilityLabel={strings('loading')} internalStyle={surface}>
         <LineSkeleton lines={lines} />
       </Box>
     );
@@ -141,7 +176,7 @@ export const LineCard = memo(function LineCard({
       })()
         : null);
 
-  const hasTrailing = value !== undefined || subValueText || badge !== undefined || toggle || chevron || trailing;
+  const hasTrailing = value !== undefined || subValueText || visibleBadges.length > 0 || unreadCount || toggle || chevron || trailing;
 
   const row = (
     <Inline gap="md" alignItems={lines > 2 ? 'flex-start' : 'center'}>
@@ -154,6 +189,7 @@ export const LineCard = memo(function LineCard({
               variant="bodyMedium"
               weight={lines === 1 ? 'medium' : 'semibold'}
               numberOfLines={lines === 1 ? 1 : 2}
+              selectable={selectable}
               {...(destructive ? { internalColor: theme.color.error.default } : {})}
             />
           </Box>
@@ -162,13 +198,13 @@ export const LineCard = memo(function LineCard({
             <Box
               width={8}
               height={8}
-              accessibilityLabel="Unread"
+              accessibilityLabel={strings('unread')}
               internalStyle={{ borderRadius: 4, backgroundColor: theme.color.primary.default }}
             />
           ) : null}
         </Inline>
-        {subtitleText ? <Text value={subtitleText} variant="bodySmall" tone="secondary" numberOfLines={1} /> : null}
-        {descriptionText ? <Text value={descriptionText} variant="caption" tone="tertiary" numberOfLines={3} /> : null}
+        {subtitleText ? <Text value={subtitleText} variant="bodySmall" tone="secondary" numberOfLines={1} selectable={selectable} /> : null}
+        {descriptionText ? <Text value={descriptionText} variant="caption" tone="tertiary" numberOfLines={descriptionLines} selectable={selectable} /> : null}
       </Stack>
       {hasTrailing ? (
         <Inline gap="sm" alignItems="center" flexShrink={0}>
@@ -180,7 +216,8 @@ export const LineCard = memo(function LineCard({
               {subValueText ? <Text value={subValueText} variant="caption" tone="tertiary" /> : null}
             </Stack>
           ) : null}
-          {renderBadge(badge)}
+          {visibleBadges.map((item, index) => <React.Fragment key={index}>{renderBadge(item)}</React.Fragment>)}
+          {unreadCount ? <CountBadge count={unreadCount} tone="primary" /> : null}
           {trailing}
           {toggle ? <PresetSwitch toggle={toggle} accessibilityLabel={titleText} {...(testID ? { testID: `${testID}-switch` } : {})} /> : null}
           {chevron ? <Icon name="chevron-right" size="md" tone="tertiary" mirroredInRTL /> : null}
@@ -190,8 +227,23 @@ export const LineCard = memo(function LineCard({
   );
 
   const label = accessibilityLabel ?? createAccessibilityLabel([titleText, subtitleText, valueText, subValueText]);
+  const extras = footer || visibleActions.length ? (
+    <Stack gap="sm" paddingTop="sm">
+      {footer}
+      {visibleActions.length ? (
+        <Inline gap="sm" flexWrap="wrap">
+          {visibleActions.map((action, index) => (
+            <React.Fragment key={index}>
+              {renderAction({ variant: index === 0 ? 'primary' : 'outline', ...action }, { size: 'small' })}
+            </React.Fragment>
+          ))}
+        </Inline>
+      ) : null}
+    </Stack>
+  ) : null;
+  const pressable = (onPress || onLongPress) && !toggle;
 
-  if (onPress && !toggle) {
+  if (pressable && !extras) {
     return (
       <BasePressable
         accessibilityRole="button"
@@ -199,7 +251,8 @@ export const LineCard = memo(function LineCard({
         accessibilityHint={accessibilityHint}
         accessibilityState={createAccessibilityState({ disabled })}
         disabled={disabled}
-        onPress={onPress}
+        {...(onPress ? { onPress } : {})}
+        {...(onLongPress ? { onLongPress } : {})}
         testID={testID}
         baseStyle={surface}
         pressedStyle={{ backgroundColor: theme.color.overlay.subtle }}
@@ -210,9 +263,26 @@ export const LineCard = memo(function LineCard({
     );
   }
 
+  // With footer / actions, only the row is pressable so the buttons stay
+  // separate targets for touch and screen readers.
   return (
     <Box testID={testID} internalStyle={[surface, disabled ? { opacity: theme.opacity.disabled } : undefined]}>
-      {row}
+      {pressable ? (
+        <BasePressable
+          accessibilityRole="button"
+          accessibilityLabel={label}
+          accessibilityHint={accessibilityHint}
+          disabled={disabled}
+          {...(onPress ? { onPress } : {})}
+          {...(onLongPress ? { onLongPress } : {})}
+          minTouchTarget={false}
+          baseStyle={{ borderRadius: theme.radius.md }}
+          pressedStyle={{ opacity: theme.opacity.pressed }}
+        >
+          {row}
+        </BasePressable>
+      ) : row}
+      {extras}
     </Box>
   );
 });
