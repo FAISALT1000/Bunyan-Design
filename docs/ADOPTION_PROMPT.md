@@ -5,8 +5,8 @@ working in the app's repository. Replace the `<…>` placeholders first.
 
 ````
 You are updating this React Native app to use the presets of our design
-system, @bunyan/design-system (version <0.1.0 or later>). The package is
-already in package.json (<"file:./bunyan-design-system-0.1.0.tgz" or the
+system, @bunyan/design-system (version <0.0.6 or later>). The package is
+already in package.json (<"file:./bunyan-design-system-0.0.6.tgz" or the
 registry version>).
 
 ## Read first
@@ -22,11 +22,25 @@ they fit:
 - Rows and cards: OneLineCard, TwoLineCard, ThreeLineCard, SettingsGroup,
   DetailsCard, AmountCard, StatCard, ProfileCard, ActionCard, ProductCard,
   StatusCard.
-- Layout: Section, Row, Column, Center, Grid, Spacer, List.
+- Layout: Section, Row, Column, Center, Grid, Fill, Spacer, List.
+- Actions: DoubleButtons (primary + secondary pairs), CountdownButton
+  ("Resend in 42s").
+- Inputs: CodeField (OTP + error + resend), ConfirmPhraseInput ("type
+  DELETE"), FilterChips, Rating, AttachmentPicker (camera / library /
+  files, upload progress, retry), DateTimePicker, <Form fields> (keyboard
+  Next / Done chaining is built in).
+- Lists: PagedList for anything paginated (works with useInfiniteQuery),
+  DataTable for grids, TabBar (with tabBarPropsFromNavigation) for bottom
+  tabs.
+- Chat and timelines: ChatThread, ChatBubble, ChatComposer,
+  TypingIndicator, TimelineEvent, StepperHeader for multi-step flows.
+- Display: CodeBlock (logs, IDs), CountBadge, BarList, BarChart,
+  Sparkline, ChartLegend.
 - Results and feedback: StatusScreen, StatusModal, useStatusToast,
   StatusBanner (success / error / pending, animated).
-- Dialogs: useConfirm, useActionSheet, usePrompt instead of local modal
-  state.
+- Dialogs: useConfirm (async onConfirm), useActionSheet, usePrompt
+  (confirmPhrase, secureTextEntry) instead of local modal state;
+  BottomSheet with snapPoints / footer for custom sheets.
 - Loading / empty / error: DataState (works with React Query results).
 - Formatting: Money, DateText, PhoneText, MaskedText instead of local
   format helpers.
@@ -96,7 +110,14 @@ Screens must NOT import from '@bunyan/design-system' directly.
   <ToastProvider bottomOffset={TAB_BAR_HEIGHT}><OverlayProvider>…</OverlayProvider></ToastProvider>
   (the generated DesignSystemSetup already has them).
 - All user-facing text is translatable: pass { localeKey } or strings from
-  the app's i18n.
+  the app's i18n. Bunyan's own labels (Loading, Try again, Close, Send…)
+  already come in English and Arabic; override any of them with
+  `bunyan.<key>` translations (see LOCALIZATION.md) instead of passing the
+  same label everywhere.
+- Toasts show above Bunyan modals and sheets, so remove local workarounds
+  for toasts hidden behind modals.
+- ThemeProvider `storage` (AsyncStorage / MMKV) saves the theme choice;
+  remove app code that does the same.
 
 ## How to work
 1. First, list every screen and every local component, and for each one
