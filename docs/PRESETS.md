@@ -261,7 +261,7 @@ A screen described as data, in the same style as `<Form fields>`:
 | `Sparkline` | Trend line in KPI tiles | `values`, `width` (default: fills), `height`, `tone`, `area`, `showLastPoint` |
 | `ChartLegend` | Dots + labels under a chart | `items: [{ label, tone, value }]` |
 | `DataTable` | Small data grids | `columns: [{ key, title, width, flex, numeric, align, value, render, sortable, sortValue }]`, `rows`, `onRowPress`, `sort` / `defaultSort` / `onSortChange` / `manualSort`, `striped`, `dense`, `loading` |
-| `TabBar` | Bottom tabs | `items: [{ key, icon, activeIcon, label, badge }]`, `activeKey`, `onChange`, `variant: 'default' \| 'floating'`, `showLabels`; `tabBarPropsFromNavigation(props, config)` for React Navigation |
+| `TabBar` | Bottom tabs | `items: [{ key, icon, activeIcon, label, badge }]`, `activeKey`, `onChange`, `variant: 'default' \| 'floating' \| 'minimal'`, `showLabels`; `tabBarPropsFromNavigation(props, config)` for React Navigation |
 
 ```tsx
 const tickets = useInfiniteQuery({ queryKey: ['tickets'], queryFn, initialPageParam: 1, getNextPageParam });
@@ -319,3 +319,38 @@ Apps should wrap the presets they use in their own `src/components` folder
 importing Bunyan directly in every screen. The wrapper is where app defaults,
 analytics and naming live, and it keeps screens stable if Bunyan changes.
 See [ADOPTION_PROMPT.md](./ADOPTION_PROMPT.md).
+
+### Minimal tab bar (X-inspired)
+
+Use `variant="minimal"` for full-width, monochrome, icon-only navigation. It
+uses a 64-unit content height, 28-unit icons, a subtle top divider, and no pill
+indicator or floating shadow. The surface follows the current theme, including
+true-black mode. Bottom safe-area padding remains enabled by default.
+
+```tsx
+<TabBar
+  variant="minimal"
+  activeKey={activeTab}
+  onChange={setActiveTab}
+  items={[
+    { key: 'home', icon: 'home', label: 'Home' },
+    { key: 'search', icon: 'search', label: 'Search' },
+    { key: 'alerts', icon: 'bell', label: 'Notifications', badge: 1 },
+    { key: 'messages', icon: 'chat', label: 'Messages' },
+  ]}
+/>
+```
+
+Supply labels or accessibility labels even when labels are hidden. Set
+`showLabels` to show them. Home automatically uses `home-filled` when selected;
+`activeIcon` overrides the selected drawing for any tab. Other selected icons
+use a stronger stroke and foreground. Count badges default to the theme's primary
+color; explicit badge tones still take precedence. Tab ordering follows RTL.
+
+This is a JavaScript-rendered tab bar. It does not style Android's system
+navigation buttons or implement X's blur effect. For overlay offsets, use the
+minimal content height (`tabBarBaseTokens.minimal.minHeight`) plus the safe-area
+inset, or measure the rendered bar when labels/text scaling are enabled.
+
+Apps can expose this as an additional persisted tab-style preference alongside
+native/default/floating options; settings persistence belongs to the app.

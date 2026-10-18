@@ -1,6 +1,6 @@
 # Icons
 
-166 icons in 12 categories, all on a 24×24 grid with a 2px round stroke, so
+167 icons in 12 categories, all on a 24×24 grid with a 2px round stroke, so
 they sit well together. Every app that uses Bunyan imports them from the
 package; there are no SVG files to copy.
 

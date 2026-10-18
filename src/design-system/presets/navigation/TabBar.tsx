@@ -8,6 +8,7 @@ import { logicalRow } from '../../utilities/styles';
 import { CountBadge } from '../../components/CountBadge';
 import { Icon, type IconName } from '../../components/Icon';
 import { Text } from '../../components/Text';
+import { tabBarBaseTokens } from '../../tokens';
 
 export type TabBarBadge = number | string | { count?: number; dot?: boolean; tone?: 'primary' | 'error' | 'neutral' };
 
@@ -30,9 +31,9 @@ export interface TabBarProps {
   onChange: (key: string) => void;
   /** Long press on a tab (e.g. account switcher). */
   onLongPress?: (key: string) => void;
-  /** `'default'`: full-width bar with a top border. `'floating'`: rounded bar above the safe area. */
-  variant?: 'default' | 'floating';
-  /** Hide labels and show icons only. Default true (labels shown). */
+  /** `minimal`: X-inspired monochrome icons; `floating`: rounded surface; `default`: platform styling. */
+  variant?: 'default' | 'floating' | 'minimal';
+  /** Hide labels and show icons only. Defaults to false for minimal; true otherwise. */
   showLabels?: boolean;
   /** Pad for the home indicator / navigation bar. Default true. */
   safeArea?: boolean;
@@ -42,11 +43,11 @@ export interface TabBarProps {
 /** Shared/iOS baseline without safe area. For platform offsets use platformTokens.components.tabBar.minimumHeight. */
 export const TAB_BAR_HEIGHT = 56;
 
-const badgeView = (badge: TabBarBadge | undefined) => {
+const badgeView = (badge: TabBarBadge | undefined, tone: 'primary' | 'error' = 'error') => {
   if (badge === undefined || badge === 0 || badge === '') return null;
-  if (typeof badge === 'number') return <CountBadge count={badge} />;
-  if (typeof badge === 'string') return <CountBadge dot />;
-  return <CountBadge {...(badge.count !== undefined ? { count: badge.count } : {})} {...(badge.dot ? { dot: true } : {})} {...(badge.tone ? { tone: badge.tone } : {})} />;
+  if (typeof badge === 'number') return <CountBadge count={badge} tone={tone} />;
+  if (typeof badge === 'string') return <CountBadge dot tone={tone} />;
+  return <CountBadge tone={badge.tone ?? tone} {...(badge.count !== undefined ? { count: badge.count } : {})} {...(badge.dot ? { dot: true } : {})} />;
 };
 
 /**
@@ -65,7 +66,7 @@ export const TabBar = memo(function TabBar({
   onChange,
   onLongPress,
   variant = 'default',
-  showLabels = true,
+  showLabels,
   safeArea = true,
   testID,
 }: TabBarProps) {
@@ -75,6 +76,10 @@ export const TabBar = memo(function TabBar({
   const t = useText();
   const visible = items.filter(Boolean) as TabBarItem[];
   const floating = variant === 'floating';
+  const minimal = variant === 'minimal';
+  const labelsVisible = showLabels ?? !minimal;
+  const activeIndicator = !minimal && tokens.activeIndicator;
+  const surface = minimal ? theme.color.background.primary : theme.color.surface.elevated;
   const bottom = safeArea ? insets.bottom : 0;
 
   return (
@@ -85,7 +90,7 @@ export const TabBar = memo(function TabBar({
         ? { paddingHorizontal: theme.spacing.lg, paddingBottom: Math.max(bottom, theme.spacing.md) }
         : {
             paddingBottom: bottom,
-            backgroundColor: theme.color.surface.elevated,
+            backgroundColor: surface,
             borderTopWidth: theme.borderWidth.thin,
             borderTopColor: theme.color.border.secondary,
           }}
@@ -93,7 +98,7 @@ export const TabBar = memo(function TabBar({
       <View
         style={[
           logicalRow(direction),
-          { minHeight: tokens.minimumHeight, alignItems: 'stretch' },
+          { minHeight: minimal ? tabBarBaseTokens.minimal.minHeight : tokens.minimumHeight, alignItems: 'stretch' },
           floating ? {
             borderRadius: theme.radius.xl,
             backgroundColor: theme.color.surface.elevated,
@@ -104,8 +109,8 @@ export const TabBar = memo(function TabBar({
         {visible.map(item => {
           const selected = item.key === activeKey;
           const label = t(item.labelLocalize ? { localeKey: item.labelLocalize, fallback: t(item.label) ?? item.key } : item.label);
-          const color = selected ? theme.color.text.link : theme.color.text.secondary;
-          const iconColor = selected && tokens.activeIndicator
+          const color = selected ? minimal ? theme.color.text.primary : theme.color.text.link : theme.color.text.secondary;
+          const iconColor = selected && activeIndicator
             ? theme.color.primary.onSubtle ?? theme.color.text.primary
             : color;
           const badgeLabel = typeof item.badge === 'number' && item.badge > 0
@@ -124,7 +129,7 @@ export const TabBar = memo(function TabBar({
               pressedStyle={{ opacity: theme.opacity.pressed }}
               focusedStyle={{ borderColor: theme.color.border.focus, borderWidth: platformTokens.interaction.focusRingWidth }}
             >
-              <Box internalStyle={tokens.activeIndicator ? {
+              <Box internalStyle={activeIndicator ? {
                 minWidth: 64,
                 minHeight: 32,
                 borderRadius: theme.radius.pill,
@@ -132,14 +137,14 @@ export const TabBar = memo(function TabBar({
                 justifyContent: 'center',
                 backgroundColor: selected ? theme.color.primary.subtle : theme.color.overlay.transparent,
               } : {}}>
-                <Icon name={selected && item.activeIcon ? item.activeIcon : item.icon} size={tokens.iconSize} color={iconColor} />
+                <Icon name={selected ? item.activeIcon ?? (minimal && item.icon === 'home' ? 'home-filled' : item.icon) : item.icon} size={minimal ? tabBarBaseTokens.minimal.iconSize : tokens.iconSize} color={iconColor} strokeWidth={minimal && selected ? tabBarBaseTokens.minimal.selectedStrokeWidth : theme.borderWidth.medium} />
                 {item.badge !== undefined ? (
                   <View style={{ position: 'absolute', top: -4, ...(direction === 'rtl' ? { left: -8 } : { right: -8 }) }}>
-                    {badgeView(item.badge)}
+                    {badgeView(item.badge, minimal ? 'primary' : 'error')}
                   </View>
                 ) : null}
               </Box>
-              {showLabels && label ? (
+              {labelsVisible && label ? (
                 <Text value={label} variant={tokens.labelVariant} weight={selected ? 'semibold' : 'medium'} internalColor={color} align="center" />
               ) : null}
             </BasePressable>

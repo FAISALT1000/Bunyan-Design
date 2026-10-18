@@ -52,6 +52,8 @@ export interface IconProps {
   size?: IconSize | number;
   tone?: IconTone;
   color?: string;
+  /** Optional stroke emphasis for selected navigation icons. */
+  strokeWidth?: number;
   mirroredInRTL?: boolean;
   accessibilityLabel?: string;
   testID?: string;
@@ -62,6 +64,7 @@ export const Icon = memo(function Icon({
   size = 'md',
   tone = 'primary',
   color,
+  strokeWidth,
   mirroredInRTL = false,
   accessibilityLabel,
   testID,
@@ -89,7 +92,7 @@ export const Icon = memo(function Icon({
       fill="none"
       color={color ?? toneColors[tone]}
       stroke={color ?? toneColors[tone]}
-      strokeWidth={theme.borderWidth.medium}
+      strokeWidth={strokeWidth ?? theme.borderWidth.medium}
       strokeLinecap="round"
       strokeLinejoin="round"
       {...(accessibilityLabel ? { accessibilityRole: 'image' as const, accessibilityLabel } : {})}

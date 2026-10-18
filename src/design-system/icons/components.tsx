@@ -18,6 +18,7 @@ export const MenuIcon = createIcon('menu');
 export const MoreHorizontalIcon = createIcon('more-horizontal');
 export const MoreVerticalIcon = createIcon('more-vertical');
 export const HomeIcon = createIcon('home');
+export const HomeFilledIcon = createIcon('home-filled');
 export const GridIcon = createIcon('grid');
 export const PasteIcon = createIcon('paste');
 export const ReplyIcon = createIcon('reply');

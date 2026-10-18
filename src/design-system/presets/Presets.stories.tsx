@@ -311,3 +311,21 @@ function DataDemo() {
 }
 
 export const ChartsTablesTabs: Story = { name: 'Charts, tables, tabs, attachments', render: () => <DataDemo /> };
+
+function MinimalTabsDemo() {
+  const [tab, setTab] = useState('home');
+  return (
+    <Stack gap="lg" paddingVertical="lg">
+      <Text value="Minimal tabs — icons only, with accessible names" />
+      <TabBar variant="minimal" safeArea={false} activeKey={tab} onChange={setTab} items={[
+        { key: 'home', icon: 'home', label: 'Home' },
+        { key: 'search', icon: 'search', label: 'Search' },
+        { key: 'discover', icon: 'globe', label: 'Discover' },
+        { key: 'alerts', icon: 'bell', label: 'Notifications', badge: 1 },
+        { key: 'messages', icon: 'chat', label: 'Messages' },
+      ]} />
+    </Stack>
+  );
+}
+
+export const MinimalTabs: Story = { name: 'Navigation / Minimal (X-inspired)', render: () => <MinimalTabsDemo /> };

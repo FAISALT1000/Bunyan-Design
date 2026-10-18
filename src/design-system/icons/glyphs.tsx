@@ -22,6 +22,7 @@ export const glyphs = {
   'more-horizontal': <><Circle cx="5" cy="12" r="1.2" /><Circle cx="12" cy="12" r="1.2" /><Circle cx="19" cy="12" r="1.2" /></>,
   'more-vertical': <><Circle cx="12" cy="5" r="1.2" /><Circle cx="12" cy="12" r="1.2" /><Circle cx="12" cy="19" r="1.2" /></>,
   home: <><Path d="M4 11l8-7 8 7" /><Path d="M6 9.5V20h12V9.5" /><Path d="M10 20v-5h4v5" /></>,
+  'home-filled': <Path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z" fill="currentColor" stroke="none" />,
   grid: <><Rect x="4" y="4" width="6" height="6" rx="1" /><Rect x="14" y="4" width="6" height="6" rx="1" /><Rect x="4" y="14" width="6" height="6" rx="1" /><Rect x="14" y="14" width="6" height="6" rx="1" /></>,
   // Actions
   paste: <><Rect x="6" y="4" width="12" height="17" rx="2" /><Rect x="9" y="2.5" width="6" height="3" rx="1" /><Polyline points="9.5 13 11.5 15 14.5 11.5" /></>,
@@ -188,7 +189,7 @@ export type BuiltInIconName = keyof typeof glyphs;
 
 /** Icon names grouped by category, e.g. for icon pickers or settings screens. */
 export const iconCategories = {
-  navigation: ['chevron-left', 'chevron-right', 'chevron-up', 'chevron-down', 'arrow-left', 'arrow-right', 'arrow-up', 'arrow-down', 'arrow-up-right', 'arrow-down-left', 'external-link', 'chevron-end', 'backspace', 'menu', 'more-horizontal', 'more-vertical', 'home', 'grid'],
+  navigation: ['chevron-left', 'chevron-right', 'chevron-up', 'chevron-down', 'arrow-left', 'arrow-right', 'arrow-up', 'arrow-down', 'arrow-up-right', 'arrow-down-left', 'external-link', 'chevron-end', 'backspace', 'menu', 'more-horizontal', 'more-vertical', 'home', 'home-filled', 'grid'],
   actions: ['paste', 'reply', 'undo', 'redo', 'plus', 'minus', 'close', 'check', 'check-double', 'edit', 'trash', 'copy', 'share', 'download', 'upload', 'refresh', 'search', 'filter', 'sort', 'link', 'send'],
   status: ['activity', 'zap', 'success', 'error', 'warning', 'info', 'alert-circle', 'pending', 'help', 'bell', 'bell-off', 'shield-check', 'flag', 'loader'],
   settings: ['server', 'database', 'settings', 'sliders', 'sun', 'moon', 'contrast', 'globe', 'language', 'monitor', 'smartphone', 'wifi', 'battery', 'power', 'toggle', 'layers', 'palette', 'accessibility'],
