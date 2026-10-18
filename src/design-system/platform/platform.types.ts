@@ -1,3 +1,4 @@
+import type { PlatformTypography } from './typography';
 import type { ViewStyle } from '../components/RNTheme/native';
 
 export type DesignSystemPlatform = 'ios' | 'android' | 'web' | 'default';
@@ -33,6 +34,11 @@ export interface PlatformTokens {
   touchTarget: {
     minimum: number;
   };
+  components: {
+    button: { corner: 'rounded' | 'full'; secondaryStyle: 'filled' | 'tonal'; labelVariant: 'labelMedium' | 'labelLarge' };
+    tabBar: { minimumHeight: number; activeIndicator: boolean; iconSize: 'md' | 'lg'; labelVariant: 'micro' | 'labelMedium' };
+  };
+  typography: PlatformTypography;
   interaction: PlatformInteractionTokens;
   motion: PlatformMotionTokens;
   safeArea: {

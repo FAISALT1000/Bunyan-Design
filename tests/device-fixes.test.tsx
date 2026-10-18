@@ -90,21 +90,20 @@ describe('2. InputField resting label is vertically centred', () => {
 
   it('centres the empty label on the content row (icons share the same line)', () => {
     renderWithTheme(<InputField testID="search" label="Search" value="" onChangeText={jest.fn()} leftIcon="search" />);
-    const lineHeight = lightTheme.typography.lineHeight.md;
     act(() => {
       fireEvent(screen.getByTestId('search-surface-content'), 'layout', {
         nativeEvent: { layout: { x: 0, y: 24, width: 300, height: 48 } },
       });
     });
     const label = flat(screen.getByTestId('search-label', { includeHiddenElements: true }));
-    const labelCenter = label.top + translateY(label) + lineHeight / 2;
+    const labelCenter = label.top + translateY(label) + label.lineHeight / 2;
     expect(labelCenter).toBe(24 + 48 / 2);
   });
 
   it('defaults to the token estimate before layout', () => {
     renderWithTheme(<InputField testID="pw" type="password" label="Password" value="" onChangeText={jest.fn()} />);
     const label = flat(screen.getByTestId('pw-label', { includeHiddenElements: true }));
-    const center = label.top + translateY(label) + lightTheme.typography.lineHeight.md / 2;
+    const center = label.top + translateY(label) + label.lineHeight / 2;
     expect(center).toBe(field.contentPaddingTop + lightTheme.componentHeight.md / 2);
   });
 });

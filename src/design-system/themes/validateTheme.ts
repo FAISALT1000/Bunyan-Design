@@ -114,7 +114,18 @@ export const validateTheme = (theme: Theme): ThemeValidationResult => {
       theme.color.primary.default,
     ],
   ];
-  contrastPairs.forEach(([foregroundPath, foreground, backgroundPath, background]) => {
+  const actionPairs: ReadonlyArray<readonly [string, string, string, string]> = [
+    ['color.primary.contrast', theme.color.primary.contrast, 'color.primary.pressed', theme.color.primary.pressed],
+    ['color.secondary.contrast', theme.color.secondary.contrast, 'color.secondary.default', theme.color.secondary.default],
+    ['color.secondary.contrast', theme.color.secondary.contrast, 'color.secondary.pressed', theme.color.secondary.pressed],
+    ['color.secondary.onSubtle', theme.color.secondary.onSubtle ?? theme.color.text.primary, 'color.secondary.subtle', theme.color.secondary.subtle],
+    ['color.primary.onSubtle', theme.color.primary.onSubtle ?? theme.color.text.primary, 'color.primary.subtle', theme.color.primary.subtle],
+    ['color.error.contrast', theme.color.error.contrast ?? theme.color.text.inverse, 'color.error.default', theme.color.error.default],
+    ['color.error.contrast', theme.color.error.contrast ?? theme.color.text.inverse, 'color.error.text', theme.color.error.text],
+    ['color.text.link', theme.color.text.link, 'color.surface.elevated', theme.color.surface.elevated],
+    ['color.text.secondary', theme.color.text.secondary, 'color.surface.elevated', theme.color.surface.elevated],
+  ];
+  [...contrastPairs, ...actionPairs].forEach(([foregroundPath, foreground, backgroundPath, background]) => {
     const ratio = getContrastRatio(foreground, background);
     if (ratio !== undefined && ratio < 4.5) {
       issues.push({

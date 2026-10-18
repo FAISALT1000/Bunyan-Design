@@ -1,6 +1,7 @@
 import React, { forwardRef, memo } from 'react';
 import { TextInput, type StyleProp, type TextInputProps, type TextStyle } from '../../components/RNTheme/native';
 import { useTheme } from '../../hooks';
+import { resolveTextMetrics } from '../../platform';
 import { logicalText } from '../../utilities/styles';
 
 export type BaseTextInputHandle = React.ElementRef<typeof TextInput>;
@@ -23,7 +24,7 @@ export const BaseTextInput = memo(forwardRef<
   },
   ref,
 ) {
-  const { direction, theme } = useTheme();
+  const { direction, theme, platform, platformTokens } = useTheme();
   const resolvedDirection = forceLTR ? 'ltr' : direction;
 
   return (
@@ -50,8 +51,7 @@ export const BaseTextInput = memo(forwardRef<
           fontFamily: resolvedDirection === 'rtl'
             ? theme.typography.fontFamily.arabic
             : theme.typography.fontFamily.sans,
-          fontSize: theme.typography.fontSize.md,
-          lineHeight: theme.typography.lineHeight.md,
+          ...resolveTextMetrics(theme, platform, platformTokens, 'bodyLarge'),
           paddingVertical: theme.spacing.none,
           textAlign: resolvedDirection === 'rtl' ? 'right' : 'left',
         },

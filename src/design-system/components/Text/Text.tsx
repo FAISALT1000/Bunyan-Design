@@ -12,6 +12,7 @@ import type {
   TextWeight,
 } from '../../tokens';
 import { warnDeprecated } from '../../utilities/deprecations';
+import { resolveTextMetrics } from '../../platform';
 import { logicalText } from '../../utilities/styles';
 
 export type { TextTone, TextVariant, TextWeight } from '../../tokens';
@@ -83,29 +84,6 @@ export type TextProps = BaseTextProps & (
     }
 );
 
-const variantStyle = (
-  theme: ReturnType<typeof useTheme>['theme'],
-  variant: TextVariant,
-): TextStyle => {
-  const { fontSize, lineHeight } = theme.typography;
-  const variants: Record<TextVariant, TextStyle> = {
-    displayLarge: { fontSize: fontSize.displayMd, lineHeight: lineHeight.displayMd },
-    displayMedium: { fontSize: fontSize.displaySm, lineHeight: lineHeight.displaySm },
-    headingLarge: { fontSize: fontSize.xxl, lineHeight: lineHeight.xxl },
-    headingMedium: { fontSize: fontSize.xl, lineHeight: lineHeight.xl },
-    headingSmall: { fontSize: fontSize.lg, lineHeight: lineHeight.lg },
-    bodyLarge: { fontSize: fontSize.lg, lineHeight: lineHeight.lg },
-    bodyMedium: { fontSize: fontSize.md, lineHeight: lineHeight.md },
-    bodySmall: { fontSize: fontSize.sm, lineHeight: lineHeight.sm },
-    labelLarge: { fontSize: fontSize.md, lineHeight: lineHeight.md },
-    labelMedium: { fontSize: fontSize.sm, lineHeight: lineHeight.sm },
-    labelSmall: { fontSize: fontSize.xs, lineHeight: lineHeight.xs },
-    caption: { fontSize: fontSize.xs, lineHeight: lineHeight.xs },
-    micro: { fontSize: fontSize.xxs, lineHeight: lineHeight.xxs },
-  };
-  return variants[variant];
-};
-
 export const Text = memo(forwardRef<
   React.ElementRef<typeof NativeText>,
   TextProps
@@ -130,7 +108,7 @@ export const Text = memo(forwardRef<
   },
   ref,
 ) {
-  const { theme, direction } = useTheme();
+  const { theme, direction, platform, platformTokens } = useTheme();
   const localization = useOptionalLocalization();
   const fallbackValue = value ?? text ?? children;
   const resolvedText = resolveLocalizedText({
@@ -178,7 +156,7 @@ export const Text = memo(forwardRef<
       {...props}
       style={[
         logicalText(resolvedDirection),
-        variantStyle(theme, variant),
+        resolveTextMetrics(theme, platform, platformTokens, variant),
         {
           color: internalColor ?? tones[tone],
           fontFamily: mono

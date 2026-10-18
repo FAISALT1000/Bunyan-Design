@@ -110,6 +110,7 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
     warnDeprecated('Button children is deprecated. Use <Button title="..." />. It will be removed in 1.0.0.');
   }
   const isDisabled = disabled || loading;
+  const tonalSecondary = platformTokens.components.button.secondaryStyle === 'tonal';
   const variants: Record<
     ButtonVariant,
     {
@@ -123,6 +124,7 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
     }
   > = {
     primary: {
+      textColor: theme.color.primary.contrast,
       background: theme.color.primary.default,
       pressedBackground: theme.color.primary.pressed,
       border: theme.color.primary.default,
@@ -130,9 +132,12 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
       iconTone: 'inverse',
     },
     secondary: {
-      background: theme.color.secondary.default,
-      pressedBackground: theme.color.secondary.pressed,
-      border: theme.color.secondary.default,
+      background: tonalSecondary ? theme.color.secondary.subtle : theme.color.secondary.default,
+      pressedBackground: tonalSecondary ? theme.color.secondary.subtle : theme.color.secondary.pressed,
+      border: tonalSecondary ? theme.color.overlay.transparent : theme.color.secondary.default,
+      textColor: tonalSecondary
+        ? theme.color.secondary.onSubtle ?? theme.color.text.primary
+        : theme.color.secondary.contrast,
       textTone: 'inverse',
       iconTone: 'inverse',
     },
@@ -167,6 +172,7 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
       pressedTextColor: theme.components.button.link.pressedTextColor,
     },
     danger: {
+      textColor: theme.color.error.contrast ?? theme.color.text.inverse,
       background: theme.color.error.default,
       pressedBackground: theme.color.error.text,
       border: theme.color.error.default,
@@ -175,13 +181,19 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
     },
   };
   const current = variants[variant];
+  const disabledForeground = variant === 'link'
+    ? theme.components.button.link.disabledTextColor
+    : theme.color.disabled.text;
+  const foreground = (pressed: boolean) => isDisabled
+    ? disabledForeground
+    : pressed ? current.pressedTextColor ?? current.textColor : current.textColor;
   const iconSize = size === 'small' ? 'sm' : size === 'large' ? 'lg' : 'md';
   const baseStyle: BasePressableProps['baseStyle'] = {
     minHeight: heightForSize(theme, size),
     paddingHorizontal: variant === 'link'
       ? theme.components.button.link.touchTargetPadding
       : horizontalPaddingForSize(theme, size),
-    borderRadius: theme.radius.md,
+    borderRadius: platformTokens.components.button.corner === 'full' ? theme.radius.pill : theme.radius.md,
     borderWidth: theme.borderWidth.thin,
     borderColor: current.border,
     backgroundColor: current.background,
@@ -238,7 +250,8 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
             <Spinner
               size="small"
               tone={current.textTone === 'inverse' ? 'inverse' : 'primary'}
-              label="Loading"
+              color={disabledForeground}
+              label={strings('loading')}
               showLabel={false}
               accessible={false}
             />
@@ -247,13 +260,7 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
               name={leftIcon}
               size={iconSize}
               tone={current.iconTone}
-              {...(variant === 'link' && current.textColor
-                ? {
-                    color: pressed
-                      ? current.pressedTextColor
-                      : current.textColor,
-                  }
-                : {})}
+              {...(isDisabled || current.textColor ? { color: foreground(pressed) } : {})}
             />
           ) : null}
           <Text
@@ -262,7 +269,7 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
             {...(titleTranslationOptions
               ? { translationOptions: titleTranslationOptions }
               : {})}
-            variant="labelMedium"
+            variant={platformTokens.components.button.labelVariant}
             weight="semibold"
             tone={isDisabled ? 'disabled' : current.textTone}
             decoration={
@@ -271,15 +278,7 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
                 ? 'underline'
                 : 'none'
             }
-            {...(variant === 'link'
-              ? {
-                  internalColor: isDisabled
-                    ? theme.components.button.link.disabledTextColor
-                    : pressed
-                      ? current.pressedTextColor
-                      : current.textColor,
-                }
-              : {})}
+            {...(isDisabled || current.textColor ? { internalColor: foreground(pressed) } : {})}
           />
           {!loading && rightIcon ? (
             <Icon
@@ -287,13 +286,7 @@ export const Button = memo(forwardRef<BasePressableHandle, ButtonProps>(function
               size={iconSize}
               tone={current.iconTone}
               mirroredInRTL
-              {...(variant === 'link' && current.textColor
-                ? {
-                    color: pressed
-                      ? current.pressedTextColor
-                      : current.textColor,
-                  }
-                : {})}
+              {...(isDisabled || current.textColor ? { color: foreground(pressed) } : {})}
             />
           ) : null}
         </Inline>

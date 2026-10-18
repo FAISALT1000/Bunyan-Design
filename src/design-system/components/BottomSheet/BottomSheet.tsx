@@ -5,7 +5,7 @@ import { BaseModal } from '../../base/Modal';
 import { BasePressable } from '../../base/Pressable';
 import { ScrollContainer } from '../../base/ScrollContainer';
 import { Stack } from '../../base/Stack';
-import { useKeyboard, useSafeArea, useTheme } from '../../hooks';
+import { useAccessibility, useKeyboard, useSafeArea, useTheme } from '../../hooks';
 import { KeyboardAvoidingView, View } from '../RNTheme';
 import { Animated, PanResponder, useWindowDimensions } from '../RNTheme/native';
 import { Heading } from '../Heading';
@@ -72,6 +72,14 @@ export const BottomSheet = memo(function BottomSheet({
   const strings = useStrings();
   const closeAccessibilityLabel = closeAccessibilityLabelProp ?? strings('closeSheet');
   const { theme } = useTheme();
+  const { reduceMotionEnabled } = useAccessibility();
+  const reduceMotion = useRef(reduceMotionEnabled);
+  reduceMotion.current = reduceMotionEnabled;
+  const animateTo = (value: Animated.Value, toValue: number) => {
+    value.stopAnimation();
+    if (reduceMotion.current) value.setValue(toValue);
+    else Animated.spring(value, { toValue, useNativeDriver: false, bounciness: 0 }).start();
+  };
   const { bottom } = useSafeArea();
   const keyboard = useKeyboard();
   const window = useWindowDimensions();
@@ -110,7 +118,7 @@ export const BottomSheet = memo(function BottomSheet({
     const next = clampIndex(index);
     setSnapIndex(next);
     onSnapChange?.(next);
-    Animated.spring(sheetHeight, { toValue: snapHeights[next] ?? 0, useNativeDriver: false, bounciness: 0 }).start();
+    animateTo(sheetHeight, snapHeights[next] ?? 0);
   };
 
   const latest = useRef({ snapHeights, snapIndex, dismissible, onClose, goTo });
@@ -141,7 +149,7 @@ export const BottomSheet = memo(function BottomSheet({
     },
     onPanResponderRelease: (_, gesture) => {
       const { snapHeights: heights, dismissible: canClose, onClose: close, goTo: snapTo } = latest.current;
-      const springBack = () => Animated.spring(dragY, { toValue: 0, useNativeDriver: false, bounciness: 0 }).start();
+      const springBack = () => animateTo(dragY, 0);
       const smallest = heights?.[0] ?? 0;
       const current = heights ? dragStart.current - gesture.dy : 0;
       const closing = canClose && (heights
@@ -163,7 +171,7 @@ export const BottomSheet = memo(function BottomSheet({
       }
     },
     onPanResponderTerminate: () => {
-      Animated.spring(dragY, { toValue: 0, useNativeDriver: false, bounciness: 0 }).start();
+      animateTo(dragY, 0);
     },
   }), [dragY, sheetHeight]);
 
@@ -202,7 +210,7 @@ export const BottomSheet = memo(function BottomSheet({
     <BaseModal
       transparent
       visible={visible}
-      animationType="slide"
+      animationType={reduceMotionEnabled ? 'none' : 'slide'}
       onRequestClose={dismissible ? onClose : undefined}
       statusBarTranslucent
       navigationBarTranslucent

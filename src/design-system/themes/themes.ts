@@ -35,6 +35,7 @@ const lightColors: SemanticColors = {
     pressed: palette.blue[800],
     subtle: palette.blue[50],
     contrast: palette.gray[0],
+    onSubtle: palette.blue[900],
   },
   secondary: {
     default: palette.teal[700],
@@ -42,6 +43,7 @@ const lightColors: SemanticColors = {
     pressed: palette.teal[900],
     subtle: palette.teal[50],
     contrast: palette.gray[0],
+    onSubtle: palette.teal[900],
   },
   neutral: {
     default: palette.gray[600],
@@ -51,7 +53,7 @@ const lightColors: SemanticColors = {
   },
   success: { default: palette.green[600], subtle: palette.green[50], border: palette.green[200], text: palette.green[900] },
   warning: { default: palette.amber[600], subtle: palette.amber[50], border: palette.amber[200], text: palette.amber[900] },
-  error: { default: palette.red[600], subtle: palette.red[50], border: palette.red[200], text: palette.red[900] },
+  error: { default: palette.red[600], subtle: palette.red[50], border: palette.red[200], text: palette.red[900], contrast: palette.gray[0] },
   information: { default: palette.cyan[700], subtle: palette.cyan[50], border: palette.cyan[200], text: palette.cyan[900] },
   background: { primary: palette.gray[0], secondary: palette.gray[50], inverse: palette.gray[950] },
   surface: { primary: palette.gray[0], secondary: palette.gray[50], elevated: palette.gray[0], inverse: palette.gray[900] },
@@ -68,6 +70,7 @@ const darkColors: SemanticColors = {
     pressed: palette.blue[200],
     subtle: palette.blue[900],
     contrast: palette.gray[950],
+    onSubtle: palette.blue[200],
   },
   secondary: {
     default: palette.teal[500],
@@ -75,6 +78,7 @@ const darkColors: SemanticColors = {
     pressed: palette.teal[200],
     subtle: palette.teal[900],
     contrast: palette.gray[950],
+    onSubtle: palette.teal[200],
   },
   neutral: {
     default: palette.gray[300],
@@ -84,7 +88,7 @@ const darkColors: SemanticColors = {
   },
   success: { default: palette.green[500], subtle: palette.green[900], border: palette.green[700], text: palette.green[200] },
   warning: { default: palette.amber[500], subtle: palette.amber[900], border: palette.amber[600], text: palette.amber[200] },
-  error: { default: palette.red[500], subtle: palette.red[900], border: palette.red[700], text: palette.red[200] },
+  error: { default: palette.red[500], subtle: palette.red[900], border: palette.red[700], text: palette.red[200], contrast: palette.gray[950] },
   information: { default: palette.cyan[500], subtle: palette.cyan[900], border: palette.cyan[700], text: palette.cyan[200] },
   background: { primary: palette.gray[900], secondary: palette.gray[950], inverse: palette.gray[0] },
   surface: { primary: palette.gray[800], secondary: palette.gray[900], elevated: palette.gray[700], inverse: palette.gray[0] },
@@ -122,6 +126,7 @@ const sepiaColors: SemanticColors = {
     pressed: palette.sepia[900],
     subtle: palette.sepia[100],
     contrast: palette.sepia[50],
+    onSubtle: palette.sepia[900],
   },
   neutral: {
     default: palette.sepia[600],

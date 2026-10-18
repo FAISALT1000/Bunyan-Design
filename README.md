@@ -59,6 +59,8 @@ See [docs/SETUP.md](docs/SETUP.md#generated-setup).
   `minMax()`, `noEmojis()`, and `onlyArabicAlphabetic()`.
 - `List<T>`: renders any component per data item (`Component`, `data`,
   `formatItem`, `shareProps`, columns, dividers, loading and empty states).
+- [docs/PLATFORM_DESIGN.md](docs/PLATFORM_DESIGN.md): iOS/Android component styles,
+  typography mappings, tonal action colors, and accessibility behavior.
 - [docs/RESPONSIVE.md](docs/RESPONSIVE.md): `useResponsive()`, breakpoint maps,
   `s/vs/ms` scaling, and `createTheme`/`createThemes` for each project's own tokens.
 - [docs/AI_PROMPTS.md](docs/AI_PROMPTS.md): prompts that teach AI assistants to

@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   Text,
+  TabBar,
   androidPlatformTokens,
   iosPlatformTokens,
   resolvePlatformToken,
@@ -68,6 +69,20 @@ describe('cross-platform foundation', () => {
       shadowOpacity: 0.12,
       shadowRadius: 8,
     });
+  });
+
+  it('adapts button shape while preserving platform touch targets', () => {
+    const view = renderWithTheme(<Button title="Continue" testID="button" />, { platform: 'android' });
+    expect(screen.getByTestId('button')).toHaveStyle({ borderRadius: 999, minHeight: 48 });
+    view.unmount();
+    renderWithTheme(<Button title="Continue" testID="button" />, { platform: 'ios' });
+    expect(screen.getByTestId('button')).toHaveStyle({ borderRadius: 8, minHeight: 44 });
+  });
+
+  it('keeps navigation labels and selection semantics on Android', () => {
+    renderWithTheme(<TabBar items={[{ key: 'home', icon: 'home', label: 'Home', testID: 'home' }]} activeKey="home" onChange={jest.fn()} />, { platform: 'android' });
+    expect(screen.getByTestId('home').props.accessibilityState.selected).toBe(true);
+    expect(screen.getByText('Home')).toHaveStyle({ fontSize: 12 });
   });
 
   it('does not impose a design-system ceiling on system text scaling', () => {

@@ -1,3 +1,4 @@
+import { androidTypography, iosTypography } from './typography';
 import {
   borderWidth,
   componentHeight,
@@ -16,6 +17,11 @@ const sharedPlatformTokens: PlatformTokens = {
   touchTarget: {
     minimum: componentHeight.md,
   },
+  components: {
+    button: { corner: 'rounded', secondaryStyle: 'filled', labelVariant: 'labelMedium' },
+    tabBar: { minimumHeight: 56, activeIndicator: false, iconSize: 'md', labelVariant: 'micro' },
+  },
+  typography: {},
   interaction: {
     pressFeedback: 'opacity',
     pressedOpacity: opacity.strong,
@@ -41,6 +47,7 @@ const sharedPlatformTokens: PlatformTokens = {
 
 export const iosPlatformTokens: PlatformTokens = {
   ...sharedPlatformTokens,
+  typography: iosTypography,
   touchTarget: {
     minimum: componentHeight.md,
   },
@@ -85,6 +92,11 @@ export const iosPlatformTokens: PlatformTokens = {
 
 export const androidPlatformTokens: PlatformTokens = {
   ...sharedPlatformTokens,
+  typography: androidTypography,
+  components: {
+    button: { corner: 'full', secondaryStyle: 'tonal', labelVariant: 'labelLarge' },
+    tabBar: { minimumHeight: 80, activeIndicator: true, iconSize: 'lg', labelVariant: 'labelMedium' },
+  },
   touchTarget: {
     minimum: 48,
   },

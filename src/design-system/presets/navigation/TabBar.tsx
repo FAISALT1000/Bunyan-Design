@@ -39,7 +39,7 @@ export interface TabBarProps {
   testID?: string;
 }
 
-/** The tab bar's own height without the safe area, for toasts / FAB offsets. */
+/** Shared/iOS baseline without safe area. For platform offsets use platformTokens.components.tabBar.minimumHeight. */
 export const TAB_BAR_HEIGHT = 56;
 
 const badgeView = (badge: TabBarBadge | undefined) => {
@@ -69,7 +69,8 @@ export const TabBar = memo(function TabBar({
   safeArea = true,
   testID,
 }: TabBarProps) {
-  const { theme, direction } = useTheme();
+  const { theme, direction, platformTokens } = useTheme();
+  const tokens = platformTokens.components.tabBar;
   const insets = useSafeArea();
   const t = useText();
   const visible = items.filter(Boolean) as TabBarItem[];
@@ -92,7 +93,7 @@ export const TabBar = memo(function TabBar({
       <View
         style={[
           logicalRow(direction),
-          { minHeight: TAB_BAR_HEIGHT, alignItems: 'stretch' },
+          { minHeight: tokens.minimumHeight, alignItems: 'stretch' },
           floating ? {
             borderRadius: theme.radius.xl,
             backgroundColor: theme.color.surface.elevated,
@@ -103,7 +104,10 @@ export const TabBar = memo(function TabBar({
         {visible.map(item => {
           const selected = item.key === activeKey;
           const label = t(item.labelLocalize ? { localeKey: item.labelLocalize, fallback: t(item.label) ?? item.key } : item.label);
-          const color = selected ? theme.color.primary.default : theme.color.text.tertiary;
+          const color = selected ? theme.color.text.link : theme.color.text.secondary;
+          const iconColor = selected && tokens.activeIndicator
+            ? theme.color.primary.onSubtle ?? theme.color.text.primary
+            : color;
           const badgeLabel = typeof item.badge === 'number' && item.badge > 0
             ? String(item.badge)
             : typeof item.badge === 'object' && item.badge.count ? String(item.badge.count) : undefined;
@@ -116,11 +120,19 @@ export const TabBar = memo(function TabBar({
               onPress={() => onChange(item.key)}
               {...(onLongPress ? { onLongPress: () => onLongPress(item.key) } : {})}
               {...(item.testID ? { testID: item.testID } : {})}
-              baseStyle={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: theme.spacing.xs, gap: 2 }}
+              baseStyle={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: theme.spacing.xs, borderWidth: platformTokens.interaction.focusRingWidth, borderColor: theme.color.overlay.transparent, gap: 2 }}
               pressedStyle={{ opacity: theme.opacity.pressed }}
+              focusedStyle={{ borderColor: theme.color.border.focus, borderWidth: platformTokens.interaction.focusRingWidth }}
             >
-              <Box>
-                <Icon name={selected && item.activeIcon ? item.activeIcon : item.icon} size="md" color={color} />
+              <Box internalStyle={tokens.activeIndicator ? {
+                minWidth: 64,
+                minHeight: 32,
+                borderRadius: theme.radius.pill,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: selected ? theme.color.primary.subtle : theme.color.overlay.transparent,
+              } : {}}>
+                <Icon name={selected && item.activeIcon ? item.activeIcon : item.icon} size={tokens.iconSize} color={iconColor} />
                 {item.badge !== undefined ? (
                   <View style={{ position: 'absolute', top: -4, ...(direction === 'rtl' ? { left: -8 } : { right: -8 }) }}>
                     {badgeView(item.badge)}
@@ -128,7 +140,7 @@ export const TabBar = memo(function TabBar({
                 ) : null}
               </Box>
               {showLabels && label ? (
-                <Text value={label} variant="micro" weight={selected ? 'semibold' : 'medium'} internalColor={color} numberOfLines={1} />
+                <Text value={label} variant={tokens.labelVariant} weight={selected ? 'semibold' : 'medium'} internalColor={color} align="center" />
               ) : null}
             </BasePressable>
           );

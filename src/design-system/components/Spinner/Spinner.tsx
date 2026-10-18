@@ -9,6 +9,8 @@ export interface SpinnerProps {
   size?: 'small' | 'large';
   label?: string;
   tone?: 'primary' | 'inverse';
+  /** Foreground supplied by a containing semantic component. */
+  color?: string;
   showLabel?: boolean;
   accessible?: boolean;
 }
@@ -17,13 +19,14 @@ export const Spinner = memo(function Spinner({
   size = 'small',
   label: labelProp,
   tone = 'primary',
+  color: colorOverride,
   showLabel = true,
   accessible = true,
 }: SpinnerProps) {
   const strings = useStrings();
   const label = labelProp ?? strings('loading');
   const { theme } = useTheme();
-  const color = tone === 'inverse' ? theme.color.text.inverse : theme.color.primary.default;
+  const color = colorOverride ?? (tone === 'inverse' ? theme.color.text.inverse : theme.color.primary.default);
   return (
     <View
       accessible={accessible}

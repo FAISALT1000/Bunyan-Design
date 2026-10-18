@@ -30,7 +30,7 @@ export const RNModal = createThemedComponent(Native.Modal, { displayName: 'RNThe
 
 export const RNText = createThemedComponent(Native.Text, {
   displayName: 'RNTheme.Text',
-  defaultProps: () => ({ allowFontScaling: true, maxFontSizeMultiplier: 2 }),
+  defaultProps: () => ({ allowFontScaling: true }),
   baseStyle: ({ theme, direction }) => ({
     color: theme.color.text.primary,
     fontFamily: fontFamilyFor(direction, theme.typography.fontFamily),
@@ -42,7 +42,6 @@ export const TextInput = createThemedComponent(Native.TextInput, {
   displayName: 'RNTheme.TextInput',
   defaultProps: ({ theme }) => ({
     allowFontScaling: true,
-    maxFontSizeMultiplier: 2,
     placeholderTextColor: theme.color.text.tertiary,
     selectionColor: theme.color.primary.default,
     cursorColor: theme.color.primary.default,

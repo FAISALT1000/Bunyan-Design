@@ -1,3 +1,5 @@
+import type { DesignSystemPlatform } from '../platform/platform.types';
+import type { PlatformTypography } from '../platform/typography';
 import type { TextStyle } from '../components/RNTheme/native';
 import type { tokens } from '../tokens';
 import type { TextVariant } from '../tokens/typography.types';
@@ -12,6 +14,8 @@ export interface SemanticColors {
     pressed: string;
     subtle: string;
     contrast: string;
+    /** Foreground for the subtle/tonal container. */
+    onSubtle?: string;
   };
   secondary: {
     default: string;
@@ -19,6 +23,8 @@ export interface SemanticColors {
     pressed: string;
     subtle: string;
     contrast: string;
+    /** Foreground for the subtle/tonal container. */
+    onSubtle?: string;
   };
   neutral: {
     default: string;
@@ -28,7 +34,7 @@ export interface SemanticColors {
   };
   success: { default: string; subtle: string; border: string; text: string };
   warning: { default: string; subtle: string; border: string; text: string };
-  error: { default: string; subtle: string; border: string; text: string };
+  error: { default: string; subtle: string; border: string; text: string; contrast?: string };
   information: { default: string; subtle: string; border: string; text: string };
   background: { primary: string; secondary: string; inverse: string };
   surface: { primary: string; secondary: string; elevated: string; inverse: string };
@@ -55,6 +61,8 @@ export type WidenTokens<T> = T extends string
 type Typography = typeof tokens.typography;
 
 export interface ThemeTypography extends Omit<WidenTokens<Typography>, 'fontWeight'> {
+  /** Explicit platform role metrics override proportional primitive sizing. */
+  platformStyles?: Partial<Record<DesignSystemPlatform, PlatformTypography>>;
   /** Kept as React Native font-weight values so it can be passed straight to `fontWeight`. */
   readonly fontWeight: { readonly [K in keyof Typography['fontWeight']]: NonNullable<TextStyle['fontWeight']> };
 }

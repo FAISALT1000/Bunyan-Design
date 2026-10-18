@@ -1,3 +1,4 @@
+import { resolveTextMetrics } from '../../platform';
 import React, {
   memo,
   useCallback,
@@ -67,7 +68,7 @@ export const BaseFloatingField = memo(function BaseFloatingField({
   testID,
   labelTestID,
 }: BaseFloatingFieldProps) {
-  const { direction, platformTokens, theme } = useTheme();
+  const { direction, platform, platformTokens, theme } = useTheme();
   const tokens = theme.components.inputField;
   const variantTokens = tokens.variants[variant];
   const labelProgress = useRef(new Animated.Value(floating ? 1 : 0)).current;
@@ -78,7 +79,7 @@ export const BaseFloatingField = memo(function BaseFloatingField({
     () => Easing.bezier(...tokens.animationEasing),
     [tokens.animationEasing],
   );
-  const lineHeight = theme.typography.lineHeight.md;
+  const lineHeight = resolveTextMetrics(theme, platform, platformTokens, 'bodyLarge').lineHeight;
   // Centre line of the content row (value text, leading and trailing icons).
   // Starts from the token-based estimate and follows the measured row.
   const [contentCenter, setContentCenter] = useState<number>(
